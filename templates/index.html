@@ -1762,11 +1762,13 @@
 
             <!-- Calendar Links -->
             <div class="flex items-center space-x-1 w-full pt-1">
-              <a href="/api/events/${ev.id}/calendar.ics" download class="bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-[10px] px-2 py-1 rounded text-center flex-1 font-semibold" title="Download .ics">
-                .ICS
+              <a href="/api/events/${ev.id}/calendar.ics" download class="bg-gray-50 hover:bg-gray-100 text-gray-800 border border-gray-300 text-[10px] px-2 py-1 rounded text-center flex-1 font-semibold flex items-center justify-center space-x-1" title="Apple Calendar / iPhone / iOS (.ics)">
+                <span>🍏</span>
+                <span>iPhone (.ics)</span>
               </a>
-              <a href="${ev.google_calendar_url}" target="_blank" rel="noopener noreferrer" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-[10px] px-2 py-1 rounded text-center flex-1 font-semibold" title="Add to Google Calendar">
-                Google Cal
+              <a href="${ev.google_calendar_url}" target="_blank" rel="noopener noreferrer" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-[10px] px-2 py-1 rounded text-center flex-1 font-semibold flex items-center justify-center space-x-1" title="Google Calendar / Android">
+                <span>📅</span>
+                <span>Android / Google</span>
               </a>
               <button onclick="deleteEvent('${ev.id}')" class="text-red-500 hover:text-red-700 p-1 rounded" title="Delete">
                 🗑️

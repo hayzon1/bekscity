@@ -304,7 +304,7 @@ def blank_slot(date_obj, nth, total):
 def card_rows(e, base_url=None):
     """Field layout of one card. kind: 'text' (wrapping multiline), 'time' (single line), 'combo' (dropdown)."""
     has_ics = is_confirmed(e) and bool(ics_url(e, base_url))
-    notes_w = 250 if has_ics else 340
+    notes_w = 230 if has_ics else 340
     F = lambda key, lab, x, w, size, text, kind="text": dict(
         key=key, label=lab, x=x, w=w, size=size, text=text, kind=kind
     )
@@ -350,42 +350,6 @@ def draw_header(c, title, sub, master_ics_url=None):
     c.setFont(FONT, 9.5)
     c.setFillColor(HexColor("#cfcfd6"))
     c.drawString(40, H - 70, sub)
-
-    # ADD ALL CONFIRMED RUNS TO CALENDAR BUTTON (WITH REMINDERS)
-    if master_ics_url:
-        bx = 328
-        by = H - 74
-        bw = 244
-        bh = 38
-        # Button background: rich dark emerald green with gold border
-        c.setFillColor(HexColor("#1e5e42"))
-        c.setStrokeColor(HexColor("#D9A441"))
-        c.setLineWidth(1.2)
-        c.roundRect(bx, by, bw, bh, 6, fill=1, stroke=1)
-
-        # Vector calendar icon
-        ix, iy, isize = bx + 10, by + 18, 12
-        c.setStrokeColor(white)
-        c.setLineWidth(1)
-        c.roundRect(ix, iy, isize, isize, 2, fill=0, stroke=1)
-        c.setFillColor(HexColor("#D9A441"))
-        c.rect(ix, iy + isize - 3.5, isize, 3.5, fill=1, stroke=0)
-        c.setFillColor(white)
-        c.circle(ix + 3, iy + isize + 0.5, 0.8, fill=1, stroke=0)
-        c.circle(ix + isize - 3, iy + isize + 0.5, 0.8, fill=1, stroke=0)
-
-        # Button title
-        c.setFillColor(white)
-        c.setFont(FONTB, 7.8)
-        c.drawString(bx + 28, by + 22, "ADD ALL CONFIRMED RUNS TO CALENDAR")
-
-        # Subtitle: reminders & timezone
-        c.setFillColor(HexColor("#FEF3C7"))
-        c.setFont(FONT, 6.8)
-        c.drawString(bx + 14, by + 9, "Tap to sync all runs • 3 Reminders (5d, 3d, 7h) • WAT")
-
-        # Clickable PDF URI link
-        c.linkURL(master_ics_url, (bx, by, bx + bw, by + bh), relative=0)
 
 def draw_field(form, name, x, y, w, h=18, value="", size=9, fill=white, border=LINE, multi=True):
     form.textfield(
@@ -478,19 +442,31 @@ def draw_card(c, form, top, n, total, e, custom_date_color=None, custom_cat_colo
     if confirmed:
         single_ics_link = ics_url(e, base_url)
         if single_ics_link:
-            c.setFillColor(INK)
-            c.roundRect(370, by, 84, 18, 4, fill=1, stroke=0)
+            # Button explicitly for iPhone / Apple Calendar (.ics)
+            c.setFillColor(HexColor("#1e293b"))
+            c.setStrokeColor(HexColor("#475569"))
+            c.setLineWidth(0.8)
+            c.roundRect(354, by - 1, 100, 20, 4, fill=1, stroke=1)
             c.setFillColor(white)
-            c.setFont(FONTB, 6.8)
-            c.drawCentredString(412, by + 6, "DOWNLOAD .ICS")
-            c.linkURL(single_ics_link, (370, by, 454, by + 18), relative=0)
+            c.setFont(FONTB, 6.6)
+            c.drawCentredString(404, by + 9, "IPHONE (APPLE)")
+            c.setFillColor(HexColor("#cbd5e1"))
+            c.setFont(FONT, 5.2)
+            c.drawCentredString(404, by + 2.5, ".ics + Reminders")
+            c.linkURL(single_ics_link, (354, by - 1, 454, by + 19), relative=0)
 
+        # Button explicitly for Google Calendar / Android
         c.setFillColor(ACC)
-        c.roundRect(462, by, 100, 18, 4, fill=1, stroke=0)
+        c.setStrokeColor(HexColor("#B8860B"))
+        c.setLineWidth(0.8)
+        c.roundRect(462, by - 1, 100, 20, 4, fill=1, stroke=1)
         c.setFillColor(white)
-        c.setFont(FONTB, 6.8)
-        c.drawCentredString(512, by + 6, "+ ADD TO CALENDAR")
-        c.linkURL(gcal_url(e), (462, by, 562, by + 18), relative=0)
+        c.setFont(FONTB, 6.6)
+        c.drawCentredString(512, by + 9, "GOOGLE / ANDROID")
+        c.setFillColor(HexColor("#1e293b"))
+        c.setFont(FONT, 5.2)
+        c.drawCentredString(512, by + 2.5, "Google Cal • WAT")
+        c.linkURL(gcal_url(e), (462, by - 1, 562, by + 19), relative=0)
     else:
         c.setFillColor(MUTE)
         c.setFont("Helvetica-Oblique", 7)
@@ -674,9 +650,9 @@ def build_calendar_pdf(
             "Every Saturday morning: 6:45 check-in, 7:00 warm-up, 7:15 run, 8:15 cooldown, 8:30 coffee and social. Evening or special events show their own times on their card.",
             "Four event types each month: Community Improvement, Sponsor Run, Signature Event, Community Challenge.",
             "A fifth Saturday is an optional extra slot, left open until organisers confirm it.",
-            "Tap 'ADD ALL CONFIRMED RUNS TO CALENDAR' in the header to sync all confirmed runs into Apple Calendar, Google Calendar, or Outlook with 3 automated reminders (5 days, 3 days, 7 hours prior) in Africa/Lagos (WAT, UTC+1)."
+            "Add all confirmed Saturday runs directly to your phone calendar with 3 automated reminders (5 days, 3 days, 7 hours prior) in Africa/Lagos (WAT, UTC+1):"
         ]
-        bh = 38 + sum(para_lines("-  " + t, 500, 9.5) * 13 + 3 for t in RHYTHM) + 32
+        bh = 38 + sum(para_lines("-  " + t, 500, 9.5) * 13 + 3 for t in RHYTHM) + 34
         c.setFillColor(SOFT)
         c.roundRect(40, y - bh, 532, bh, 8, fill=1, stroke=0)
         c.setFillColor(INK)
@@ -686,22 +662,42 @@ def build_calendar_pdf(
         for t in RHYTHM:
             yy = draw_para(c, "-  " + t, 54, yy, 500, 9.5, 13) - 3
 
-        # Dedicated action button inside Page 1 Rhythm card
+        # Dedicated 1 strategic action block inside Page 1 Rhythm card
         btn_y = y - bh + 8
+        bw = 246
+        # Left button: For iPhone / Apple Calendar
         c.setFillColor(HexColor("#1e5e42"))
         c.setStrokeColor(HexColor("#D9A441"))
         c.setLineWidth(1)
-        c.roundRect(54, btn_y, 504, 22, 4, fill=1, stroke=1)
+        c.roundRect(54, btn_y, bw, 25, 4, fill=1, stroke=1)
         c.setFillColor(white)
-        c.setFont(FONTB, 8.5)
-        c.drawCentredString(54 + 252, btn_y + 6.5, "+ ADD ALL CONFIRMED RUNS TO MY CALENDAR (WITH 3 REMINDERS)")
+        c.setFont(FONTB, 8)
+        c.drawCentredString(54 + bw/2, btn_y + 14, "FOR IPHONE (APPLE CALENDAR)")
+        c.setFillColor(HexColor("#FEF3C7"))
+        c.setFont(FONT, 6.4)
+        c.drawCentredString(54 + bw/2, btn_y + 4.5, "Tap to sync all runs (.ics) • 3 Reminders (5d, 3d, 7h)")
         if master_ics_url:
-            c.linkURL(master_ics_url, (54, btn_y, 558, btn_y + 22), relative=0)
+            c.linkURL(master_ics_url, (54, btn_y, 54 + bw, btn_y + 25), relative=0)
+
+        # Right button: For Google Calendar / Android
+        c.setFillColor(HexColor("#1e293b"))
+        c.setStrokeColor(HexColor("#D9A441"))
+        c.setLineWidth(1)
+        c.roundRect(312, btn_y, bw, 25, 4, fill=1, stroke=1)
+        c.setFillColor(white)
+        c.setFont(FONTB, 8)
+        c.drawCentredString(312 + bw/2, btn_y + 14, "FOR GOOGLE CALENDAR / ANDROID")
+        c.setFillColor(HexColor("#FEF3C7"))
+        c.setFont(FONT, 6.4)
+        c.drawCentredString(312 + bw/2, btn_y + 4.5, "Tap to sync all runs • 3 Reminders (5d, 3d, 7h)")
+        if master_ics_url:
+            gcal_all_url = f"https://calendar.google.com/calendar/r?cid={quote(master_ics_url)}" if master_ics_url.startswith("http") else master_ics_url
+            c.linkURL(gcal_all_url, (312, btn_y, 312 + bw, btn_y + 25), relative=0)
 
         c.showPage()
 
         # ------------------------------------------------------------------ PAGE 2: MONTHLY EVENT STRUCTURE GUIDE
-        draw_header(c, "MONTHLY EVENT STRUCTURE", f"Four pillars of {CLUB}", master_ics_url=master_ics_url)
+        draw_header(c, "MONTHLY EVENT STRUCTURE", f"Four pillars of {CLUB}")
         PILLARS = [
             ("Community Improvement", "Improve technique, confidence, consistency and personal performance.",
              "Beginner-friendly runs and PB work, drills and form coaching, individual goals, monthly progress check-ins (distance or time), short talks on nutrition, recovery and injury prevention."),
@@ -725,21 +721,6 @@ def build_calendar_pdf(
             yy = draw_para(c, purpose, 58, y - 38, 500, 9.5, 12, font=FONTB, col=INK)
             draw_para(c, acts, 58, yy - 4, 500, 9, 12)
             y -= h + 20
-
-        # Action banner at bottom of Page 2
-        p2_by = 48
-        c.setFillColor(HexColor("#1e5e42"))
-        c.setStrokeColor(HexColor("#D9A441"))
-        c.setLineWidth(1.2)
-        c.roundRect(40, p2_by, 532, 34, 6, fill=1, stroke=1)
-        c.setFillColor(white)
-        c.setFont(FONTB, 9)
-        c.drawCentredString(306, p2_by + 19, "+ ADD ALL CONFIRMED SATURDAY RUNS TO YOUR CALENDAR")
-        c.setFillColor(HexColor("#FEF3C7"))
-        c.setFont(FONT, 7.5)
-        c.drawCentredString(306, p2_by + 7, "Tap to sync all runs with 3 automated reminders (5 days, 3 days, 7 hours prior) in Africa/Lagos (WAT)")
-        if master_ics_url:
-            c.linkURL(master_ics_url, (40, p2_by, 572, p2_by + 34), relative=0)
 
         c.showPage()
 

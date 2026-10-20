@@ -428,24 +428,31 @@ class TestBekscitySystem(unittest.TestCase):
             reader = pypdf.PdfReader(tmp_pdf_path)
             self.assertGreaterEqual(len(reader.pages), 3)
 
-            # Check for link annotations pointing to test_master_url across all pages
-            total_master_links = 0
-            for idx, page in enumerate(reader.pages):
-                annots = page.get("/Annots") or []
-                for a in annots:
-                    obj = a.get_object()
-                    if obj.get("/Subtype") == "/Link":
-                        action = obj.get("/A")
-                        if action and action.get("/URI") == test_master_url:
-                            total_master_links += 1
+            # Page 1 contains the 1 strategic sync action block for iPhone and Android
+            p1_annots = reader.pages[0].get("/Annots") or []
+            p1_links = []
+            for a in p1_annots:
+                obj = a.get_object()
+                if obj.get("/Subtype") == "/Link":
+                    action = obj.get("/A")
+                    if action and action.get("/URI"):
+                        p1_links.append(str(action.get("/URI")))
 
-            # Header appears on every page, plus dedicated buttons on Page 1 & Page 2
-            self.assertGreaterEqual(total_master_links, len(reader.pages), "Each page should have at least the header link to master .ics")
+            # Must contain link to master_ics_url for iPhone
+            self.assertTrue(any(test_master_url in l for l in p1_links), "Page 1 missing iPhone master .ics sync link")
+            # Must contain Google Calendar sync link
+            self.assertTrue(any("calendar.google.com" in l for l in p1_links), "Page 1 missing Google Calendar sync link")
 
-            # Verify reminder notice text extracted from PDF
-            full_text = " ".join(page.extract_text() for page in reader.pages)
-            self.assertIn("ADD ALL CONFIRMED RUNS TO CALENDAR", full_text)
-            self.assertIn("3 Reminders (5d, 3d, 7h)", full_text)
+            # Verify text on Page 1 explicitly mentions iPhone and Android
+            p1_text = reader.pages[0].extract_text()
+            self.assertIn("FOR IPHONE (APPLE CALENDAR)", p1_text)
+            self.assertIn("FOR GOOGLE CALENDAR / ANDROID", p1_text)
+            self.assertIn("3 Reminders (5d, 3d, 7h)", p1_text)
+
+            # Month pages must have clear device-specific buttons on confirmed run cards
+            p3_text = reader.pages[2].extract_text()
+            self.assertIn("IPHONE (APPLE)", p3_text)
+            self.assertIn("GOOGLE / ANDROID", p3_text)
 
             # Also verify via Flask test client with master_ics_url query param
             from app import app
