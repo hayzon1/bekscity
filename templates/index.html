@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BEKSCITY RUN CLUB — Event Manager</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              gold: '#D9A441',
+              goldLight: '#FEF3C7',
+              goldDark: '#B88628',
+              green: '#287D58',
+              greenLight: '#D1FAE5',
+              greenDark: '#1E5E42',
+              charcoal: '#1A1D20',
+              slate: '#25292E',
+              cream: '#FDFBF7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #F8FAFC; color: #0F172A; }
+    .badge-signature { background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+    .badge-challenge { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+    .badge-sponsor { background-color: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+    .badge-improvement { background-color: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; }
+    
+    .status-confirmed { background-color: #DCFCE7; color: #15803D; font-weight: 600; }
+    .status-planning { background-color: #FEF9C3; color: #A16207; font-weight: 600; }
+    .status-tbc { background-color: #F1F5F9; color: #475569; font-weight: 600; }
+    .status-cancelled { background-color: #FEE2E2; color: #B91C1C; font-weight: 600; text-decoration: line-through; }
+    
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-brand-gold selection:text-white">
+
+  <!-- TOP BRAND NOTIFICATION & SCHEDULE BANNER -->
+  <div class="bg-brand-charcoal text-white text-xs px-4 py-1.5 flex flex-wrap justify-between items-center border-b border-gray-800">
+    <div class="flex items-center space-x-3">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="font-medium tracking-wide">STANDARD RUN SCHEDULE: 06:45 Gathering • 07:00 Warm-up • 07:15 Departs • 08:30 Social</span>
+    </div>
+    <div class="flex items-center space-x-4">
+      <span>Timezone: <strong class="text-brand-gold">Africa/Lagos (WAT, UTC+1)</strong></span>
+      <span>•</span>
+      <button onclick="openDistrictModal()" class="text-gray-300 hover:text-white underline">District Operations & Checklist</button>
+    </div>
+  </div>
+
+  <!-- MAIN HEADER -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 rounded-xl bg-brand-charcoal flex items-center justify-center text-brand-gold font-display font-black text-xl shadow-md border-2 border-brand-gold">
+          BC
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-xl sm:text-2xl font-display font-extrabold tracking-tight text-gray-900">
+              BEKSCITY RUN CLUB
+            </h1>
+            <span class="bg-brand-gold text-gray-900 text-xs px-2 py-0.5 rounded font-bold uppercase tracking-wider">Event Manager</span>
+          </div>
+          <p class="text-xs text-gray-500 font-medium">Abeokuta, Nigeria • Run. Improve. Connect. • Persistent Calendar System</p>
+        </div>
+      </div>
+
+      <!-- Live Statistics Counter -->
+      <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
+        <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg flex flex-col items-center">
+          <span class="text-emerald-800 font-extrabold text-sm" id="stat-confirmed">0</span>
+          <span class="text-emerald-600 text-[10px] uppercase font-bold tracking-wider">Confirmed</span>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg flex flex-col items-center">
+          <span class="text-amber-800 font-extrabold text-sm" id="stat-planning">0</span>
+          <span class="text-amber-600 text-[10px] uppercase font-bold tracking-wider">Planning</span>
+        </div>
+        <div class="bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-lg flex flex-col items-center">
+          <span class="text-gray-700 font-extrabold text-sm" id="stat-total">0</span>
+          <span class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Total</span>
+        </div>
+      </div>
+
+      <!-- Primary Action Buttons -->
+      <div class="flex items-center flex-wrap gap-2">
+        
+        <!-- Add All Confirmed Events to Calendar (Primary Hero Action) -->
+        <div class="relative inline-block text-left" id="calendar-dropdown-container">
+          <button onclick="toggleCalendarDropdown()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 rounded-lg font-bold text-xs sm:text-sm shadow flex items-center space-x-1.5 transition-colors focus:ring-2 focus:ring-emerald-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Add All Confirmed Runs to Calendar</span>
+            <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          
+          <div id="calendar-dropdown" class="hidden absolute right-0 mt-2 w-72 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
+            <div class="p-3 bg-emerald-50 rounded-t-xl">
+              <p class="text-xs font-bold text-emerald-900">Add to Personal Calendar</p>
+              <p class="text-[11px] text-emerald-700">Includes 3 reminders (1 day, 2 hours, 15 min prior) with Africa/Lagos timezone.</p>
+            </div>
+            <div class="py-1">
+              <a href="/api/calendar.ics" download="bekscity_confirmed_runs.ics" class="group flex items-center px-4 py-2.5 text-xs text-gray-700 hover:bg-emerald-50 hover:text-emerald-900">
+                <span class="mr-3 text-base">🍏</span>
+                <div>
+                  <p class="font-bold">Apple Calendar / iOS / macOS</p>
+                  <p class="text-[10px] text-gray-500">Download .ics master file with auto-reminders</p>
+                </div>
+              </a>
+              <a href="/api/calendar.ics" download="bekscity_confirmed_runs.ics" class="group flex items-center px-4 py-2.5 text-xs text-gray-700 hover:bg-emerald-50 hover:text-emerald-900">
+                <span class="mr-3 text-base">📅</span>
+                <div>
+                  <p class="font-bold">Google Calendar / Outlook / Android</p>
+                  <p class="text-[10px] text-gray-500">Import .ics into Google Calendar or Outlook</p>
+                </div>
+              </a>
+            </div>
+            <div class="p-2.5 bg-gray-50 rounded-b-xl text-[11px] text-gray-600">
+              <span class="font-bold text-gray-800">Tip:</span> Confirmed runs regenerate automatically whenever you update event records.
+            </div>
+          </div>
+        </div>
+
+        <!-- Download PDF Calendar -->
+        <button onclick="openPdfModal()" class="bg-white border border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm shadow-sm flex items-center space-x-1.5 transition-colors">
+          <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/></svg>
+          <span>Download PDF Calendar</span>
+        </button>
+
+        <!-- + ADD NEW EVENT (Prominent Primary Button) -->
+        <button onclick="openEventModal()" class="bg-brand-gold hover:bg-brand-goldDark text-gray-950 px-4 py-2 rounded-lg font-display font-extrabold text-xs sm:text-sm shadow flex items-center space-x-1.5 transition-transform active:scale-95">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          <span>+ ADD NEW EVENT</span>
+        </button>
+
+        <!-- More options (Backup & District) -->
+        <div class="flex items-center space-x-1 border-l border-gray-200 pl-2">
+          <button onclick="openBackupModal()" title="Backup & Restore Data" class="p-2 text-gray-500 hover:text-gray-800 rounded-lg hover:bg-gray-100">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- SECONDARY TOOLBAR: VIEW TOGGLE, MONTH SELECTOR & FILTERS -->
+  <div class="bg-white border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- View Switcher -->
+      <div class="flex items-center bg-gray-100 p-1 rounded-xl">
+        <button id="view-tab-calendar" onclick="switchView('calendar')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-gray-900 shadow-sm">
+          📅 Monthly Calendar View
+        </button>
+        <button id="view-tab-list" onclick="switchView('list')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-600 hover:text-gray-900">
+          📋 Event List View
+        </button>
+      </div>
+
+      <!-- Month & Year Navigation -->
+      <div class="flex items-center space-x-2">
+        <button onclick="changeMonth(-1)" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <span id="current-month-label" class="font-display font-extrabold text-sm sm:text-base text-gray-800 min-w-[140px] text-center">
+          October 2026
+        </span>
+        <button onclick="changeMonth(1)" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <button onclick="resetToCurrentMonth()" class="text-xs text-brand-green font-semibold hover:underline ml-2">Today</button>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="flex items-center flex-wrap gap-2 text-xs">
+        <!-- Status Filter -->
+        <select id="filter-status" onchange="applyFilters()" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-gold">
+          <option value="">All Statuses</option>
+          <option value="CONFIRMED" selected>Confirmed Only</option>
+          <option value="PLANNING">Planning</option>
+          <option value="TBC">TBC</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+
+        <!-- Category Filter -->
+        <select id="filter-category" onchange="applyFilters()" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-gold">
+          <option value="">All Categories</option>
+          <option value="Community Improvement">Community Improvement</option>
+          <option value="Sponsor Run">Sponsor Run</option>
+          <option value="Monthly Signature Event">Monthly Signature Event</option>
+          <option value="Community Challenge">Community Challenge</option>
+        </select>
+
+        <!-- District Filter -->
+        <select id="filter-district" onchange="applyFilters()" class="bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-gold">
+          <option value="">All Districts</option>
+          <option value="MILE DISTRICT">Mile District</option>
+          <option value="PHARMAFIT DISTRICT">Pharmafit District</option>
+          <option value="PANSHEKE DISTRICT">Pansheke District</option>
+          <option value="FUNAAB DISTRICT">Funaab District</option>
+        </select>
+
+        <!-- Search Input -->
+        <div class="relative">
+          <input type="text" id="filter-search" oninput="debounce(applyFilters, 300)()" placeholder="Search runs, venues, sponsors..." class="bg-gray-50 border border-gray-300 rounded-lg pl-7 pr-3 py-1.5 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-gold w-40 sm:w-48">
+          <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+    
+    <!-- FIFTH SATURDAY NOTIFICATION BANNER (When current month has 5 Saturdays) -->
+    <div id="fifth-saturday-banner" class="hidden mb-6 bg-amber-50 border border-amber-300 rounded-xl p-4 flex items-start space-x-3 text-amber-900">
+      <span class="text-xl">⭐</span>
+      <div class="flex-1">
+        <h3 class="font-bold text-sm">Fifth Saturday Planning Slot Detected in this Month!</h3>
+        <p class="text-xs text-amber-800 mt-0.5">
+          This month has 5 Saturdays. Fifth Saturdays are dedicated club planning slots for pop-up runs, special community collaborations, or cross-district challenges. 
+          By club policy, fifth Saturday events remain open planning opportunities until the organiser explicitly confirms them.
+        </p>
+      </div>
+      <button onclick="scheduleFifthSaturday()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm whitespace-nowrap">
+        + Plan 5th Saturday Run
+      </button>
+    </div>
+
+    <!-- CALENDAR GRID VIEW -->
+    <div id="calendar-view" class="space-y-6">
+      
+      <!-- Day-of-week headers -->
+      <div class="grid grid-cols-7 gap-2 text-center text-xs font-display font-extrabold text-gray-600 uppercase tracking-wider py-2 bg-gray-100 rounded-xl">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div class="text-brand-green">Saturday (Club Runs)</div>
+      </div>
+
+      <!-- Calendar Day Cells Grid -->
+      <div id="calendar-grid-cells" class="grid grid-cols-7 gap-2 min-h-[500px]">
+        <!-- Rendered by JS -->
+      </div>
+
+    </div>
+
+    <!-- EVENT LIST VIEW -->
+    <div id="list-view" class="hidden space-y-4">
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <h2 class="font-display font-bold text-lg text-gray-900 flex items-center space-x-2">
+          <span>All Scheduled & Confirmed Runs</span>
+          <span id="list-count-badge" class="bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+        </h2>
+        <div class="text-xs text-gray-500">
+          Showing events matching your filter criteria
+        </div>
+      </div>
+
+      <div id="event-list-container" class="space-y-3">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- EVENT EDIT / CREATE MODAL -->
+  <div id="event-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-gray-200 overflow-hidden transform transition-all">
+      
+      <!-- Modal Header -->
+      <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
+        <div>
+          <h3 id="modal-title" class="font-display font-bold text-lg text-white">Create New Club Event</h3>
+          <p class="text-xs text-gray-400">All changes are saved permanently to the SQLite database.</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span id="modal-event-id" class="text-xs font-mono bg-gray-800 text-brand-gold px-2.5 py-1 rounded">AUTO-ID</span>
+          <button onclick="requestCloseEventModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Form Body -->
+      <form id="event-form" onsubmit="saveEventForm(event)" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto text-xs">
+        <input type="hidden" id="form-event-id" name="id">
+
+        <!-- Row 1: Event Name & Date -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <label class="block font-bold text-gray-700 mb-1">Event Name *</label>
+            <input type="text" id="form-name" required placeholder="e.g. Run and Rumble, Social Run, Hill Run" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Event Date *</label>
+            <input type="date" id="form-date" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Row 2: Category & Status -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Category (Club's 4 Core Formats) *</label>
+            <select id="form-category" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+              <option value="Community Improvement">A. Community Improvement (Form coaching, PB tracking)</option>
+              <option value="Sponsor Run">B. Sponsor Run (Brand partnership, discounts, post-run)</option>
+              <option value="Monthly Signature Event" selected>C. Monthly Signature Event (Flagship, fun runs, social)</option>
+              <option value="Community Challenge">D. Community Challenge (Hills, endurance, buddy-up)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Event Status *</label>
+            <select id="form-status" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+              <option value="CONFIRMED">CONFIRMED (Appears on Master Calendar & ICS)</option>
+              <option value="PLANNING" selected>PLANNING (Under review / internal)</option>
+              <option value="TBC">TBC (Details to be confirmed)</option>
+              <option value="CANCELLED">CANCELLED</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 3: Times, Quick Presets & Timezone -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-gray-700 text-xs">Run Schedule & Times (Africa/Lagos WAT)</span>
+            <div class="space-x-1.5">
+              <button type="button" onclick="applyMorningPreset()" class="text-[11px] bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 px-2 py-1 rounded font-semibold">
+                Set Standard Morning (06:45 – 08:30)
+              </button>
+              <button type="button" onclick="applyEveningPreset()" class="text-[11px] bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 px-2 py-1 rounded font-semibold">
+                Set Evening (16:00 – 21:00)
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-gray-600 mb-1">Start Time</label>
+              <input type="text" id="form-start-time" placeholder="06:45" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-600 mb-1">End Time</label>
+              <input type="text" id="form-end-time" placeholder="08:30" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-600 mb-1">Timezone</label>
+              <input type="text" id="form-timezone" value="Africa/Lagos" readonly class="w-full bg-gray-100 border border-gray-300 rounded-lg p-2 text-gray-500 cursor-not-allowed">
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 4: Meeting Point, Venue & District -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Meeting Point</label>
+            <input type="text" id="form-meeting-point" placeholder="e.g. Moore Junction, OOPL, MKO Stadium" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Venue (Destination / End Point)</label>
+            <input type="text" id="form-venue" placeholder="e.g. Fruit Oasis, OOPL Grounds" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">District</label>
+            <select id="form-district" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+              <option value="ALL DISTRICTS">ALL DISTRICTS (Club-wide)</option>
+              <option value="MILE DISTRICT">MILE DISTRICT</option>
+              <option value="PHARMAFIT DISTRICT">PHARMAFIT DISTRICT</option>
+              <option value="PANSHEKE DISTRICT">PANSHEKE DISTRICT</option>
+              <option value="FUNAAB DISTRICT">FUNAAB DISTRICT</option>
+              <option value="TBC">TBC / Blank</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 5: Sponsors, Partners & Event Lead -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Sponsor</label>
+            <input type="text" id="form-sponsor" placeholder="e.g. Breakfast Club" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Partners (Multiple supported)</label>
+            <input type="text" id="form-partners" placeholder="e.g. Archers Live; Game Experience; Soakers" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Event Lead / Pacer Lead</label>
+            <input type="text" id="form-event-lead" placeholder="e.g. Lead Pacer Dayo, District Coordinator" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Row 6: Distance & Route Stops -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Distance (Optional)</label>
+            <input type="text" id="form-distance" placeholder="e.g. 7 km, 5 km, 10 km" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Route Stops (Optional)</label>
+            <input type="text" id="form-route-stops" placeholder="e.g. 3 stops along the route" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Row 7: Planned Activities -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Planned Activities (Multiline)</label>
+          <textarea id="form-planned-activities" rows="2" placeholder="e.g. 7 km run, three stops along the route, and post-run games." class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+        </div>
+
+        <!-- Row 8: Event Description -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Event Description (Multiline)</label>
+          <textarea id="form-description" rows="3" placeholder="Full narrative description of the event..." class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+        </div>
+
+        <!-- Row 9: Notes -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Internal Notes & Logistics Details</label>
+          <textarea id="form-notes" rows="2" placeholder="Hydration stations, police escort, volunteer roles, speaker setup..." class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="pt-4 border-t border-gray-200 flex justify-between items-center">
+          <div class="text-[11px] text-gray-500">
+            <span id="form-last-updated">Last saved: Never</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button type="button" onclick="requestCloseEventModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 font-semibold">
+              Cancel
+            </button>
+            <button type="submit" id="btn-save-event" class="bg-brand-gold hover:bg-brand-goldDark text-gray-950 px-5 py-2 rounded-lg font-display font-extrabold shadow flex items-center space-x-1.5 transition-transform active:scale-95">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <span>Save Event Permanently</span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- PDF GENERATION & CUSTOMIZER MODAL -->
+  <div id="pdf-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-gray-200 overflow-hidden">
+      <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
+        <h3 class="font-display font-bold text-base text-white">Generate Club Calendar PDF</h3>
+        <button onclick="closePdfModal()" class="text-gray-400 hover:text-white">✕</button>
+      </div>
+      <div class="p-6 space-y-4 text-xs">
+        <p class="text-gray-600">
+          Generates a high-resolution, printable PDF calendar with automatic text wrapping, clickable calendar links, fillable member notes, and district operations reference.
+        </p>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Month</label>
+            <select id="pdf-month" class="w-full border border-gray-300 rounded-lg p-2 font-medium">
+              <option value="10" selected>October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Year</label>
+            <input type="number" id="pdf-year" value="2026" class="w-full border border-gray-300 rounded-lg p-2 font-medium">
+          </div>
+        </div>
+
+        <!-- DATE_TEXT_COLOR Setting -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-2">
+          <label class="block font-bold text-gray-800">
+            Event Date Text Colour (<code class="bg-gray-200 px-1 py-0.5 rounded text-[11px]">DATE_TEXT_COLOR</code>)
+          </label>
+          <div class="flex items-center space-x-3">
+            <input type="color" id="pdf-date-color-picker" value="#D9A441" onchange="syncDateColor(this.value)" class="w-10 h-10 p-0.5 border border-gray-300 rounded-lg cursor-pointer">
+            <input type="text" id="pdf-date-color-hex" value="#D9A441" oninput="syncDateColor(this.value)" placeholder="#D9A441" class="font-mono border border-gray-300 rounded-lg p-2 text-xs flex-1 uppercase">
+          </div>
+          <div class="flex items-center space-x-2 pt-1 text-[11px] text-gray-500">
+            <span>Presets:</span>
+            <button onclick="syncDateColor('#D9A441')" class="underline hover:text-gray-900 font-mono">#D9A441 (Gold)</button>
+            <button onclick="syncDateColor('#287D58')" class="underline hover:text-gray-900 font-mono">#287D58 (Green)</button>
+            <button onclick="syncDateColor('#252525')" class="underline hover:text-gray-900 font-mono">#252525 (Charcoal)</button>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 pt-1">
+          <input type="checkbox" id="pdf-category-accents" class="rounded text-brand-gold">
+          <label for="pdf-category-accents" class="text-gray-700">Use optional category-specific date color accents</label>
+        </div>
+
+        <div class="pt-3 border-t border-gray-200 flex justify-end space-x-2">
+          <button onclick="closePdfModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700">Cancel</button>
+          <button onclick="downloadCalendarPdf()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg flex items-center space-x-1.5 shadow">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/></svg>
+            <span>Download PDF</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DISTRICT OPERATIONS & CLUB INFO MODAL -->
+  <div id="district-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-gray-200 overflow-hidden">
+      <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
+        <div>
+          <h3 class="font-display font-bold text-base text-white">BEKSCITY District Administration & Operations</h3>
+          <p class="text-xs text-brand-gold">Preserved Club Operations, Districts & Equipment Checklist</p>
+        </div>
+        <button onclick="closeDistrictModal()" class="text-gray-400 hover:text-white">✕</button>
+      </div>
+      <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto text-xs">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Districts -->
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2">
+            <h4 class="font-bold text-emerald-950 text-sm">Four Permanent Club Districts</h4>
+            <ul class="space-y-1.5 text-emerald-900">
+              <li><strong>1. MILE DISTRICT:</strong> Hub gathering point, flagship events, official Mile District Flag.</li>
+              <li><strong>2. PHARMAFIT DISTRICT:</strong> Dedicated hill climb & endurance corridor, Pharmfit FUNAAB Flag.</li>
+              <li><strong>3. PANSHEKE DISTRICT:</strong> Central road & speed improvement corridor, pacing teams 1 to 4.</li>
+              <li><strong>4. FUNAAB DISTRICT:</strong> Campus boundary, scenic perimeter runs, student athletic initiatives.</li>
+            </ul>
+          </div>
+
+          <!-- Run Schedule -->
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
+            <h4 class="font-bold text-amber-950 text-sm">Official Saturday Run Timeline</h4>
+            <ul class="space-y-1 text-amber-900">
+              <li>• <strong>06:45 AM:</strong> Gathering, attendance & member check-in</li>
+              <li>• <strong>07:00 AM:</strong> Group warm-up & dynamic stretching</li>
+              <li>• <strong>07:15 AM:</strong> Run begins across pace groups</li>
+              <li>• <strong>08:15 AM:</strong> Run cooldown & recovery drills</li>
+              <li>• <strong>08:30 AM:</strong> Coffee, fresh fruit & social networking</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Operations Checklist (From Official Planning PDF) -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2">
+          <h4 class="font-bold text-gray-900 text-sm">Official Run Planning & Operations Checklist</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-gray-700">
+            <div>
+              <p class="font-bold text-gray-900 mb-1">Volunteers & Team</p>
+              <ul class="space-y-0.5">
+                <li>• Event Driver & Transport Bus</li>
+                <li>• Media Team (Photo & Video)</li>
+                <li>• Content Creators & Ambassadors</li>
+                <li>• Traffic Regulators & Security</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-bold text-gray-900 mb-1">Logistics & Equipment</p>
+              <ul class="space-y-0.5">
+                <li>• Megaphone / Sound System</li>
+                <li>• Generator & Fuel</li>
+                <li>• Walkie-Talkies & Safe Box</li>
+                <li>• BCRC, Mile & Pharmfit Flags</li>
+              </ul>
+            </div>
+            <div>
+              <p class="font-bold text-gray-900 mb-1">Medical & Hospitality</p>
+              <ul class="space-y-0.5">
+                <li>• BP Monitor & First Aid Kit</li>
+                <li>• Bandages, Diclofenac & Glucose</li>
+                <li>• Bottled Water & Energy Snacks</li>
+                <li>• Refreshments & Recovery Fruits</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="bg-gray-100 px-6 py-3 text-right">
+        <button onclick="closeDistrictModal()" class="bg-brand-charcoal hover:bg-black text-white px-4 py-1.5 rounded-lg font-bold text-xs">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKUP & RESTORE MODAL -->
+  <div id="backup-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-gray-200 overflow-hidden">
+      <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
+        <h3 class="font-display font-bold text-base text-white">Backup & Restore Event Data</h3>
+        <button onclick="closeBackupModal()" class="text-gray-400 hover:text-white">✕</button>
+      </div>
+      <div class="p-6 space-y-4 text-xs">
+        <p class="text-gray-600">
+          Saved event records are stored persistently in SQLite. You can export a snapshot backup to JSON or restore from an existing file.
+        </p>
+
+        <!-- Export -->
+        <div class="border border-gray-200 rounded-xl p-3.5 flex justify-between items-center bg-gray-50">
+          <div>
+            <p class="font-bold text-gray-900">Download Data Backup</p>
+            <p class="text-[11px] text-gray-500">Full JSON snapshot of all events & settings</p>
+          </div>
+          <a href="/api/backup" download class="bg-brand-gold hover:bg-brand-goldDark text-gray-900 font-bold px-3 py-1.5 rounded-lg shadow-sm">
+            Export JSON
+          </a>
+        </div>
+
+        <!-- Import -->
+        <div class="border border-gray-200 rounded-xl p-3.5 space-y-2 bg-gray-50">
+          <p class="font-bold text-gray-900">Restore / Import Data</p>
+          <input type="file" id="backup-file-input" accept=".json" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-charcoal file:text-white hover:file:bg-black cursor-pointer">
+          <div class="flex items-center space-x-2 pt-2">
+            <button onclick="uploadBackupFile('merge')" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-800 font-bold px-3 py-1.5 rounded-lg flex-1">
+              Merge with Current
+            </button>
+            <button onclick="uploadBackupFile('replace')" class="bg-red-50 border border-red-300 hover:bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-lg flex-1">
+              Replace All Data
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- APPLICATION LOGIC JS -->
+  <script>
+    let state = {
+      currentYear: 2026,
+      currentMonth: 10, // 10 = October (matches seed events)
+      currentView: 'calendar',
+      events: [],
+      stats: {},
+      settings: { date_text_color: '#D9A441' },
+      isFormDirty: false,
+      editingEventId: null
+    };
+
+    // Category Color Helpers
+    function getCategoryBadgeClass(category) {
+      switch (category) {
+        case 'Community Improvement': return 'badge-improvement';
+        case 'Sponsor Run': return 'badge-sponsor';
+        case 'Monthly Signature Event': return 'badge-signature';
+        case 'Community Challenge': return 'badge-challenge';
+        default: return 'bg-gray-100 text-gray-800';
+      }
+    }
+
+    function getStatusBadgeClass(status) {
+      switch ((status || '').toUpperCase()) {
+        case 'CONFIRMED': return 'status-confirmed';
+        case 'PLANNING': return 'status-planning';
+        case 'TBC': return 'status-tbc';
+        case 'CANCELLED': return 'status-cancelled';
+        default: return 'bg-gray-100 text-gray-800';
+      }
+    }
+
+    // Toast Notification Helper
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-900 border-emerald-500' : 'bg-red-900 border-red-500';
+      toast.className = `${bg} text-white border px-4 py-3 rounded-xl shadow-xl text-xs flex items-center space-x-2 pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0`;
+      toast.innerHTML = `<span>${type === 'success' ? '✓' : '⚠'}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Debounce helper
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    // Toggle Calendar Hero Dropdown
+    function toggleCalendarDropdown() {
+      const dd = document.getElementById('calendar-dropdown');
+      dd.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('calendar-dropdown-container');
+      if (container && !container.contains(e.target)) {
+        document.getElementById('calendar-dropdown').classList.add('hidden');
+      }
+    });
+
+    // Unsaved Changes Dirty State Tracking
+    function markFormDirty() {
+      state.isFormDirty = true;
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+      if (state.isFormDirty) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved event changes that will be lost.';
+      }
+    });
+
+    // Initialize application
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadSettings();
+      await loadStats();
+      await loadEvents();
+      setupFormListeners();
+    });
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data.success) {
+          state.settings = data.settings;
+          syncDateColor(data.settings.date_text_color || '#D9A441');
+        }
+      } catch (e) {
+        console.error('Settings load err:', e);
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        if (data.success) {
+          state.stats = data.stats;
+          document.getElementById('stat-confirmed').innerText = data.stats.confirmed;
+          document.getElementById('stat-planning').innerText = data.stats.planning;
+          document.getElementById('stat-total').innerText = data.stats.total;
+        }
+      } catch (e) {
+        console.error('Stats load err:', e);
+      }
+    }
+
+    async function loadEvents() {
+      try {
+        const status = document.getElementById('filter-status').value;
+        const category = document.getElementById('filter-category').value;
+        const district = document.getElementById('filter-district').value;
+        const search = document.getElementById('filter-search').value;
+
+        const params = new URLSearchParams();
+        if (status) params.append('status', status);
+        if (category) params.append('category', category);
+        if (district) params.append('district', district);
+        if (search) params.append('search', search);
+
+        const res = await fetch(`/api/events?${params.toString()}`);
+        const data = await res.json();
+        if (data.success) {
+          state.events = data.events;
+          renderCurrentView();
+        }
+      } catch (e) {
+        console.error('Events load err:', e);
+      }
+    }
+
+    function applyFilters() {
+      loadEvents();
+    }
+
+    function switchView(view) {
+      state.currentView = view;
+      const tabCal = document.getElementById('view-tab-calendar');
+      const tabList = document.getElementById('view-tab-list');
+      const viewCal = document.getElementById('calendar-view');
+      const viewList = document.getElementById('list-view');
+
+      if (view === 'calendar') {
+        tabCal.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-gray-900 shadow-sm';
+        tabList.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-600 hover:text-gray-900';
+        viewCal.classList.remove('hidden');
+        viewList.classList.add('hidden');
+      } else {
+        tabList.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-gray-900 shadow-sm';
+        tabCal.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-600 hover:text-gray-900';
+        viewList.classList.remove('hidden');
+        viewCal.classList.add('hidden');
+      }
+      renderCurrentView();
+    }
+
+    function changeMonth(delta) {
+      let m = state.currentMonth + delta;
+      let y = state.currentYear;
+      if (m > 12) { m = 1; y++; }
+      if (m < 1) { m = 12; y--; }
+      state.currentMonth = m;
+      state.currentYear = y;
+      updateMonthLabel();
+      renderCurrentView();
+    }
+
+    function resetToCurrentMonth() {
+      // Default to October 2026 for confirmed runs
+      state.currentYear = 2026;
+      state.currentMonth = 10;
+      updateMonthLabel();
+      renderCurrentView();
+    }
+
+    function updateMonthLabel() {
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      document.getElementById('current-month-label').innerText = `${monthNames[state.currentMonth - 1]} ${state.currentYear}`;
+      document.getElementById('pdf-month').value = state.currentMonth;
+      document.getElementById('pdf-year').value = state.currentYear;
+    }
+
+    function renderCurrentView() {
+      updateMonthLabel();
+      if (state.currentView === 'calendar') {
+        renderCalendarGrid();
+      } else {
+        renderListView();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // RENDER MONTHLY CALENDAR GRID
+    // -------------------------------------------------------------------------
+    function renderCalendarGrid() {
+      const container = document.getElementById('calendar-grid-cells');
+      container.innerHTML = '';
+
+      const y = state.currentYear;
+      const m = state.currentMonth;
+
+      // First day of month (0 = Sun, 6 = Sat)
+      const firstDay = new Date(y, m - 1, 1).getDay();
+      const daysInMonth = new Date(y, m, 0).getDate();
+
+      // Check for 5 Saturdays in this month
+      let saturdayCount = 0;
+      for (let d = 1; d <= daysInMonth; d++) {
+        if (new Date(y, m - 1, d).getDay() === 6) {
+          saturdayCount++;
+        }
+      }
+
+      const banner = document.getElementById('fifth-saturday-banner');
+      if (saturdayCount >= 5) {
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      // Blank slots before 1st of month
+      for (let i = 0; i < firstDay; i++) {
+        const blank = document.createElement('div');
+        blank.className = 'bg-gray-50/50 rounded-xl border border-dashed border-gray-200 min-h-[110px] p-2';
+        container.appendChild(blank);
+      }
+
+      // Day cells
+      let currentSatIdx = 0;
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(y, m - 1, day);
+        const dayOfWeek = dateObj.getDay();
+        const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isSaturday = (dayOfWeek === 6);
+
+        if (isSaturday) currentSatIdx++;
+        const isFifthSat = isSaturday && (currentSatIdx === 5);
+
+        // Find events on this date
+        const dayEvents = state.events.filter(e => e.date === dateStr);
+
+        const cell = document.createElement('div');
+        cell.className = `rounded-xl p-2.5 transition-all flex flex-col justify-between min-h-[120px] ${
+          isSaturday ? 'bg-white border-2 border-brand-gold/60 shadow-sm' : 'bg-white border border-gray-200'
+        }`;
+
+        // Date Header
+        const header = document.createElement('div');
+        header.className = 'flex justify-between items-start mb-1.5';
+        
+        // Date number styled with DATE_TEXT_COLOR
+        const dateNum = document.createElement('span');
+        dateNum.className = 'font-display font-black text-base sm:text-lg';
+        dateNum.style.color = state.settings.date_text_color || '#D9A441';
+        dateNum.innerText = day;
+        header.appendChild(dateNum);
+
+        if (isSaturday) {
+          const satPill = document.createElement('span');
+          satPill.className = 'text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ' + (isFifthSat ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800');
+          satPill.innerText = isFifthSat ? '5th Sat' : 'Run Day';
+          header.appendChild(satPill);
+        }
+
+        cell.appendChild(header);
+
+        // Events inside this day cell
+        const eventsContainer = document.createElement('div');
+        eventsContainer.className = 'space-y-1.5 flex-1';
+
+        if (dayEvents.length > 0) {
+          dayEvents.forEach(ev => {
+            const evCard = document.createElement('div');
+            evCard.className = `p-2 rounded-lg text-left cursor-pointer hover:shadow-md transition-shadow border ${getCategoryBadgeClass(ev.category)}`;
+            evCard.onclick = () => openEditEventModal(ev.id);
+
+            evCard.innerHTML = `
+              <div class="flex items-center justify-between gap-1 mb-0.5">
+                <span class="font-bold text-[11px] truncate text-gray-900">${ev.name}</span>
+                <span class="text-[8px] px-1 py-0.2 rounded ${getStatusBadgeClass(ev.status)}">${ev.status}</span>
+              </div>
+              <div class="text-[9px] text-gray-600 truncate">
+                🕒 ${ev.start_time} • ${ev.meeting_point || ev.venue || 'TBC'}
+              </div>
+              ${ev.district && ev.district !== 'ALL DISTRICTS' ? `<div class="text-[8px] font-bold text-emerald-700 truncate mt-0.5">${ev.district}</div>` : ''}
+            `;
+            eventsContainer.appendChild(evCard);
+          });
+        } else if (isSaturday) {
+          // Empty Saturday Slot
+          const emptySlot = document.createElement('div');
+          emptySlot.className = 'h-full flex flex-col justify-center items-center p-2 rounded-lg border border-dashed border-gray-300 text-center bg-gray-50/50 hover:bg-gray-100/50 cursor-pointer transition-colors';
+          emptySlot.onclick = () => openEventModalWithDate(dateStr);
+          emptySlot.innerHTML = `
+            <span class="text-[10px] text-gray-500 font-medium">${isFifthSat ? '+ Plan 5th Saturday' : '+ Schedule Run'}</span>
+          `;
+          eventsContainer.appendChild(emptySlot);
+        }
+
+        cell.appendChild(eventsContainer);
+        container.appendChild(cell);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // RENDER EVENT LIST VIEW
+    // -------------------------------------------------------------------------
+    function renderListView() {
+      const container = document.getElementById('event-list-container');
+      const badge = document.getElementById('list-count-badge');
+      container.innerHTML = '';
+      badge.innerText = state.events.length;
+
+      if (state.events.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-500 space-y-3">
+            <span class="text-3xl">🏃</span>
+            <p class="font-bold text-sm text-gray-700">No events found matching your filter criteria.</p>
+            <p class="text-xs">Try resetting your filters or click "+ ADD NEW EVENT" above.</p>
+          </div>
+        `;
+        return;
+      }
+
+      state.events.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-gray-200 p-4 sm:p-5 shadow-sm hover:shadow transition-shadow flex flex-col md:flex-row justify-between gap-4';
+
+        const dateParts = ev.date.split('-');
+        const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+        const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' });
+
+        card.innerHTML = `
+          <!-- Left Date Column -->
+          <div class="flex items-center md:flex-col justify-start md:justify-center border-b md:border-b-0 md:border-r border-gray-100 pb-3 md:pb-0 md:pr-5 min-w-[100px] text-center">
+            <div class="text-xs font-extrabold uppercase text-gray-400">${dayName}</div>
+            <div class="text-2xl sm:text-3xl font-display font-black px-2 md:px-0" style="color: ${state.settings.date_text_color || '#D9A441'}">
+              ${dateParts[2]}
+            </div>
+            <div class="text-xs font-bold text-gray-600">${monthName} ${dateParts[0]}</div>
+            <div class="mt-2 hidden md:block">
+              <span class="text-[9px] px-2 py-0.5 rounded-full ${getStatusBadgeClass(ev.status)}">${ev.status}</span>
+            </div>
+          </div>
+
+          <!-- Middle Content Column -->
+          <div class="flex-1 space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="font-display font-extrabold text-base text-gray-900">${ev.name}</h3>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full font-bold ${getCategoryBadgeClass(ev.category)}">${ev.category}</span>
+              ${ev.district ? `<span class="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">${ev.district}</span>` : ''}
+              <span class="text-[9px] md:hidden px-2 py-0.5 rounded-full ${getStatusBadgeClass(ev.status)}">${ev.status}</span>
+            </div>
+
+            <!-- Metadata Row -->
+            <div class="text-xs text-gray-600 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span>🕒 <strong>${ev.start_time} – ${ev.end_time}</strong> (WAT)</span>
+              ${ev.meeting_point ? `<span>📍 Meet: <strong>${ev.meeting_point}</strong></span>` : ''}
+              ${ev.venue && ev.venue !== ev.meeting_point ? `<span>🏁 Venue: <strong>${ev.venue}</strong></span>` : ''}
+              ${ev.distance ? `<span>📏 <strong>${ev.distance}</strong></span>` : ''}
+              ${ev.route_stops ? `<span>🛑 ${ev.route_stops}</span>` : ''}
+            </div>
+
+            <!-- Sponsor & Partners -->
+            ${(ev.sponsor || ev.partners || ev.event_lead) ? `
+              <div class="text-xs text-gray-700 bg-gray-50 rounded-lg p-2 flex flex-wrap gap-x-3 gap-y-1">
+                ${ev.sponsor ? `<span>⭐ Sponsor: <strong>${ev.sponsor}</strong></span>` : ''}
+                ${ev.partners ? `<span>🤝 Partners: <strong>${ev.partners}</strong></span>` : ''}
+                ${ev.event_lead ? `<span>👤 Lead: <strong>${ev.event_lead}</strong></span>` : ''}
+              </div>
+            ` : ''}
+
+            <!-- Planned Activities & Description -->
+            ${ev.planned_activities ? `
+              <p class="text-xs text-gray-800 font-medium"><strong>Activities:</strong> ${ev.planned_activities}</p>
+            ` : ''}
+            ${ev.description && ev.description !== ev.planned_activities ? `
+              <p class="text-xs text-gray-500 line-clamp-2">${ev.description}</p>
+            ` : ''}
+          </div>
+
+          <!-- Right Action Buttons Column -->
+          <div class="flex flex-row md:flex-col justify-end items-end gap-1.5 pt-3 md:pt-0 border-t md:border-t-0 border-gray-100 min-w-[150px]">
+            <button onclick="openEditEventModal('${ev.id}')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3 py-1.5 rounded-lg font-bold w-full text-center">
+              ✏️ Edit
+            </button>
+            
+            <div class="flex items-center space-x-1 w-full">
+              ${ev.status !== 'CONFIRMED' ? `
+                <button onclick="quickUpdateStatus('${ev.id}', 'CONFIRMED')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-2 py-1.5 rounded-lg font-bold flex-1 text-center" title="Mark Confirmed">
+                  ✓ Confirm
+                </button>
+              ` : `
+                <button onclick="quickUpdateStatus('${ev.id}', 'PLANNING')" class="bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs px-2 py-1.5 rounded-lg font-bold flex-1 text-center" title="Set to Planning">
+                  Plan
+                </button>
+              `}
+              <button onclick="duplicateEvent('${ev.id}')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-2 py-1.5 rounded-lg font-bold flex-1 text-center" title="Duplicate">
+                Copy
+              </button>
+            </div>
+
+            <!-- Calendar Links -->
+            <div class="flex items-center space-x-1 w-full pt-1">
+              <a href="/api/events/${ev.id}/calendar.ics" download class="bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-[10px] px-2 py-1 rounded text-center flex-1 font-semibold" title="Download .ics">
+                .ICS
+              </a>
+              <a href="${ev.google_calendar_url}" target="_blank" rel="noopener noreferrer" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-[10px] px-2 py-1 rounded text-center flex-1 font-semibold" title="Add to Google Calendar">
+                Google Cal
+              </a>
+              <button onclick="deleteEvent('${ev.id}')" class="text-red-500 hover:text-red-700 p-1 rounded" title="Delete">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // FORM LOGIC, CRUD & PERSISTENCE
+    // -------------------------------------------------------------------------
+    function setupFormListeners() {
+      const inputs = document.querySelectorAll('#event-form input, #event-form select, #event-form textarea');
+      inputs.forEach(inp => {
+        inp.addEventListener('input', markFormDirty);
+        inp.addEventListener('change', markFormDirty);
+      });
+    }
+
+    function openEventModal() {
+      state.isFormDirty = false;
+      state.editingEventId = null;
+      document.getElementById('modal-title').innerText = 'Create New Club Event';
+      document.getElementById('modal-event-id').innerText = 'AUTO-GENERATED';
+      document.getElementById('event-form').reset();
+      document.getElementById('form-event-id').value = '';
+      document.getElementById('form-date').value = `${state.currentYear}-${String(state.currentMonth).padStart(2, '0')}-01`;
+      document.getElementById('form-start-time').value = '06:45';
+      document.getElementById('form-end-time').value = '08:30';
+      document.getElementById('form-timezone').value = 'Africa/Lagos';
+      document.getElementById('form-status').value = 'CONFIRMED';
+      document.getElementById('form-last-updated').innerText = 'New Event (Unsaved)';
+      document.getElementById('event-modal').classList.remove('hidden');
+    }
+
+    function openEventModalWithDate(dateStr) {
+      openEventModal();
+      document.getElementById('form-date').value = dateStr;
+    }
+
+    function scheduleFifthSaturday() {
+      // Find the 5th Saturday date in current month
+      const y = state.currentYear;
+      const m = state.currentMonth;
+      const daysInMonth = new Date(y, m, 0).getDate();
+      let sats = [];
+      for (let d = 1; d <= daysInMonth; d++) {
+        if (new Date(y, m - 1, d).getDay() === 6) {
+          sats.push(`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+        }
+      }
+      if (sats.length >= 5) {
+        openEventModal();
+        document.getElementById('form-name').value = 'Special 5th Saturday Run';
+        document.getElementById('form-date').value = sats[4];
+        document.getElementById('form-status').value = 'PLANNING'; // Unconfirmed per club rules!
+        document.getElementById('form-planned-activities').value = 'Extra planning slot for pop-up run or community collaboration.';
+      }
+    }
+
+    async function openEditEventModal(eventId) {
+      state.isFormDirty = false;
+      state.editingEventId = eventId;
+      try {
+        const res = await fetch(`/api/events/${eventId}`);
+        const data = await res.json();
+        if (data.success) {
+          const ev = data.event;
+          document.getElementById('modal-title').innerText = `Edit: ${ev.name}`;
+          document.getElementById('modal-event-id').innerText = ev.id;
+          document.getElementById('form-event-id').value = ev.id;
+          document.getElementById('form-name').value = ev.name || '';
+          document.getElementById('form-date').value = ev.date || '';
+          document.getElementById('form-category').value = ev.category || 'Monthly Signature Event';
+          document.getElementById('form-status').value = ev.status || 'CONFIRMED';
+          document.getElementById('form-start-time').value = ev.start_time || '06:45';
+          document.getElementById('form-end-time').value = ev.end_time || '08:30';
+          document.getElementById('form-timezone').value = ev.timezone || 'Africa/Lagos';
+          document.getElementById('form-meeting-point').value = ev.meeting_point || '';
+          document.getElementById('form-venue').value = ev.venue || '';
+          document.getElementById('form-district').value = ev.district || 'ALL DISTRICTS';
+          document.getElementById('form-sponsor').value = ev.sponsor || '';
+          document.getElementById('form-partners').value = ev.partners || '';
+          document.getElementById('form-event-lead').value = ev.event_lead || '';
+          document.getElementById('form-distance').value = ev.distance || '';
+          document.getElementById('form-route-stops').value = ev.route_stops || '';
+          document.getElementById('form-planned-activities').value = ev.planned_activities || '';
+          document.getElementById('form-description').value = ev.description || '';
+          document.getElementById('form-notes').value = ev.notes || '';
+          document.getElementById('form-last-updated').innerText = `Last saved: ${ev.updated_at || 'Recently'}`;
+
+          document.getElementById('event-modal').classList.remove('hidden');
+        }
+      } catch (e) {
+        showToast('Error loading event details: ' + e.message, 'error');
+      }
+    }
+
+    function requestCloseEventModal() {
+      if (state.isFormDirty) {
+        if (!confirm('You have unsaved changes! Are you sure you want to discard them?')) {
+          return;
+        }
+      }
+      state.isFormDirty = false;
+      document.getElementById('event-modal').classList.add('hidden');
+    }
+
+    function applyMorningPreset() {
+      document.getElementById('form-start-time').value = '06:45';
+      document.getElementById('form-end-time').value = '08:30';
+      markFormDirty();
+    }
+
+    function applyEveningPreset() {
+      document.getElementById('form-start-time').value = '16:00';
+      document.getElementById('form-end-time').value = '21:00';
+      markFormDirty();
+    }
+
+    async function saveEventForm(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('btn-save-event');
+      saveBtn.disabled = true;
+      saveBtn.innerText = 'Saving...';
+
+      const eventId = document.getElementById('form-event-id').value;
+      const isEdit = Boolean(eventId);
+
+      const payload = {
+        name: document.getElementById('form-name').value,
+        date: document.getElementById('form-date').value,
+        category: document.getElementById('form-category').value,
+        status: document.getElementById('form-status').value,
+        start_time: document.getElementById('form-start-time').value,
+        end_time: document.getElementById('form-end-time').value,
+        timezone: document.getElementById('form-timezone').value,
+        meeting_point: document.getElementById('form-meeting-point').value,
+        venue: document.getElementById('form-venue').value,
+        district: document.getElementById('form-district').value,
+        sponsor: document.getElementById('form-sponsor').value,
+        partners: document.getElementById('form-partners').value,
+        event_lead: document.getElementById('form-event-lead').value,
+        distance: document.getElementById('form-distance').value,
+        route_stops: document.getElementById('form-route-stops').value,
+        planned_activities: document.getElementById('form-planned-activities').value,
+        description: document.getElementById('form-description').value,
+        notes: document.getElementById('form-notes').value,
+      };
+
+      try {
+        const url = isEdit ? `/api/events/${eventId}` : '/api/events';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          state.isFormDirty = false;
+          showToast(data.message || 'Event saved permanently!');
+          document.getElementById('event-modal').classList.add('hidden');
+          await loadStats();
+          await loadEvents();
+        } else {
+          showToast(data.error || 'Failed to save event.', 'error');
+        }
+      } catch (err) {
+        showToast('Save failed: ' + err.message, 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = `
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          <span>Save Event Permanently</span>
+        `;
+      }
+    }
+
+    async function quickUpdateStatus(eventId, newStatus) {
+      try {
+        const res = await fetch(`/api/events/${eventId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Status updated to ${newStatus}`);
+          await loadStats();
+          await loadEvents();
+        }
+      } catch (e) {
+        showToast('Update failed: ' + e.message, 'error');
+      }
+    }
+
+    async function duplicateEvent(eventId) {
+      if (!confirm('Duplicate this event with a new unique ID in PLANNING status?')) return;
+      try {
+        const res = await fetch(`/api/events/${eventId}/duplicate`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          await loadStats();
+          await loadEvents();
+        }
+      } catch (e) {
+        showToast('Duplicate failed: ' + e.message, 'error');
+      }
+    }
+
+    async function deleteEvent(eventId) {
+      if (!confirm('Are you sure you want to permanently delete this event? This action cannot be undone.')) return;
+      try {
+        const res = await fetch(`/api/events/${eventId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          await loadStats();
+          await loadEvents();
+        }
+      } catch (e) {
+        showToast('Delete failed: ' + e.message, 'error');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // PDF MODAL & CONFIGURATION
+    // -------------------------------------------------------------------------
+    function openPdfModal() {
+      document.getElementById('pdf-month').value = state.currentMonth;
+      document.getElementById('pdf-year').value = state.currentYear;
+      document.getElementById('pdf-modal').classList.remove('hidden');
+    }
+
+    function closePdfModal() {
+      document.getElementById('pdf-modal').classList.add('hidden');
+    }
+
+    function syncDateColor(hexVal) {
+      if (!hexVal) return;
+      let clean = hexVal.trim().toUpperCase();
+      if (!clean.startsWith('#')) clean = '#' + clean;
+      
+      document.getElementById('pdf-date-color-picker').value = clean.length === 7 ? clean : '#D9A441';
+      document.getElementById('pdf-date-color-hex').value = clean;
+      state.settings.date_text_color = clean;
+      
+      // Update persistent setting on server
+      fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date_text_color: clean })
+      });
+
+      renderCurrentView();
+    }
+
+    function downloadCalendarPdf() {
+      const m = document.getElementById('pdf-month').value;
+      const y = document.getElementById('pdf-year').value;
+      const col = document.getElementById('pdf-date-color-hex').value;
+      const catAcc = document.getElementById('pdf-category-accents').checked;
+
+      const url = `/api/calendar/pdf?year=${y}&month=${m}&date_color=${encodeURIComponent(col)}&category_accents=${catAcc}`;
+      window.open(url, '_blank');
+      closePdfModal();
+      showToast('Generating calendar PDF with saved event data...');
+    }
+
+    // District Modal
+    function openDistrictModal() {
+      document.getElementById('district-modal').classList.remove('hidden');
+    }
+    function closeDistrictModal() {
+      document.getElementById('district-modal').classList.add('hidden');
+    }
+
+    // Backup Modal
+    function openBackupModal() {
+      document.getElementById('backup-modal').classList.remove('hidden');
+    }
+    function closeBackupModal() {
+      document.getElementById('backup-modal').classList.add('hidden');
+    }
+
+    async function uploadBackupFile(mode) {
+      const fileInput = document.getElementById('backup-file-input');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('Please select a JSON backup file to upload.', 'error');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch(`/api/restore?mode=${mode}`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          closeBackupModal();
+          await loadStats();
+          await loadEvents();
+        } else {
+          showToast(data.error || 'Restore failed.', 'error');
+        }
+      } catch (e) {
+        showToast('Restore error: ' + e.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
