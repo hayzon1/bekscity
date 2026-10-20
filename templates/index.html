@@ -1150,6 +1150,17 @@
           <textarea id="pdf-email-note" rows="3" class="w-full border border-gray-300 rounded-lg p-2 leading-relaxed" placeholder="Add an encouraging note or race day announcement...">Dear BCRC Family, here is our official confirmed run schedule with meet-up spots, 3 auto-reminders (5d, 3d, 7h prior), and full calendar sync. Lace up and see you on Saturday at 06:45 AM!</textarea>
         </div>
 
+        <!-- Optional Image / Race Flyer Attachment -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1 flex items-center justify-between">
+            <span>🖼️ Attach Race Flyer or Action Photo (Optional)</span>
+            <span class="text-[10px] text-gray-500 font-normal">Included as image attachment</span>
+          </label>
+          <select id="pdf-email-flyer-select" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-medium bg-white">
+            <option value="">-- No image attachment (Calendar PDF only) --</option>
+          </select>
+        </div>
+
         <!-- Summary of Email Inclusions -->
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 space-y-1.5 text-[11px] text-gray-600">
           <p class="font-bold text-gray-900">✅ Included in Every Outgoing Email:</p>
@@ -2360,6 +2371,17 @@
       switchPdfModalTab(defaultTab);
       loadCommunityMembers(); // ensure count and badge are fresh
 
+      // Populate flyer image attachment dropdown
+      const flyerSelect = document.getElementById('pdf-email-flyer-select');
+      if (flyerSelect && state.availableGalleryImages && state.availableGalleryImages.length > 0) {
+        const curVal = flyerSelect.value;
+        flyerSelect.innerHTML = `<option value="">-- No image attachment (Calendar PDF only) --</option>` +
+          state.availableGalleryImages.map(img => {
+            return `<option value="${img.url}">🖼️ ${img.filename}</option>`;
+          }).join('');
+        if (curVal) flyerSelect.value = curVal;
+      }
+
       const modal = document.getElementById('pdf-modal');
       if (modal) {
         modal.classList.remove('hidden');
@@ -2426,6 +2448,8 @@
       const customEmail = (document.getElementById('pdf-email-custom-addr') || {}).value || '';
       const subject = (document.getElementById('pdf-email-subject') || {}).value || '';
       const customNote = (document.getElementById('pdf-email-note') || {}).value || '';
+      const flyerSelect = document.getElementById('pdf-email-flyer-select');
+      const flyerUrl = flyerSelect ? flyerSelect.value : '';
 
       if (target === 'custom' && (!customEmail || !customEmail.includes('@'))) {
         alert('Please enter a valid recipient email address.');
@@ -2444,6 +2468,7 @@
           custom_name: customName,
           subject: subject,
           custom_note: customNote,
+          image_urls: flyerUrl ? [flyerUrl] : [],
           year: state.currentYear || 2026,
           month: 'all',
           date_color: state.settings.date_text_color || '#D9A441'

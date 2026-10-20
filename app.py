@@ -359,13 +359,28 @@ def api_send_calendar_email():
             return jsonify({"success": False, "error": "No active community members found in mailing list."}), 400
         recipients = [{"email": m["email"], "name": m["name"]} for m in members]
 
+    # Resolve optional attached images (from static uploads or gallery)
+    image_paths = []
+    raw_images = data.get("image_urls") or data.get("image_paths") or []
+    if isinstance(raw_images, str):
+        raw_images = [raw_images]
+    for img_ref in raw_images:
+        if img_ref.startswith("/static/"):
+            rel_path = img_ref[len("/static/"):].lstrip("/")
+            local_p = os.path.join(app.static_folder, rel_path)
+            if os.path.exists(local_p):
+                image_paths.append(local_p)
+        elif os.path.isabs(img_ref) and os.path.exists(img_ref):
+            image_paths.append(img_ref)
+
     try:
         res = send_calendar_pdf_email(
             recipients=recipients,
             pdf_path=pdf_path,
             subject=subject,
             custom_note=custom_note,
-            sync_url=master_ics_url
+            sync_url=master_ics_url,
+            image_paths=image_paths
         )
         return jsonify(res)
     except Exception as e:

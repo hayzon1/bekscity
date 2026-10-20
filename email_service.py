@@ -192,10 +192,11 @@ def send_calendar_pdf_email(
     pdf_path,
     subject=None,
     custom_note=None,
-    sync_url=None
+    sync_url=None,
+    image_paths=None
 ):
     """
-    Sends the generated Calendar PDF to one or multiple recipients.
+    Sends the generated Calendar PDF and optional images to one or multiple recipients.
     
     If SMTP server credentials are valid in settings, dispatches real emails.
     Otherwise, runs in simulation/audit mode, saving the formatted email preview
@@ -269,6 +270,22 @@ def send_calendar_pdf_email(
             subtype="pdf",
             filename=pdf_filename
         )
+
+        # Attach optional images (e.g. race day flyers, brand sponsor logos, route maps)
+        if image_paths:
+            for img_p in image_paths:
+                if img_p and os.path.exists(img_p):
+                    img_fn = os.path.basename(img_p)
+                    mime_type, _ = mimetypes.guess_type(img_p)
+                    subtype = mime_type.split("/")[1] if mime_type and "/" in mime_type else "jpeg"
+                    with open(img_p, "rb") as imf:
+                        img_data = imf.read()
+                    msg.add_attachment(
+                        img_data,
+                        maintype="image",
+                        subtype=subtype,
+                        filename=img_fn
+                    )
 
         status = "SENT"
         err_msg = ""
