@@ -696,6 +696,131 @@
         </div>
       </div>
 
+      <!-- Community Member Directory & Mailing List Card -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 pb-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xl">🏃</span>
+              <h3 class="font-display font-extrabold text-lg text-gray-900">Community Runners Directory &amp; Email List</h3>
+              <span id="community-member-count-badge" class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-bold">5 Members</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-0.5">Manage community runners, district members, and broadcast the official calendar PDF with auto-reminders.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="openPdfModal('email')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow flex items-center space-x-1.5 transition-transform active:scale-95">
+              <span>📧</span>
+              <span>Send Calendar PDF to Community</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Add Member Inline Form -->
+        <form onsubmit="addCommunityMemberForm(event)" class="bg-gray-50 border border-gray-200 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs items-end">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Runner Full Name *</label>
+            <input type="text" id="new-member-name" required placeholder="e.g. Tunde Balogun" class="w-full border border-gray-300 rounded-lg p-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Email Address *</label>
+            <input type="email" id="new-member-email" required placeholder="runner@example.com" class="w-full border border-gray-300 rounded-lg p-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Phone Hotline</label>
+            <input type="text" id="new-member-phone" placeholder="080XXXXXXXX" class="w-full border border-gray-300 rounded-lg p-2 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Assigned District</label>
+            <select id="new-member-district" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-medium">
+              <option value="ALL DISTRICTS">All Districts / General</option>
+              <option value="MILE DISTRICT">Mile District (Moore junction)</option>
+              <option value="PHARMAFIT DISTRICT">Pharmafit District (Kemta junction)</option>
+              <option value="PANSEKE DISTRICT">Panseke District (Skating ground)</option>
+              <option value="FUNAAB DISTRICT">Funaab District (Funaab gate)</option>
+            </select>
+          </div>
+          <div>
+            <button type="submit" class="w-full bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-display font-extrabold p-2 rounded-lg shadow transition-transform active:scale-95">
+              + Add Runner
+            </button>
+          </div>
+        </form>
+
+        <!-- Member Directory Table -->
+        <div class="overflow-x-auto border border-gray-200 rounded-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-gray-50 text-gray-600 font-bold border-b border-gray-200">
+              <tr>
+                <th class="p-3">Member Name</th>
+                <th class="p-3">Email</th>
+                <th class="p-3">Phone</th>
+                <th class="p-3">District &amp; Meet-Up Spot</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="community-members-tbody" class="divide-y divide-gray-100">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SMTP Outgoing Mail Server Configuration Card -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+          <div class="flex items-center space-x-2">
+            <span class="text-xl">⚙️</span>
+            <div>
+              <h3 class="font-display font-bold text-base text-gray-900">SMTP Email Delivery Server Settings</h3>
+              <p class="text-xs text-gray-500">Configure your club email credentials (Gmail, Outlook, or Custom SMTP) to send live emails to community members.</p>
+            </div>
+          </div>
+          <span id="smtp-status-badge" class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">🟡 Simulation Mode (Audit Only)</span>
+        </div>
+
+        <form onsubmit="saveSmtpSettingsForm(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">SMTP Host</label>
+            <input type="text" id="smtp-form-host" placeholder="e.g. smtp.gmail.com" class="w-full border border-gray-300 rounded-lg p-2 font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">SMTP Port</label>
+            <input type="number" id="smtp-form-port" value="587" class="w-full border border-gray-300 rounded-lg p-2 font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Username / Email</label>
+            <input type="text" id="smtp-form-user" placeholder="club@bekscity.com" class="w-full border border-gray-300 rounded-lg p-2 font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Password / App Password</label>
+            <input type="password" id="smtp-form-pass" placeholder="Enter App Password (leave blank to keep)" class="w-full border border-gray-300 rounded-lg p-2 font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">From Sender Email</label>
+            <input type="email" id="smtp-form-from-email" placeholder="club@bekscity.com" class="w-full border border-gray-300 rounded-lg p-2 font-mono">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">From Sender Name</label>
+            <input type="text" id="smtp-form-from-name" value="BEKSCITY RUN CLUB" class="w-full border border-gray-300 rounded-lg p-2 font-medium">
+          </div>
+          <div class="sm:col-span-3 flex items-center justify-between pt-2">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" id="smtp-form-tls" checked class="rounded text-brand-gold">
+              <span class="text-gray-700 font-medium">Use TLS (Recommended for port 587)</span>
+            </label>
+            <div class="flex space-x-2">
+              <button type="button" onclick="sendTestSmtpEmail()" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-50 rounded-lg font-bold text-gray-700">
+                📨 Send Test Email
+              </button>
+              <button type="submit" class="bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-display font-extrabold px-4 py-1.5 rounded-lg shadow">
+                Save SMTP Settings
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
     </div>
 
   </main>
@@ -875,13 +1000,32 @@
   </div>
 
   <!-- PDF GENERATION & CUSTOMIZER MODAL -->
-  <div id="pdf-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="pdf-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-gray-200 overflow-hidden">
+      <!-- Modal Header -->
       <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
-        <h3 class="font-display font-bold text-base text-white">Generate Club Calendar PDF</h3>
-        <button onclick="closePdfModal()" class="text-gray-400 hover:text-white">✕</button>
+        <div>
+          <h3 class="font-display font-bold text-base text-white">Club Calendar PDF & Community Email</h3>
+          <p class="text-[11px] text-brand-gold">Generate print-ready PDFs or broadcast directly to community members</p>
+        </div>
+        <button onclick="closePdfModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">✕</button>
       </div>
-      <div class="p-6 space-y-4 text-xs">
+
+      <!-- Mode Switcher Tabs -->
+      <div class="flex border-b border-gray-200 bg-gray-50 text-xs">
+        <button type="button" id="pdf-mode-tab-download" onclick="switchPdfModalTab('download')" class="flex-1 py-3 px-4 font-bold text-brand-charcoal border-b-2 border-brand-gold bg-white flex items-center justify-center space-x-2">
+          <span>📥</span>
+          <span>Download PDF File</span>
+        </button>
+        <button type="button" id="pdf-mode-tab-email" onclick="switchPdfModalTab('email')" class="flex-1 py-3 px-4 font-bold text-gray-500 hover:text-gray-900 border-b-2 border-transparent flex items-center justify-center space-x-2">
+          <span>📧</span>
+          <span>Email PDF to Community</span>
+          <span id="pdf-tab-member-badge" class="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded-full font-bold">5 Members</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: DOWNLOAD PDF -->
+      <div id="pdf-tab-download" class="p-6 space-y-4 text-xs">
         <p class="text-gray-600">
           Generates a high-resolution, printable PDF calendar with automatic text wrapping, clickable calendar links, fillable member notes, and district operations reference.
         </p>
@@ -917,6 +1061,8 @@
             <button onclick="syncDateColor('#287D58')" class="underline hover:text-gray-900 font-mono">#287D58 (Green)</button>
             <button onclick="syncDateColor('#252525')" class="underline hover:text-gray-900 font-mono">#252525 (Charcoal)</button>
           </div>
+        </div>
+
         <!-- Calendar Sync URL for Embedded PDF Action Buttons -->
         <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-1.5">
           <div class="flex items-center justify-between">
@@ -926,7 +1072,7 @@
             <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800">3 Reminders (5d, 3d, 7h)</span>
           </div>
           <p class="text-[11px] text-emerald-800">
-            The prominent green <strong>"ADD ALL CONFIRMED RUNS TO CALENDAR"</strong> button rendered on all pages of the PDF links directly to this URL to automatically subscribe members' devices with Africa/Lagos (WAT) reminders (5 days, 3 days, 7 hours prior):
+            The prominent green <strong>"ADD ALL CONFIRMED RUNS TO CALENDAR"</strong> button links to this URL to automatically subscribe runners' devices with Africa/Lagos (WAT) reminders:
           </p>
           <input type="url" id="pdf-sync-url" class="font-mono text-[11px] w-full border border-emerald-300 rounded-lg p-2 bg-white text-emerald-950 focus:ring-emerald-500" placeholder="http://127.0.0.1:5050/api/calendar.ics">
         </div>
@@ -943,10 +1089,93 @@
             <span>Download PDF</span>
           </button>
         </div>
+      </div>
+
+      <!-- TAB 2: EMAIL PDF TO COMMUNITY -->
+      <div id="pdf-tab-email" class="hidden p-6 space-y-4 text-xs">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 space-y-1">
+          <p class="font-bold text-amber-900 flex items-center space-x-1.5">
+            <span>✉️</span>
+            <span>Community Email Broadcast with PDF Attachment</span>
+          </p>
+          <p class="text-[11px] text-amber-800">
+            Automatically sends the official BCRC Calendar PDF as an attachment, with complete Saturday timeline, 4 district meet-up locations, co-founders contact details, and one-click calendar sync.
+          </p>
+        </div>
+
+        <!-- Recipient Target Selection -->
+        <div class="space-y-2">
+          <label class="block font-bold text-gray-800">Recipients</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center space-x-2 p-2.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:border-brand-gold">
+              <input type="radio" name="email-target-radio" value="all" checked onchange="toggleEmailTargetOption('all')" class="text-brand-gold">
+              <div>
+                <p class="font-bold text-gray-900">All Community Members</p>
+                <p class="text-[10px] text-gray-500" id="email-all-members-label">Broadcast to registered runners</p>
+              </div>
+            </label>
+            <label class="flex items-center space-x-2 p-2.5 rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:border-brand-gold">
+              <input type="radio" name="email-target-radio" value="custom" onchange="toggleEmailTargetOption('custom')" class="text-brand-gold">
+              <div>
+                <p class="font-bold text-gray-900">Single / Test Email</p>
+                <p class="text-[10px] text-gray-500">Send to specific address</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Custom Recipient Inputs (hidden by default) -->
+        <div id="email-custom-target-fields" class="hidden space-y-2 p-3 bg-gray-50 border border-gray-200 rounded-xl">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-gray-700 text-[11px] mb-1">Recipient Name</label>
+              <input type="text" id="pdf-email-custom-name" placeholder="e.g. Oladipupo" class="w-full border border-gray-300 rounded-lg p-2 text-xs">
+            </div>
+            <div>
+              <label class="block font-bold text-gray-700 text-[11px] mb-1">Recipient Email *</label>
+              <input type="email" id="pdf-email-custom-addr" placeholder="runner@example.com" class="w-full border border-gray-300 rounded-lg p-2 text-xs">
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject Line -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Email Subject Line</label>
+          <input type="text" id="pdf-email-subject" value="🏃 Official BEKSCITY RUN CLUB Calendar (Oct–Dec 2026)" class="w-full border border-gray-300 rounded-lg p-2 font-medium">
+        </div>
+
+        <!-- Custom Note from Organizers -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Organizer's Personal Note to Runners</label>
+          <textarea id="pdf-email-note" rows="3" class="w-full border border-gray-300 rounded-lg p-2 leading-relaxed" placeholder="Add an encouraging note or race day announcement...">Dear BCRC Family, here is our official confirmed run schedule with meet-up spots, 3 auto-reminders (5d, 3d, 7h prior), and full calendar sync. Lace up and see you on Saturday at 06:45 AM!</textarea>
+        </div>
+
+        <!-- Summary of Email Inclusions -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 space-y-1.5 text-[11px] text-gray-600">
+          <p class="font-bold text-gray-900">✅ Included in Every Outgoing Email:</p>
+          <ul class="list-disc list-inside space-y-0.5">
+            <li><strong>Attached PDF:</strong> High-res calendar with clickable links &amp; route notes</li>
+            <li><strong>4 Meet-Up Spots:</strong> Moore junction, Kemta junction, Skating ground, Funaab gate</li>
+            <li><strong>3 Reminders:</strong> 5 days, 3 days, 7 hours prior (Africa/Lagos time)</li>
+            <li><strong>Co-Founders Hotline:</strong> Oladipupo (08101674646), Shittu (08168120117), Adebanjo (07069582118)</li>
+          </ul>
+        </div>
+
+        <div class="pt-3 border-t border-gray-200 flex items-center justify-between">
+          <span id="pdf-email-status-text" class="text-[11px] text-gray-500 font-medium"></span>
+          <div class="flex space-x-2">
+            <button onclick="closePdfModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700">Cancel</button>
+            <button id="btn-send-calendar-email" onclick="sendCalendarEmailFromModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg flex items-center space-x-1.5 shadow active:scale-95 transition-transform">
+              <span>🚀</span>
+              <span>Send Calendar PDF to Community</span>
+            </button>
+          </div>
+        </div>
 
       </div>
     </div>
   </div>
+
 
   <!-- DISTRICT OPERATIONS & CLUB INFO MODAL -->
   <div id="district-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
@@ -1219,7 +1448,7 @@
   </div>
 
   <!-- PROPOSAL EDIT / CREATE MODAL -->
-  <div id="proposal-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="proposal-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-gray-200 overflow-hidden transform transition-all">
       <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
         <div>
@@ -1431,6 +1660,10 @@
       events: [],
       itineraries: [],
       proposals: [],
+      communityMembers: [],
+      smtpSettings: {},
+      availableGalleryImages: [],
+      proposalSelectedImages: [],
       selectedProposalStatus: '',
       stats: {},
       settings: { date_text_color: '#D9A441' },
@@ -1514,16 +1747,34 @@
       }
     });
 
-    // Initialize application
-    document.addEventListener('DOMContentLoaded', async () => {
-      await loadSettings();
-      await loadStats();
-      await loadEvents();
-      await loadItineraries();
-      await loadProposals();
-      loadChecklist();
+    // Initialize application immediately (instant listeners, parallel data fetches)
+    document.addEventListener('DOMContentLoaded', () => {
       setupFormListeners();
+      loadChecklist();
+
+      // Parallelize fetches for maximum speed
+      Promise.all([
+        loadSettings(),
+        loadStats(),
+        loadEvents(),
+        loadItineraries(),
+        loadProposals(),
+        loadCommunityMembers(),
+        loadSmtpSettings(),
+        preloadGalleryImages()
+      ]).catch(err => console.error('Init parallel fetch error:', err));
     });
+
+    function preloadGalleryImages() {
+      return fetch('/api/proposals/gallery-images')
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.success) {
+            state.availableGalleryImages = data.images || [];
+          }
+        })
+        .catch(e => console.warn('Gallery preload background notice:', e));
+    }
 
     async function loadSettings() {
       try {
@@ -2095,20 +2346,139 @@
     }
 
     // -------------------------------------------------------------------------
-    // PDF MODAL & CONFIGURATION
+    // PDF MODAL & CONFIGURATION (DOWNLOAD & EMAIL DISPATCH)
     // -------------------------------------------------------------------------
-    function openPdfModal() {
-      document.getElementById('pdf-month').value = state.currentMonth;
-      document.getElementById('pdf-year').value = state.currentYear;
+    function openPdfModal(defaultTab = 'download') {
+      const elMonth = document.getElementById('pdf-month');
+      const elYear = document.getElementById('pdf-year');
+      if (elMonth) elMonth.value = state.currentMonth;
+      if (elYear) elYear.value = state.currentYear;
       const syncInput = document.getElementById('pdf-sync-url');
       if (syncInput && !syncInput.value) {
         syncInput.value = `${window.location.origin}/api/calendar.ics`;
       }
-      document.getElementById('pdf-modal').classList.remove('hidden');
+      switchPdfModalTab(defaultTab);
+      loadCommunityMembers(); // ensure count and badge are fresh
+
+      const modal = document.getElementById('pdf-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.style.display = 'flex';
+      }
     }
 
     function closePdfModal() {
-      document.getElementById('pdf-modal').classList.add('hidden');
+      const modal = document.getElementById('pdf-modal');
+      if (modal) {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
+    }
+
+    function switchPdfModalTab(tab) {
+      const tabDown = document.getElementById('pdf-tab-download');
+      const tabEmail = document.getElementById('pdf-tab-email');
+      const btnDown = document.getElementById('pdf-mode-tab-download');
+      const btnEmail = document.getElementById('pdf-mode-tab-email');
+
+      if (tab === 'email') {
+        if (tabDown) tabDown.classList.add('hidden');
+        if (tabEmail) tabEmail.classList.remove('hidden');
+        if (btnDown) {
+          btnDown.className = 'flex-1 py-3 px-4 font-bold text-gray-500 hover:text-gray-900 border-b-2 border-transparent flex items-center justify-center space-x-2';
+        }
+        if (btnEmail) {
+          btnEmail.className = 'flex-1 py-3 px-4 font-bold text-brand-charcoal border-b-2 border-brand-gold bg-white flex items-center justify-center space-x-2';
+        }
+      } else {
+        if (tabEmail) tabEmail.classList.add('hidden');
+        if (tabDown) tabDown.classList.remove('hidden');
+        if (btnEmail) {
+          btnEmail.className = 'flex-1 py-3 px-4 font-bold text-gray-500 hover:text-gray-900 border-b-2 border-transparent flex items-center justify-center space-x-2';
+        }
+        if (btnDown) {
+          btnDown.className = 'flex-1 py-3 px-4 font-bold text-brand-charcoal border-b-2 border-brand-gold bg-white flex items-center justify-center space-x-2';
+        }
+      }
+    }
+
+    function toggleEmailTargetOption(type) {
+      const customBox = document.getElementById('email-custom-target-fields');
+      if (customBox) {
+        if (type === 'custom') customBox.classList.remove('hidden');
+        else customBox.classList.add('hidden');
+      }
+    }
+
+    async function sendCalendarEmailFromModal() {
+      const btn = document.getElementById('btn-send-calendar-email');
+      const statusText = document.getElementById('pdf-email-status-text');
+
+      const targetRadios = document.getElementsByName('email-target-radio');
+      let target = 'all';
+      for (const r of targetRadios) {
+        if (r.checked) { target = r.value; break; }
+      }
+
+      const customName = (document.getElementById('pdf-email-custom-name') || {}).value || '';
+      const customEmail = (document.getElementById('pdf-email-custom-addr') || {}).value || '';
+      const subject = (document.getElementById('pdf-email-subject') || {}).value || '';
+      const customNote = (document.getElementById('pdf-email-note') || {}).value || '';
+
+      if (target === 'custom' && (!customEmail || !customEmail.includes('@'))) {
+        alert('Please enter a valid recipient email address.');
+        return;
+      }
+
+      const originalBtnText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳</span><span>Transmitting PDF to Community...</span>`;
+      if (statusText) statusText.textContent = 'Generating PDF & delivering emails...';
+
+      try {
+        const payload = {
+          target: target,
+          custom_email: customEmail,
+          custom_name: customName,
+          subject: subject,
+          custom_note: customNote,
+          year: state.currentYear || 2026,
+          month: 'all',
+          date_color: state.settings.date_text_color || '#D9A441'
+        };
+
+        const res = await fetch('/api/calendar/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(`✅ ${data.message}`);
+          if (statusText) {
+            statusText.className = 'text-[11px] text-emerald-700 font-bold';
+            statusText.textContent = `Delivered to ${data.dispatched_count} recipient(s) (${data.mode})`;
+          }
+          setTimeout(() => {
+            closePdfModal();
+          }, 1500);
+        } else {
+          showToast(`Failed: ${data.error}`, 'error');
+          if (statusText) {
+            statusText.className = 'text-[11px] text-red-600 font-bold';
+            statusText.textContent = data.error;
+          }
+        }
+      } catch (err) {
+        console.error('Send email error:', err);
+        showToast('Network error while sending emails: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+      }
     }
 
     function syncDateColor(hexVal) {
@@ -2116,8 +2486,10 @@
       let clean = hexVal.trim().toUpperCase();
       if (!clean.startsWith('#')) clean = '#' + clean;
       
-      document.getElementById('pdf-date-color-picker').value = clean.length === 7 ? clean : '#D9A441';
-      document.getElementById('pdf-date-color-hex').value = clean;
+      const elPicker = document.getElementById('pdf-date-color-picker');
+      const elHex = document.getElementById('pdf-date-color-hex');
+      if (elPicker) elPicker.value = clean.length === 7 ? clean : '#D9A441';
+      if (elHex) elHex.value = clean;
       state.settings.date_text_color = clean;
       
       // Update persistent setting on server
@@ -2805,6 +3177,7 @@
       // Instantly show modal
       if (modal) {
         modal.classList.remove('hidden');
+        modal.classList.add('flex');
         modal.style.display = 'flex';
       }
 
@@ -2906,6 +3279,7 @@
     function closeProposalModal() {
       const modal = document.getElementById('proposal-modal');
       if (modal) {
+        modal.classList.remove('flex');
         modal.classList.add('hidden');
         modal.style.display = 'none';
       }
@@ -2932,7 +3306,7 @@
         }
       } else {
         if (preview) {
-          preview.src = '';
+          preview.removeAttribute('src');
           preview.classList.add('hidden');
         }
         if (placeholder) placeholder.classList.remove('hidden');
@@ -3072,10 +3446,13 @@
       if (!container) return;
 
       try {
-        const res = await fetch('/api/proposals/gallery-images');
-        const data = await res.json();
-        const available = data.images || [];
-        state.availableGalleryImages = available;
+        let available = state.availableGalleryImages;
+        if (!available || available.length === 0) {
+          const res = await fetch('/api/proposals/gallery-images');
+          const data = await res.json();
+          available = data.images || [];
+          state.availableGalleryImages = available;
+        }
 
         if ((!selectedList || selectedList.length === 0) && available.length > 0) {
           selectedList = available.slice(0, 4).map(img => img.url);
@@ -3240,6 +3617,223 @@
       inputs.forEach(inp => inp.checked = false);
       localStorage.removeItem('bcrc_operations_checklist');
       showToast('Operations checklist reset.');
+    }
+
+    // -------------------------------------------------------------------------
+    // COMMUNITY MEMBERS DIRECTORY & MAILING LIST
+    // -------------------------------------------------------------------------
+    async function loadCommunityMembers() {
+      try {
+        const res = await fetch('/api/community/members');
+        const data = await res.json();
+        if (data.success) {
+          state.communityMembers = data.members || [];
+          renderCommunityMembers();
+          
+          const count = state.communityMembers.length;
+          const badge1 = document.getElementById('community-member-count-badge');
+          const badge2 = document.getElementById('pdf-tab-member-badge');
+          const radioLabel = document.getElementById('email-all-members-label');
+          if (badge1) badge1.textContent = `${count} Members`;
+          if (badge2) badge2.textContent = `${count} Members`;
+          if (radioLabel) radioLabel.textContent = `Broadcast to ${count} registered runners`;
+        }
+      } catch (err) {
+        console.error('Failed to load community members:', err);
+      }
+    }
+
+    function renderCommunityMembers() {
+      const tbody = document.getElementById('community-members-tbody');
+      if (!tbody) return;
+
+      const members = state.communityMembers || [];
+      if (members.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-6 text-center text-gray-400">
+              No registered community members found. Add runners above.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const districtSpotMap = {
+        'MILE DISTRICT': 'Moore junction',
+        'PHARMAFIT DISTRICT': 'Kemta junction',
+        'PANSEKE DISTRICT': 'Skating ground, Panseke',
+        'FUNAAB DISTRICT': 'Funaab gate',
+        'ALL DISTRICTS': 'All 4 District Stations'
+      };
+
+      tbody.innerHTML = members.map(m => {
+        const spot = districtSpotMap[m.district] || m.district;
+        return `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="p-3 font-bold text-gray-900">${m.name}</td>
+            <td class="p-3 font-mono text-gray-700">${m.email}</td>
+            <td class="p-3 font-mono text-gray-600">${m.phone || '—'}</td>
+            <td class="p-3">
+              <span class="font-bold text-brand-green">${m.district}</span>
+              <span class="text-[10px] text-gray-500 block">📍 ${spot}</span>
+            </td>
+            <td class="p-3">
+              <span class="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                ${m.status || 'ACTIVE'}
+              </span>
+            </td>
+            <td class="p-3 text-right space-x-1">
+              <button onclick="deleteCommunityMember('${m.id}')" title="Remove Runner" class="text-red-500 hover:text-red-700 font-bold p-1 rounded hover:bg-red-50">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function addCommunityMemberForm(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-member-name').value.trim();
+      const email = document.getElementById('new-member-email').value.trim();
+      const phone = document.getElementById('new-member-phone').value.trim();
+      const district = document.getElementById('new-member-district').value;
+
+      try {
+        const res = await fetch('/api/community/members', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, district })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Added ${name} to BCRC community directory!`);
+          document.getElementById('new-member-name').value = '';
+          document.getElementById('new-member-email').value = '';
+          document.getElementById('new-member-phone').value = '';
+          await loadCommunityMembers();
+        } else {
+          showToast(`Failed: ${data.error}`, 'error');
+        }
+      } catch (err) {
+        showToast('Error adding member: ' + err.message, 'error');
+      }
+    }
+
+    async function deleteCommunityMember(memberId) {
+      if (!confirm('Are you sure you want to remove this runner from the community email list?')) return;
+      try {
+        const res = await fetch(`/api/community/members/${memberId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Runner removed from list.');
+          await loadCommunityMembers();
+        } else {
+          showToast(data.error || 'Failed to remove', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // SMTP SETTINGS
+    // -------------------------------------------------------------------------
+    async function loadSmtpSettings() {
+      try {
+        const res = await fetch('/api/settings/smtp');
+        const data = await res.json();
+        if (data.success && data.smtp) {
+          state.smtpSettings = data.smtp;
+          const hostEl = document.getElementById('smtp-form-host');
+          const portEl = document.getElementById('smtp-form-port');
+          const userEl = document.getElementById('smtp-form-user');
+          const fromEmailEl = document.getElementById('smtp-form-from-email');
+          const fromNameEl = document.getElementById('smtp-form-from-name');
+          const tlsEl = document.getElementById('smtp-form-tls');
+          const badge = document.getElementById('smtp-status-badge');
+
+          if (hostEl) hostEl.value = data.smtp.host || '';
+          if (portEl) portEl.value = data.smtp.port || 587;
+          if (userEl) userEl.value = data.smtp.user || '';
+          if (fromEmailEl) fromEmailEl.value = data.smtp.from_email || 'club@bekscity.com';
+          if (fromNameEl) fromNameEl.value = data.smtp.from_name || 'BEKSCITY RUN CLUB';
+          if (tlsEl) tlsEl.checked = !!data.smtp.use_tls;
+
+          if (badge) {
+            if (data.smtp.is_configured) {
+              badge.className = 'bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold';
+              badge.textContent = '🟢 Live SMTP Active';
+            } else {
+              badge.className = 'bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold';
+              badge.textContent = '🟡 Simulation Mode (Audit Only)';
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load SMTP settings:', err);
+      }
+    }
+
+    async function saveSmtpSettingsForm(e) {
+      e.preventDefault();
+      const payload = {
+        host: document.getElementById('smtp-form-host').value.trim(),
+        port: parseInt(document.getElementById('smtp-form-port').value.trim() || '587'),
+        user: document.getElementById('smtp-form-user').value.trim(),
+        password: document.getElementById('smtp-form-pass').value,
+        from_email: document.getElementById('smtp-form-from-email').value.trim(),
+        from_name: document.getElementById('smtp-form-from-name').value.trim(),
+        use_tls: document.getElementById('smtp-form-tls').checked
+      };
+
+      try {
+        const res = await fetch('/api/settings/smtp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('SMTP settings saved successfully!');
+          document.getElementById('smtp-form-pass').value = '';
+          await loadSmtpSettings();
+        } else {
+          showToast(data.error || 'Failed to save settings', 'error');
+        }
+      } catch (err) {
+        showToast('Error saving settings: ' + err.message, 'error');
+      }
+    }
+
+    async function sendTestSmtpEmail() {
+      const email = prompt('Enter recipient email for test message:', 'testrunner@bekscity.com');
+      if (!email || !email.includes('@')) return;
+
+      showToast('Dispatching test calendar PDF email...', 'info');
+      try {
+        const res = await fetch('/api/calendar/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target: 'custom',
+            custom_email: email,
+            custom_name: 'Test Recipient',
+            subject: '🏃 BEKSCITY RUN CLUB Test Dispatch',
+            custom_note: 'This is a test delivery from your BCRC Command Center.'
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✅ Test email dispatched (${data.mode})! Check audit log.`);
+          await loadSmtpSettings();
+        } else {
+          showToast(`Test failed: ${data.error}`, 'error');
+        }
+      } catch (err) {
+        showToast('Test error: ' + err.message, 'error');
+      }
     }
 
   </script>

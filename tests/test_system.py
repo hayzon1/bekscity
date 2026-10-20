@@ -580,8 +580,86 @@ class TestBekscitySystem(unittest.TestCase):
             if os.path.exists(pptx_path):
                 os.remove(pptx_path)
 
+    def test_community_members_and_email_dispatch(self):
+        """Test community directory CRUD, email HTML assembly, and calendar PDF dispatch."""
+        import email_service
+
+        # 1. Test database member retrieval
+        members = database.get_community_members()
+        self.assertGreaterEqual(len(members), 3, "Must have default co-founders as community members")
+        emails = [m["email"] for m in members]
+        self.assertIn("oladipupo@bekscity.com", emails)
+        self.assertIn("damilare@bekscity.com", emails)
+        self.assertIn("tobiloba@bekscity.com", emails)
+
+        # 2. Test add member
+        new_m = database.add_community_member({
+            "name": "Abeokuta Runner",
+            "email": "abeokutarunner@example.com",
+            "phone": "08099887766",
+            "district": "MILE DISTRICT"
+        })
+        self.assertEqual(new_m["email"], "abeokutarunner@example.com")
+        self.assertEqual(new_m["district"], "MILE DISTRICT")
+
+        # 3. Test email HTML builder includes co-founders and 4 district spots
+        html = email_service.build_community_email_html(
+            recipient_name="Abeokuta Runner",
+            custom_note="Get ready for Saturday 06:45 AM!"
+        )
+        self.assertIn("Moore junction", html)
+        self.assertIn("Kemta junction", html)
+        self.assertIn("Skating ground, Panseke", html)
+        self.assertIn("Funaab gate", html)
+        self.assertIn("08101674646", html)
+        self.assertIn("08168120117", html)
+        self.assertIn("07069582118", html)
+        self.assertIn("5 days before", html)
+
+        # 4. Test calendar PDF email dispatch service
+        pdf_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bekscity_run_club_calendar_Oct-Dec_2026.pdf")
+        self.assertTrue(os.path.exists(pdf_path), "Master PDF must exist")
+
+        res = email_service.send_calendar_pdf_email(
+            recipients=[{"name": "Abeokuta Runner", "email": "abeokutarunner@example.com"}],
+            pdf_path=pdf_path,
+            custom_note="Welcome to BCRC!"
+        )
+        self.assertTrue(res["success"])
+        self.assertEqual(res["dispatched_count"], 1)
+
+        # 5. Test Flask API endpoints
+        from app import app
+        client = app.test_client()
+
+        # GET members
+        res_m = client.get("/api/community/members")
+        self.assertEqual(res_m.status_code, 200)
+        self.assertTrue(res_m.get_json()["success"])
+
+        # POST send-email
+        res_send = client.post("/api/calendar/send-email", json={
+            "target": "custom",
+            "custom_email": "runner_test@bekscity.com",
+            "custom_name": "Test Runner",
+            "custom_note": "See you on Saturday!"
+        })
+        self.assertEqual(res_send.status_code, 200)
+        data_send = res_send.get_json()
+        self.assertTrue(data_send["success"])
+        self.assertGreaterEqual(data_send["dispatched_count"], 1)
+
+        # GET email history
+        res_hist = client.get("/api/email/history")
+        self.assertEqual(res_hist.status_code, 200)
+        self.assertGreater(res_hist.get_json()["count"], 0)
+
+        # Clean up added member
+        database.delete_community_member(new_m["id"])
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
 

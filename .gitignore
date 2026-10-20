@@ -15,6 +15,7 @@ ENV/
 
 # Generated artifacts
 generated_pdfs/
+email_dispatches/
 test_calendar_*.pdf
 *.log
 static/uploads/

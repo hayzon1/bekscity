@@ -21,6 +21,8 @@ from database import (
     create_itinerary, update_itinerary, delete_itinerary,
     get_all_proposals, get_proposal_by_id, create_proposal,
     update_proposal, delete_proposal,
+    get_community_members, add_community_member, delete_community_member,
+    get_recent_email_dispatches,
     VALID_CATEGORIES, VALID_STATUSES, VALID_DISTRICTS
 )
 from ics_exporter import (
@@ -33,6 +35,7 @@ from itinerary_pdf import build_itinerary_pdf
 from proposal_pdf import build_proposal_pdf
 from proposal_pptx import build_proposal_pptx
 import brand_researcher
+from email_service import send_calendar_pdf_email, get_smtp_config
 from werkzeug.utils import secure_filename
 import tempfile
 
@@ -41,6 +44,16 @@ app.config["JSON_SORT_KEYS"] = False
 
 # Ensure DB is initialized
 init_db()
+
+
+@app.after_request
+def add_cache_headers(response):
+    """Prevents aggressive browser caching of HTML and dynamic API data."""
+    if "Cache-Control" not in response.headers:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
 
 
 @app.route("/")
@@ -278,8 +291,162 @@ def api_generate_pdf():
 
 
 # -----------------------------------------------------------------------------
+# COMMUNITY CALENDAR EMAIL DISPATCH
+# -----------------------------------------------------------------------------
+@app.route("/api/calendar/send-email", methods=["POST"])
+def api_send_calendar_email():
+    """
+    Builds the specified calendar PDF and emails it to community members or a custom address.
+    """
+    data = request.get_json(force=True, silent=True) or {}
+    target = data.get("target", "all")  # 'all' or 'custom'
+    custom_email = data.get("custom_email", "").strip()
+    custom_name = data.get("custom_name", "").strip()
+    custom_note = data.get("custom_note", "").strip()
+    subject = data.get("subject", "").strip() or None
+
+    year = int(data.get("year", 2026))
+    month_arg = data.get("month", "all")
+    date_color = data.get("date_color") or get_setting("date_text_color", DATE_TEXT_COLOR)
+    use_category_accents = str(data.get("category_accents", "false")).lower() in ("true", "1")
+
+    # Validate hex color
+    try:
+        validated_color = validate_hex_color(date_color, "date_color")
+    except ValueError as ve:
+        validated_color = DATE_TEXT_COLOR
+
+    month_val = None
+    if month_arg and str(month_arg).lower() not in ("all", "quarter", ""):
+        try:
+            month_val = int(month_arg)
+        except ValueError:
+            month_val = None
+
+    tmp_pdf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "generated_pdfs")
+    os.makedirs(tmp_pdf_dir, exist_ok=True)
+
+    if month_val is None:
+        filename = f"bekscity_run_club_calendar_Oct-Dec_{year}.pdf"
+    else:
+        filename = f"bekscity_run_club_calendar_{year}_{month_val:02d}.pdf"
+
+    pdf_path = os.path.join(tmp_pdf_dir, filename)
+    master_ics_url = f"{request.host_url.rstrip('/')}/api/calendar.ics"
+    base_url = request.host_url.rstrip('/')
+
+    try:
+        build_calendar_pdf(
+            pdf_path,
+            year=year,
+            month=month_val,
+            date_text_color_override=validated_color,
+            use_category_accents=use_category_accents,
+            include_cover_pages=True,
+            master_ics_url=master_ics_url,
+            base_url=base_url
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Failed to build Calendar PDF: {str(e)}"}), 500
+
+    if target == "custom":
+        if not custom_email or "@" not in custom_email:
+            return jsonify({"success": False, "error": "Valid recipient email is required."}), 400
+        recipients = [{"email": custom_email, "name": custom_name or "Runner"}]
+    else:
+        members = get_community_members(active_only=True)
+        if not members:
+            return jsonify({"success": False, "error": "No active community members found in mailing list."}), 400
+        recipients = [{"email": m["email"], "name": m["name"]} for m in members]
+
+    try:
+        res = send_calendar_pdf_email(
+            recipients=recipients,
+            pdf_path=pdf_path,
+            subject=subject,
+            custom_note=custom_note,
+            sync_url=master_ics_url
+        )
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Email Dispatch Error: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------------------------
+# REST API: COMMUNITY MEMBERS & MAILING LIST
+# -----------------------------------------------------------------------------
+@app.route("/api/community/members", methods=["GET"])
+def api_get_community_members():
+    members = get_community_members()
+    return jsonify({"success": True, "count": len(members), "members": members})
+
+
+@app.route("/api/community/members", methods=["POST"])
+def api_add_community_member():
+    data = request.get_json(force=True, silent=True) or {}
+    if not data.get("name") or not data.get("email"):
+        return jsonify({"success": False, "error": "Name and Email are required."}), 400
+    try:
+        member = add_community_member(data)
+        return jsonify({"success": True, "member": member, "message": "Member added to community list."}), 201
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+@app.route("/api/community/members/<member_id>", methods=["DELETE"])
+def api_delete_community_member(member_id):
+    success = delete_community_member(member_id)
+    if not success:
+        return jsonify({"success": False, "error": "Member not found."}), 404
+    return jsonify({"success": True, "message": "Member removed from mailing list."})
+
+
+@app.route("/api/email/history", methods=["GET"])
+def api_get_email_history():
+    logs = get_recent_email_dispatches(limit=50)
+    return jsonify({"success": True, "count": len(logs), "history": logs})
+
+
+@app.route("/api/settings/smtp", methods=["GET"])
+def api_get_smtp_settings():
+    config = get_smtp_config()
+    safe_config = {
+        "host": config.get("host", ""),
+        "port": config.get("port", 587),
+        "user": config.get("user", ""),
+        "has_password": bool(config.get("password")),
+        "from_email": config.get("from_email", "club@bekscity.com"),
+        "from_name": config.get("from_name", "BEKSCITY RUN CLUB"),
+        "use_tls": config.get("use_tls", True),
+        "is_configured": bool(config.get("host") and config.get("user") and config.get("password"))
+    }
+    return jsonify({"success": True, "smtp": safe_config})
+
+
+@app.route("/api/settings/smtp", methods=["POST"])
+def api_save_smtp_settings():
+    data = request.get_json(force=True, silent=True) or {}
+    if "host" in data:
+        set_setting("smtp_host", str(data["host"]).strip())
+    if "port" in data:
+        set_setting("smtp_port", str(data["port"]).strip())
+    if "user" in data:
+        set_setting("smtp_user", str(data["user"]).strip())
+    if "password" in data and data["password"]:
+        set_setting("smtp_password", str(data["password"]))
+    if "from_email" in data:
+        set_setting("smtp_from_email", str(data["from_email"]).strip())
+    if "from_name" in data:
+        set_setting("smtp_from_name", str(data["from_name"]).strip())
+    if "use_tls" in data:
+        set_setting("smtp_use_tls", "true" if data["use_tls"] else "false")
+    return jsonify({"success": True, "message": "SMTP configuration saved."})
+
+
+# -----------------------------------------------------------------------------
 # REST API: RUN ITINERARIES & OPERATIONS
 # -----------------------------------------------------------------------------
+
 @app.route("/api/itineraries", methods=["GET"])
 def api_get_itineraries():
     event_id = request.args.get("event_id")

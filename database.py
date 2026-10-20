@@ -148,6 +148,31 @@ def init_db(db_path=None):
             )
         """)
 
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS community_members (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                phone TEXT,
+                district TEXT,
+                status TEXT NOT NULL DEFAULT 'ACTIVE',
+                created_at TEXT NOT NULL
+            )
+        """)
+
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS email_dispatches (
+                id TEXT PRIMARY KEY,
+                recipient_email TEXT NOT NULL,
+                recipient_name TEXT,
+                subject TEXT NOT NULL,
+                pdf_filename TEXT,
+                status TEXT NOT NULL,
+                error_message TEXT,
+                dispatched_at TEXT NOT NULL
+            )
+        """)
+
         # Migration for existing databases
         existing_cols = [c[1] for c in conn.execute("PRAGMA table_info(proposals)").fetchall()]
         new_cols = {
@@ -184,6 +209,7 @@ def init_db(db_path=None):
     seed_default_events(conn)
     seed_default_itineraries(conn)
     seed_default_proposals(conn)
+    seed_default_community_members(conn)
     conn.close()
 
 
@@ -1449,4 +1475,194 @@ def delete_proposal(prop_id, conn=None):
     if close_conn:
         conn.close()
     return count > 0
+
+
+# =============================================================================
+# COMMUNITY MEMBERS & EMAIL DISPATCH PERSISTENCE
+# =============================================================================
+
+DEFAULT_COMMUNITY_MEMBERS = [
+    {
+        "id": "MEM-001",
+        "name": "Oladipupo Abdulazeez",
+        "email": "oladipupo@bekscity.com",
+        "phone": "08101674646",
+        "district": "MILE DISTRICT",
+        "status": "ACTIVE"
+    },
+    {
+        "id": "MEM-002",
+        "name": "Shittu Oluwadamilare",
+        "email": "damilare@bekscity.com",
+        "phone": "08168120117",
+        "district": "PHARMAFIT DISTRICT",
+        "status": "ACTIVE"
+    },
+    {
+        "id": "MEM-003",
+        "name": "Adebanjo Oluwatobiloba",
+        "email": "tobiloba@bekscity.com",
+        "phone": "07069582118",
+        "district": "PANSEKE DISTRICT",
+        "status": "ACTIVE"
+    },
+    {
+        "id": "MEM-004",
+        "name": "FUNAAB District Run Captain",
+        "email": "funaab_lead@bekscity.com",
+        "phone": "08012345678",
+        "district": "FUNAAB DISTRICT",
+        "status": "ACTIVE"
+    },
+    {
+        "id": "MEM-005",
+        "name": "BCRC Community Runners Group",
+        "email": "community@bekscity.com",
+        "phone": "08100000000",
+        "district": "ALL DISTRICTS",
+        "status": "ACTIVE"
+    }
+]
+
+
+def seed_default_community_members(conn):
+    """Seeds initial community members (co-founders and district leads) if table is empty."""
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM community_members")
+    count = cursor.fetchone()[0]
+    if count == 0:
+        now_iso = datetime.now().isoformat()
+        for m in DEFAULT_COMMUNITY_MEMBERS:
+            cursor.execute("""
+                INSERT OR IGNORE INTO community_members
+                (id, name, email, phone, district, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (m["id"], m["name"], m["email"], m.get("phone", ""), m.get("district", ""), m.get("status", "ACTIVE"), now_iso))
+        conn.commit()
+
+
+def get_community_members(active_only=False, district=None, conn=None):
+    """Retrieves list of registered community members."""
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    query = "SELECT * FROM community_members WHERE 1=1"
+    params = []
+    if active_only:
+        query += " AND status = 'ACTIVE'"
+    if district and district.upper() != "ALL":
+        query += " AND (district = ? OR district = 'ALL DISTRICTS')"
+        params.append(district.upper())
+    query += " ORDER BY name ASC"
+
+    cursor = conn.cursor()
+    cursor.execute(query, params)
+    rows = [dict(r) for r in cursor.fetchall()]
+    if close_conn:
+        conn.close()
+    return rows
+
+
+def get_community_member_by_id(member_id, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM community_members WHERE id = ?", (member_id,))
+    row = cursor.fetchone()
+    if close_conn:
+        conn.close()
+    return dict(row) if row else None
+
+
+def add_community_member(data, conn=None):
+    """Adds a new community member to the directory/mailing list."""
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    name = str(data.get("name", "")).strip()
+    email = str(data.get("email", "")).strip().lower()
+    if not name or not email:
+        if close_conn:
+            conn.close()
+        raise ValueError("Name and Email are required for community member.")
+
+    member_id = data.get("id")
+    if not member_id:
+        import uuid
+        member_id = f"MEM-{str(uuid.uuid4())[:8].upper()}"
+
+    now_iso = datetime.now().isoformat()
+    phone = str(data.get("phone", "")).strip()
+    district = str(data.get("district", "ALL DISTRICTS")).strip().upper()
+    status = str(data.get("status", "ACTIVE")).strip().upper()
+
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO community_members (id, name, email, phone, district, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (member_id, name, email, phone, district, status, now_iso))
+
+    new_member = get_community_member_by_id(member_id, conn=conn)
+    if close_conn:
+        conn.close()
+    return new_member
+
+
+def delete_community_member(member_id, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM community_members WHERE id = ?", (member_id,))
+        count = cursor.rowcount
+    if close_conn:
+        conn.close()
+    return count > 0
+
+
+def record_email_dispatch(recipient_email, recipient_name, subject, pdf_filename, status, error_message=None, conn=None):
+    """Records an email dispatch in the audit history."""
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    import uuid
+    dispatch_id = f"DISP-{str(uuid.uuid4())[:8].upper()}"
+    now_iso = datetime.now().isoformat()
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO email_dispatches (id, recipient_email, recipient_name, subject, pdf_filename, status, error_message, dispatched_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (dispatch_id, recipient_email, recipient_name or "", subject, pdf_filename, status, error_message or "", now_iso))
+    if close_conn:
+        conn.close()
+    return dispatch_id
+
+
+def get_recent_email_dispatches(limit=50, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT * FROM email_dispatches
+        ORDER BY dispatched_at DESC
+        LIMIT ?
+    """, (limit,))
+    rows = [dict(r) for r in cursor.fetchall()]
+    if close_conn:
+        conn.close()
+    return rows
+
 
