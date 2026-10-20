@@ -134,10 +134,36 @@ def init_db(db_path=None):
                 contact_email TEXT,
                 contact_phone TEXT,
                 notes TEXT,
+                proposed_role TEXT,
+                brand_logo_url TEXT,
+                run_club_images TEXT,
+                brand_overview TEXT,
+                why_partner TEXT,
+                requests_summary TEXT,
+                activations TEXT,
+                commercial_tiers TEXT,
+                presentation_template TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             )
         """)
+
+        # Migration for existing databases
+        existing_cols = [c[1] for c in conn.execute("PRAGMA table_info(proposals)").fetchall()]
+        new_cols = {
+            "proposed_role": "TEXT",
+            "brand_logo_url": "TEXT",
+            "run_club_images": "TEXT",
+            "brand_overview": "TEXT",
+            "why_partner": "TEXT",
+            "requests_summary": "TEXT",
+            "activations": "TEXT",
+            "commercial_tiers": "TEXT",
+            "presentation_template": "TEXT"
+        }
+        for col_name, col_type in new_cols.items():
+            if col_name not in existing_cols:
+                conn.execute(f"ALTER TABLE proposals ADD COLUMN {col_name} {col_type}")
 
         # Default settings
         default_settings = {
@@ -1015,6 +1041,28 @@ def seed_default_proposals(conn=None):
             "contact_email": "sponsorships@soakersenergy.com",
             "contact_phone": "08023456789",
             "notes": "Proposal pitch deck sent. Follow-up meeting scheduled with brand manager."
+        },
+        {
+            "id": "PROP-2026-004",
+            "brand_name": "POCARI SWEAT",
+            "proposed_role": "Official Hydration Partner",
+            "event_id": "BCRC-20261024-01",
+            "event_name": "Run and Rumble — The Playground Experience",
+            "partnership_tier": "Strategic Partner",
+            "status": "UNDER_REVIEW",
+            "value_amount": "₦1,500,000 Sponsorship + 1,200 Chilled Product Units",
+            "pitch_hook": "We'd like to invite POCARI SWEAT to become the Official Hydration Partner of Beks City Run Club.",
+            "why_partner": "Hydration is essential to the running experience. POCARI SWEAT's positioning around replenishing fluids and electrolytes makes it a natural fit for our community of runners and fitness enthusiasts in Abeokuta's warm tropical climate.",
+            "requests_summary": "Product Support for runners and volunteers, Financial Sponsorship toward event logistics, Hydration Infrastructure at checkpoints, and Brand Activation Support.",
+            "deliverables": "Recognition as Official Hydration Partner of BCRC\nAgreed brand visibility across event materials and digital promotions\nPOCARI SWEAT branded hydration stations at key course checkpoints\nDedicated post-run hydration and recovery activation area\nDefined digital and social media sponsor mentions (200k+ reach)\nProduct sampling and direct engagement with runners\nInclusion in official recap photography and videography content",
+            "brand_benefits": "Direct physical sampling to 600+ active health-conscious consumers\n200,000+ views across Instagram and TikTok recap media\nCategory exclusivity in sports hydration & electrolyte beverages\nAssociation with healthy living, fitness, and youth community movement",
+            "activations": "● POCARI SWEAT Hydration Station at Mile 5\n● POCARI SWEAT Hydration & Recovery Zone at Moore Junction\n● Direct product sampling & runner engagement\n● Educational hydration messaging approved by brand",
+            "brand_logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Pocari_Sweat_logo.png/330px-Pocari_Sweat_logo.png",
+            "run_club_images": "[\"/static/img/gallery/image1.jpeg\", \"/static/img/gallery/image5.jpeg\", \"/static/img/gallery/image6.jpeg\"]",
+            "contact_person": "The POCARI SWEAT Team",
+            "contact_email": "partnerships@pocarisweat.ng",
+            "contact_phone": "08101674646",
+            "notes": "Customized brand deck generated matching Pocari Sweat Proposal template."
         }
     ]
 
@@ -1027,14 +1075,22 @@ def seed_default_proposals(conn=None):
                         id, brand_name, event_id, event_name, partnership_tier,
                         status, value_amount, pitch_hook, deliverables,
                         brand_benefits, contact_person, contact_email,
-                        contact_phone, notes, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        contact_phone, notes, proposed_role, brand_logo_url,
+                        run_club_images, brand_overview, why_partner,
+                        requests_summary, activations, commercial_tiers,
+                        presentation_template, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     pr["id"], pr["brand_name"], pr["event_id"], pr["event_name"],
                     pr["partnership_tier"], pr["status"], pr["value_amount"],
                     pr["pitch_hook"], pr["deliverables"], pr["brand_benefits"],
                     pr["contact_person"], pr["contact_email"], pr["contact_phone"],
-                    pr["notes"], now_iso, now_iso
+                    pr["notes"], pr.get("proposed_role", ""), pr.get("brand_logo_url", ""),
+                    pr.get("run_club_images", "[]"), pr.get("brand_overview", ""),
+                    pr.get("why_partner", ""), pr.get("requests_summary", ""),
+                    pr.get("activations", ""), pr.get("commercial_tiers", ""),
+                    pr.get("presentation_template", "pocari_style"),
+                    now_iso, now_iso
                 ))
 
     if close_conn:
@@ -1295,8 +1351,11 @@ def create_proposal(data, conn=None):
                 id, brand_name, event_id, event_name, partnership_tier,
                 status, value_amount, pitch_hook, deliverables,
                 brand_benefits, contact_person, contact_email,
-                contact_phone, notes, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                contact_phone, notes, proposed_role, brand_logo_url,
+                run_club_images, brand_overview, why_partner,
+                requests_summary, activations, commercial_tiers,
+                presentation_template, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             prop_id,
             data.get("brand_name", "Brand Partner"),
@@ -1312,6 +1371,15 @@ def create_proposal(data, conn=None):
             data.get("contact_email", ""),
             data.get("contact_phone", ""),
             data.get("notes", ""),
+            data.get("proposed_role", ""),
+            data.get("brand_logo_url", ""),
+            data.get("run_club_images", "[]") if isinstance(data.get("run_club_images"), str) else json.dumps(data.get("run_club_images", [])),
+            data.get("brand_overview", ""),
+            data.get("why_partner", ""),
+            data.get("requests_summary", ""),
+            data.get("activations", ""),
+            data.get("commercial_tiers", ""),
+            data.get("presentation_template", "pocari_style"),
             now_iso,
             now_iso
         ))
@@ -1333,7 +1401,10 @@ def update_proposal(prop_id, data, conn=None):
         "brand_name", "event_id", "event_name", "partnership_tier",
         "status", "value_amount", "pitch_hook", "deliverables",
         "brand_benefits", "contact_person", "contact_email",
-        "contact_phone", "notes"
+        "contact_phone", "notes", "proposed_role", "brand_logo_url",
+        "run_club_images", "brand_overview", "why_partner",
+        "requests_summary", "activations", "commercial_tiers",
+        "presentation_template"
     ]
     fields = []
     params = []
@@ -1343,6 +1414,8 @@ def update_proposal(prop_id, data, conn=None):
             val = data[k]
             if k == "status" and val:
                 val = str(val).upper()
+            elif k == "run_club_images" and not isinstance(val, str):
+                val = json.dumps(val)
             params.append(val)
 
     if not fields:

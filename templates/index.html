@@ -371,7 +371,7 @@
             <span id="proposal-total-count" class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0 Deals</span>
           </div>
           <p class="text-xs text-gray-500 mt-1">
-            Sort and track commercial brand partnerships, deliverables, pitch decks, and generate formal 2-page sponsorship proposal PDFs.
+            Manage commercial brand partnerships, auto-research brand details online, customize brand & club photography, and export 11-slide presentation pitch decks (PDF & PowerPoint PPTX).
           </p>
         </div>
         <div class="flex items-center space-x-3">
@@ -1220,30 +1220,110 @@
 
   <!-- PROPOSAL EDIT / CREATE MODAL -->
   <div id="proposal-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-gray-200 overflow-hidden transform transition-all">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-gray-200 overflow-hidden transform transition-all">
       <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
         <div>
-          <h3 id="proposal-modal-title" class="font-display font-bold text-lg text-white">Brand Sponsorship Proposal Editor</h3>
-          <p class="text-xs text-brand-gold">Generates formal 2-page sponsorship proposal PDFs</p>
+          <h3 id="proposal-modal-title" class="font-display font-bold text-lg text-white">Brand Sponsorship Proposal & Pitch Deck Editor</h3>
+          <p class="text-xs text-brand-gold">Online Brand Research • Custom Image Uploads • 11-Slide PDF & PPTX Presentation Decks</p>
         </div>
         <div class="flex items-center space-x-2">
           <span id="proposal-modal-id" class="text-xs font-mono bg-gray-800 text-brand-gold px-2.5 py-1 rounded">AUTO-ID</span>
-          <button onclick="closeProposalModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">✕</button>
+          <button type="button" onclick="closeProposalModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">✕</button>
         </div>
       </div>
 
-      <form id="proposal-form" onsubmit="saveProposalForm(event)" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto text-xs">
+      <form id="proposal-form" onsubmit="saveProposalForm(event)" class="p-6 space-y-5 max-h-[78vh] overflow-y-auto text-xs">
         <input type="hidden" id="prop-form-id" name="id">
+        <input type="hidden" id="prop-form-logo-url" name="brand_logo_url">
+        <input type="hidden" id="prop-form-run-club-images" name="run_club_images">
 
-        <!-- Brand Name & Event -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Online Brand Intelligence Row -->
+        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center space-x-2">
+              <span class="text-base">⚡</span>
+              <div>
+                <p class="font-bold text-gray-900 text-xs">AI & Online Brand Intelligence</p>
+                <p class="text-[11px] text-gray-600">Enter any brand (e.g. <span class="font-semibold text-amber-900">Procari</span>, Red Bull, Guinness, Nike, Flutterwave) to fetch brand details, logo, and a tailored BCRC partnership strategy.</p>
+              </div>
+            </div>
+            <button type="button" id="btn-research-brand" onclick="autoResearchBrandOnline()" class="bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-gray-950 font-display font-extrabold text-xs px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition-all">
+              <span id="btn-research-icon">⚡</span>
+              <span id="btn-research-text">Auto-Research Brand Online</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Brand Name, Role & Event -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block font-bold text-gray-700 mb-1">Brand / Company Name *</label>
-            <input type="text" id="prop-form-brand" required placeholder="e.g. Breakfast Club Africa, Archers Live, Soakers" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+            <input type="text" id="prop-form-brand" required placeholder="e.g. Pocari Sweat, Red Bull, Nike" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Proposed Brand Role</label>
+            <input type="text" id="prop-form-role" placeholder="e.g. Official Hydration Partner" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
           </div>
           <div>
             <label class="block font-bold text-gray-700 mb-1">Target Event Name</label>
-            <input type="text" id="prop-form-event" placeholder="e.g. Run and Rumble Evening Festival, Social Run" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+            <input type="text" id="prop-form-event" placeholder="e.g. Run and Rumble, Saturday Social" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Image Management: Brand Logo & Run Club Action Photos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Brand Logo Upload & Preview -->
+          <div class="border border-gray-200 bg-gray-50/60 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between">
+                <label class="block font-bold text-gray-800 text-xs">Partner Brand Logo (Slide 1)</label>
+                <span id="prop-logo-source-label" class="text-[10px] text-gray-500 font-medium">No logo selected</span>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-0.5">Auto-fetched from Wikipedia or upload custom high-res logo.</p>
+            </div>
+            
+            <div class="flex items-center space-x-3 bg-white p-2.5 rounded-lg border border-gray-200">
+              <div class="w-16 h-16 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img id="prop-logo-preview" src="" alt="Brand Logo" class="w-full h-full object-contain p-1 hidden">
+                <span id="prop-logo-placeholder" class="text-gray-400 text-xl font-bold">🏢</span>
+              </div>
+              <div class="space-y-1.5 flex-1">
+                <input type="file" id="prop-logo-file-input" class="hidden" accept="image/*" onchange="uploadBrandLogo(this)">
+                <button type="button" onclick="document.getElementById('prop-logo-file-input').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs px-3 py-1.5 rounded-lg border border-gray-300 w-full flex items-center justify-center space-x-1">
+                  <span>📁</span><span>Upload Custom Brand Logo</span>
+                </button>
+                <button type="button" onclick="clearBrandLogo()" id="btn-clear-logo" class="text-[10px] text-red-600 hover:underline hidden w-full text-center">Remove Logo</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Run Club Action Photos Uploader -->
+          <div class="border border-gray-200 bg-gray-50/60 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between">
+                <label class="block font-bold text-gray-800 text-xs">Run Club Photos (Slide 9 Gallery)</label>
+                <span id="prop-gallery-selected-count" class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">4 Selected</span>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-0.5">Upload new club photos or choose from the archive below.</p>
+            </div>
+
+            <div class="bg-white p-2.5 rounded-lg border border-gray-200 flex items-center justify-between">
+              <input type="file" id="prop-run-photos-file-input" class="hidden" multiple accept="image/*" onchange="uploadRunClubPhotos(this)">
+              <button type="button" onclick="document.getElementById('prop-run-photos-file-input').click()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-sm w-full flex items-center justify-center space-x-1.5 transition-colors">
+                <span>📸</span><span>Upload New Run Club Photos</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Run Club Gallery Selector (Slide 9 4-Photo Collage) -->
+        <div class="border border-gray-200 rounded-xl p-3.5 bg-gray-50/40 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-gray-700 text-xs">Select BCRC Community Photos for Presentation Deck:</span>
+            <span class="text-[10px] text-gray-500">Click thumbnails to toggle (4 featured in collage)</span>
+          </div>
+          <div id="prop-gallery-picker" class="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-40 overflow-y-auto p-1 bg-white rounded-lg border border-gray-200">
+            <!-- Rendered dynamically -->
           </div>
         </div>
 
@@ -1251,13 +1331,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block font-bold text-gray-700 mb-1">Partnership Tier *</label>
-            <select id="prop-form-tier" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
-              <option value="Headline Experience Partner">Headline Experience Partner</option>
-              <option value="Gold Nutrition Partner">Gold Nutrition Partner</option>
-              <option value="Official Hydration Sponsor">Official Hydration Sponsor</option>
-              <option value="Wellness Partner">Wellness Partner</option>
-              <option value="Community Partner">Community Partner</option>
-            </select>
+            <input type="text" id="prop-form-tier" required placeholder="e.g. Official Hydration Partner" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
           </div>
           <div>
             <label class="block font-bold text-gray-700 mb-1">Proposal Pipeline Status *</label>
@@ -1278,17 +1352,35 @@
         <!-- Pitch Hook -->
         <div>
           <label class="block font-bold text-gray-700 mb-1">Executive Pitch Hook</label>
-          <input type="text" id="prop-form-pitch" placeholder="e.g. Powering Abeokuta's premier urban running movement with healthy morning nutrition and high-engagement brand activations." class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          <input type="text" id="prop-form-pitch" placeholder="e.g. Powering Abeokuta's premier urban running movement..." class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+        </div>
+
+        <!-- Why Partner (Natural Fit) -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Why Partner (Natural Fit & Vision) - Slide 6</label>
+          <textarea id="prop-form-why-partner" rows="3" placeholder="Strategic synergy and community alignment..." class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+        </div>
+
+        <!-- Proposed Activations & Requests Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Proposed Activations & Touchpoints - Slide 7</label>
+            <textarea id="prop-form-activations" rows="4" placeholder="• Experience Zone: Product sampling&#10;• Finish-Line Celebration Photo Booth&#10;• Social Media Giveaway & Contest" class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Requests Summary (What We Need) - Slide 8</label>
+            <textarea id="prop-form-requests" rows="4" placeholder="• Product Support: Product supply for runners&#10;• Financial Sponsorship: Logistics & road safety&#10;• Brand Infrastructure: Station & feather flags" class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+          </div>
         </div>
 
         <!-- Deliverables & Brand Benefits -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Brand Deliverables (One per line)</label>
-            <textarea id="prop-form-deliverables" rows="4" placeholder="Exclusive post-run breakfast branding&#10;Pop-up sampling station at venue&#10;Logo on digital event flyers & calendar PDF&#10;Dedicated Instagram reel & newsletter highlight" class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+            <label class="block font-bold text-gray-700 mb-1">Brand Deliverables (What You Get) - Slide 10</label>
+            <textarea id="prop-form-deliverables" rows="4" placeholder="Exclusive post-run brand showcase&#10;Pop-up sampling station at venue&#10;Logo on digital event flyers & calendar PDF&#10;Dedicated Instagram reel & newsletter highlight" class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
           </div>
           <div>
-            <label class="block font-bold text-gray-700 mb-1">Audience & Commercial Benefits (One per line)</label>
+            <label class="block font-bold text-gray-700 mb-1">Audience & Commercial Benefits - Slide 5</label>
             <textarea id="prop-form-benefits" rows="4" placeholder="Direct access to 300+ health-conscious active young professionals&#10;High digital reach across Instagram & WhatsApp communities&#10;Experiential touchpoint and product trial" class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
           </div>
         </div>
@@ -1319,7 +1411,7 @@
         <div class="pt-4 border-t border-gray-200 flex justify-end space-x-2">
           <button type="button" onclick="closeProposalModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">Cancel</button>
           <button type="submit" class="bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-display font-extrabold px-5 py-2 rounded-lg shadow">
-            Save Sponsorship Proposal
+            Save Sponsorship Proposal & Deck
           </button>
         </div>
       </form>
@@ -2591,11 +2683,22 @@
                 <span class="font-mono text-xs text-gray-400">${prop.id}</span>
               </div>
 
-              <!-- Brand Name & Event -->
-              <div>
-                <h3 class="text-xl font-display font-black text-gray-950">${prop.brand_name}</h3>
-                <p class="text-xs font-bold text-brand-goldDark mt-0.5">${prop.partnership_tier || 'Headline Partner'}</p>
-                <p class="text-xs text-gray-500 mt-0.5">Target: <strong>${prop.event_name || 'Weekly Signature Run'}</strong></p>
+              <!-- Brand Header with Logo -->
+              <div class="flex items-start space-x-3">
+                ${prop.brand_logo_url ? `
+                  <div class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center p-1 overflow-hidden flex-shrink-0">
+                    <img src="${prop.brand_logo_url}" alt="${prop.brand_name}" class="w-full h-full object-contain" onerror="this.parentElement.style.display='none'">
+                  </div>
+                ` : `
+                  <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 font-black font-display text-sm flex items-center justify-center flex-shrink-0">
+                    ${(prop.brand_name || 'B').substring(0, 2).toUpperCase()}
+                  </div>
+                `}
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-lg font-display font-black text-gray-950 truncate">${prop.brand_name}</h3>
+                  <p class="text-xs font-bold text-amber-700 mt-0.5 truncate">${prop.proposed_role || prop.partnership_tier || 'Headline Partner'}</p>
+                  <p class="text-[11px] text-gray-500 mt-0.5 truncate">Target: <strong>${prop.event_name || 'Run and Rumble'}</strong></p>
+                </div>
               </div>
 
               <!-- Valuation Amount -->
@@ -2606,7 +2709,7 @@
 
               <!-- Pitch Hook -->
               ${prop.pitch_hook ? `
-                <p class="text-xs text-gray-600 italic bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                <p class="text-xs text-gray-600 italic bg-gray-50 p-2.5 rounded-lg border border-gray-100 line-clamp-2">
                   "${prop.pitch_hook}"
                 </p>
               ` : ''}
@@ -2616,7 +2719,7 @@
                 <div class="space-y-1">
                   <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Key Deliverables:</p>
                   <ul class="text-[11px] text-gray-700 space-y-0.5">
-                    ${deliverablesList.map(d => `<li class="truncate">• ${d}</li>`).join('')}
+                    ${deliverablesList.map(d => `<li class="truncate">• ${d.replace(/^•\s*/, '')}</li>`).join('')}
                   </ul>
                 </div>
               ` : ''}
@@ -2630,16 +2733,20 @@
               ` : ''}
             </div>
 
-            <!-- Card Actions -->
-            <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
-              <a href="/api/proposals/${prop.id}/pdf" target="_blank" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center space-x-1 shadow transition-colors">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/></svg>
-                <span>Download PDF</span>
+            <!-- Card Actions: Dual Downloads & Edit -->
+            <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-1.5 flex-wrap">
+              <a href="/api/proposals/${prop.id}/pdf" target="_blank" class="flex-1 min-w-[105px] bg-red-600 hover:bg-red-700 text-white font-bold text-[11px] py-2 px-2 rounded-xl flex items-center justify-center space-x-1 shadow transition-colors" title="Download 11-page Presentation PDF Deck">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/></svg>
+                <span>PDF Deck</span>
               </a>
-              <button onclick="openProposalModal('${prop.id}')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs px-3 py-2 rounded-xl border border-gray-300">
+              <a href="/api/proposals/${prop.id}/pptx" target="_blank" class="flex-1 min-w-[110px] bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] py-2 px-2 rounded-xl flex items-center justify-center space-x-1 shadow transition-colors" title="Download 11-slide Widescreen PowerPoint Deck">
+                <span>📊</span>
+                <span>PPTX Deck</span>
+              </a>
+              <button onclick="openProposalModal('${prop.id}')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-[11px] px-2.5 py-2 rounded-xl border border-gray-300">
                 ✏️ Edit
               </button>
-              <button onclick="deleteProposal('${prop.id}')" class="text-gray-400 hover:text-red-600 p-2 rounded-lg" title="Delete Proposal">
+              <button onclick="deleteProposal('${prop.id}')" class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg" title="Delete Proposal">
                 🗑️
               </button>
             </div>
@@ -2682,6 +2789,7 @@
       }
       const filtered = state.proposals.filter(p => {
         return (p.brand_name || '').toLowerCase().includes(q) ||
+               (p.proposed_role || '').toLowerCase().includes(q) ||
                (p.event_name || '').toLowerCase().includes(q) ||
                (p.partnership_tier || '').toLowerCase().includes(q) ||
                (p.pitch_hook || '').toLowerCase().includes(q);
@@ -2689,40 +2797,67 @@
       renderProposals(filtered);
     }
 
-    function openProposalModal(propId = null) {
+    async function openProposalModal(propId = null) {
       state.editingProposalId = propId;
       const modal = document.getElementById('proposal-modal');
       const form = document.getElementById('proposal-form');
       form.reset();
 
+      let selectedImages = [];
+      let logoUrl = '';
+
       if (propId) {
         const p = state.proposals.find(item => item.id === propId);
         if (p) {
-          document.getElementById('proposal-modal-title').textContent = 'Edit Sponsorship Proposal';
+          document.getElementById('proposal-modal-title').textContent = 'Edit Sponsorship Proposal & Pitch Deck';
           document.getElementById('proposal-modal-id').textContent = p.id;
           document.getElementById('prop-form-id').value = p.id;
           document.getElementById('prop-form-brand').value = p.brand_name || '';
-          document.getElementById('prop-form-event').value = p.event_name || '';
+          document.getElementById('prop-form-role').value = p.proposed_role || '';
+          document.getElementById('prop-form-event').value = p.event_name || 'Run and Rumble';
           document.getElementById('prop-form-tier').value = p.partnership_tier || 'Headline Experience Partner';
           document.getElementById('prop-form-status').value = (p.status || 'DRAFT').toUpperCase();
           document.getElementById('prop-form-value').value = p.value_amount || '';
           document.getElementById('prop-form-pitch').value = p.pitch_hook || '';
+          document.getElementById('prop-form-why-partner').value = p.why_partner || '';
+          document.getElementById('prop-form-activations').value = p.activations || '';
+          document.getElementById('prop-form-requests').value = p.requests_summary || '';
           document.getElementById('prop-form-deliverables').value = p.deliverables || '';
           document.getElementById('prop-form-benefits').value = p.brand_benefits || '';
           document.getElementById('prop-form-contact-person').value = p.contact_person || '';
           document.getElementById('prop-form-contact-email').value = p.contact_email || '';
           document.getElementById('prop-form-contact-phone').value = p.contact_phone || '';
           document.getElementById('prop-form-notes').value = p.notes || '';
+          
+          logoUrl = p.brand_logo_url || '';
+          if (p.run_club_images) {
+            try {
+              selectedImages = typeof p.run_club_images === 'string' && p.run_club_images.startsWith('[') 
+                ? JSON.parse(p.run_club_images) 
+                : p.run_club_images.split(',').map(s => s.trim()).filter(Boolean);
+            } catch(e) {
+              selectedImages = [];
+            }
+          }
         }
       } else {
-        document.getElementById('proposal-modal-title').textContent = 'Create Sponsorship Proposal';
+        document.getElementById('proposal-modal-title').textContent = 'Create Sponsorship Proposal & Pitch Deck';
         document.getElementById('proposal-modal-id').textContent = 'AUTO-ID';
         document.getElementById('prop-form-id').value = '';
-        document.getElementById('prop-form-tier').value = 'Gold Nutrition Partner';
+        document.getElementById('prop-form-brand').value = '';
+        document.getElementById('prop-form-role').value = '';
+        document.getElementById('prop-form-tier').value = 'Official Hydration Partner';
         document.getElementById('prop-form-status').value = 'DRAFT';
-        document.getElementById('prop-form-deliverables').value = 'Exclusive post-run brand showcase\nPop-up sampling station at event venue\nLogo on digital event flyers & calendar PDF\nDedicated Instagram reel sponsor feature';
-        document.getElementById('prop-form-benefits').value = 'Direct experiential access to 300+ health-conscious active young professionals\nHigh digital impression across BCRC social media communities\nPhysical engagement and premium product trials';
+        document.getElementById('prop-form-event').value = 'Run and Rumble';
+        document.getElementById('prop-form-deliverables').value = '• Exclusive post-run brand showcase\n• Pop-up sampling station at event venue\n• Logo on digital event flyers & calendar PDF\n• Dedicated Instagram reel sponsor feature';
+        document.getElementById('prop-form-benefits').value = '• Direct experiential access to 300+ health-conscious active young professionals\n• High digital impression across BCRC social media communities\n• Physical engagement and premium product trials';
+        document.getElementById('prop-form-why-partner').value = '';
+        document.getElementById('prop-form-activations').value = '';
+        document.getElementById('prop-form-requests').value = '';
       }
+
+      setBrandLogo(logoUrl);
+      await loadGalleryPicker(selectedImages);
 
       modal.classList.remove('hidden');
     }
@@ -2731,19 +2866,243 @@
       document.getElementById('proposal-modal').classList.add('hidden');
     }
 
+    function setBrandLogo(url) {
+      const input = document.getElementById('prop-form-logo-url');
+      const preview = document.getElementById('prop-logo-preview');
+      const placeholder = document.getElementById('prop-logo-placeholder');
+      const label = document.getElementById('prop-logo-source-label');
+      const clearBtn = document.getElementById('btn-clear-logo');
+
+      input.value = url || '';
+      if (url) {
+        preview.src = url;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        clearBtn.classList.remove('hidden');
+        label.textContent = url.startsWith('/static/uploads') ? 'Custom Uploaded Logo' : 'Online / Wikipedia Logo';
+        label.className = 'text-[10px] text-emerald-700 font-bold';
+      } else {
+        preview.src = '';
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        clearBtn.classList.add('hidden');
+        label.textContent = 'No logo selected';
+        label.className = 'text-[10px] text-gray-500 font-medium';
+      }
+    }
+
+    function clearBrandLogo() {
+      setBrandLogo('');
+    }
+
+    async function autoResearchBrandOnline() {
+      const brandInput = document.getElementById('prop-form-brand');
+      const brandName = (brandInput.value || '').trim();
+      const eventName = (document.getElementById('prop-form-event').value || '').trim();
+
+      if (!brandName) {
+        showToast('Please type a brand name first (e.g. Procari, Red Bull, Nike).', 'error');
+        brandInput.focus();
+        return;
+      }
+
+      const btn = document.getElementById('btn-research-brand');
+      const btnText = document.getElementById('btn-research-text');
+      const btnIcon = document.getElementById('btn-research-icon');
+      
+      btn.disabled = true;
+      btn.classList.add('opacity-75');
+      btnText.textContent = 'Researching Online...';
+      btnIcon.textContent = '⏳';
+
+      try {
+        const res = await fetch('/api/proposals/research-brand', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ brand_name: brandName, event_name: eventName })
+        });
+        const data = await res.json();
+
+        if (data.success && data.brand) {
+          const b = data.brand;
+          brandInput.value = b.canonical_name || brandName.toUpperCase();
+          if (b.proposed_role) document.getElementById('prop-form-role').value = b.proposed_role;
+          if (b.partnership_tier) document.getElementById('prop-form-tier').value = b.partnership_tier;
+          if (b.value_amount) document.getElementById('prop-form-value').value = b.value_amount;
+          if (b.pitch_hook) document.getElementById('prop-form-pitch').value = b.pitch_hook;
+          if (b.why_partner) document.getElementById('prop-form-why-partner').value = b.why_partner;
+          if (b.deliverables) document.getElementById('prop-form-deliverables').value = b.deliverables;
+          if (b.brand_benefits) document.getElementById('prop-form-benefits').value = b.brand_benefits;
+          if (b.activations) document.getElementById('prop-form-activations').value = b.activations;
+          if (b.requests_summary) document.getElementById('prop-form-requests').value = b.requests_summary;
+          if (b.logo_url) {
+            setBrandLogo(b.logo_url);
+          }
+
+          showToast(`⚡ Research complete: Tailored strategy for ${b.canonical_name} loaded!`);
+        } else {
+          showToast(data.error || 'Failed to research brand.', 'error');
+        }
+      } catch (err) {
+        showToast('Error researching brand: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-75');
+        btnText.textContent = 'Auto-Research Brand Online';
+        btnIcon.textContent = '⚡';
+      }
+    }
+
+    async function uploadBrandLogo(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'brand_logo');
+
+      try {
+        showToast('Uploading brand logo...', 'info');
+        const res = await fetch('/api/proposals/upload-image', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+          setBrandLogo(data.url);
+          showToast('Brand logo uploaded successfully!');
+        } else {
+          showToast(data.error || 'Failed to upload logo', 'error');
+        }
+      } catch (e) {
+        showToast('Upload error: ' + e.message, 'error');
+      } finally {
+        input.value = '';
+      }
+    }
+
+    async function uploadRunClubPhotos(input) {
+      if (!input.files || input.files.length === 0) return;
+      const files = Array.from(input.files);
+      let uploadedUrls = [];
+
+      showToast(`Uploading ${files.length} run club photo(s)...`, 'info');
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', 'run_club');
+        try {
+          const res = await fetch('/api/proposals/upload-image', {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (data.success && data.url) {
+            uploadedUrls.push(data.url);
+          }
+        } catch (e) {
+          console.error('Failed to upload file:', file.name, e);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        showToast(`Uploaded ${uploadedUrls.length} photo(s) successfully!`);
+        const currentSelected = state.proposalSelectedImages || [];
+        const merged = [...uploadedUrls, ...currentSelected];
+        await loadGalleryPicker(merged);
+      }
+      input.value = '';
+    }
+
+    async function loadGalleryPicker(selectedList = []) {
+      const container = document.getElementById('prop-gallery-picker');
+      if (!container) return;
+
+      try {
+        const res = await fetch('/api/proposals/gallery-images');
+        const data = await res.json();
+        const available = data.images || [];
+        state.availableGalleryImages = available;
+
+        if ((!selectedList || selectedList.length === 0) && available.length > 0) {
+          selectedList = available.slice(0, 4).map(img => img.url);
+        }
+        state.proposalSelectedImages = [...selectedList];
+        updateSelectedGalleryUI();
+
+        container.innerHTML = available.map(img => {
+          const isSelected = state.proposalSelectedImages.includes(img.url);
+          return `
+            <div onclick="toggleGalleryImage('${img.url}')" class="relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${isSelected ? 'border-emerald-600 ring-2 ring-emerald-400' : 'border-gray-200 hover:border-gray-400'} aspect-video bg-gray-100">
+              <img src="${img.url}" class="w-full h-full object-cover" loading="lazy">
+              <div class="absolute inset-0 bg-black bg-opacity-20 flex items-start justify-end p-1">
+                <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${isSelected ? 'bg-emerald-600 text-white shadow' : 'bg-white/80 text-gray-500'}">
+                  ${isSelected ? '✓' : ''}
+                </span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('Failed to load gallery images:', e);
+      }
+    }
+
+    function toggleGalleryImage(url) {
+      if (!state.proposalSelectedImages) state.proposalSelectedImages = [];
+      const idx = state.proposalSelectedImages.indexOf(url);
+      if (idx >= 0) {
+        state.proposalSelectedImages.splice(idx, 1);
+      } else {
+        state.proposalSelectedImages.push(url);
+      }
+      updateSelectedGalleryUI();
+
+      const container = document.getElementById('prop-gallery-picker');
+      if (container && state.availableGalleryImages) {
+        container.innerHTML = state.availableGalleryImages.map(img => {
+          const isSelected = state.proposalSelectedImages.includes(img.url);
+          return `
+            <div onclick="toggleGalleryImage('${img.url}')" class="relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${isSelected ? 'border-emerald-600 ring-2 ring-emerald-400' : 'border-gray-200 hover:border-gray-400'} aspect-video bg-gray-100">
+              <img src="${img.url}" class="w-full h-full object-cover" loading="lazy">
+              <div class="absolute inset-0 bg-black bg-opacity-20 flex items-start justify-end p-1">
+                <span class="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${isSelected ? 'bg-emerald-600 text-white shadow' : 'bg-white/80 text-gray-500'}">
+                  ${isSelected ? '✓' : ''}
+                </span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function updateSelectedGalleryUI() {
+      const countLabel = document.getElementById('prop-gallery-selected-count');
+      const hiddenInput = document.getElementById('prop-form-run-club-images');
+      const count = (state.proposalSelectedImages || []).length;
+      if (countLabel) countLabel.textContent = `${count} Selected`;
+      if (hiddenInput) hiddenInput.value = JSON.stringify(state.proposalSelectedImages || []);
+    }
+
     async function saveProposalForm(e) {
       e.preventDefault();
 
       const propId = document.getElementById('prop-form-id').value;
       const payload = {
         brand_name: document.getElementById('prop-form-brand').value.trim(),
+        proposed_role: document.getElementById('prop-form-role').value.trim(),
         event_name: document.getElementById('prop-form-event').value.trim(),
-        partnership_tier: document.getElementById('prop-form-tier').value,
+        partnership_tier: document.getElementById('prop-form-tier').value.trim(),
         status: document.getElementById('prop-form-status').value,
         value_amount: document.getElementById('prop-form-value').value.trim(),
         pitch_hook: document.getElementById('prop-form-pitch').value.trim(),
+        why_partner: document.getElementById('prop-form-why-partner').value.trim(),
+        activations: document.getElementById('prop-form-activations').value.trim(),
+        requests_summary: document.getElementById('prop-form-requests').value.trim(),
         deliverables: document.getElementById('prop-form-deliverables').value.trim(),
         brand_benefits: document.getElementById('prop-form-benefits').value.trim(),
+        brand_logo_url: document.getElementById('prop-form-logo-url').value.trim(),
+        run_club_images: document.getElementById('prop-form-run-club-images').value.trim(),
         contact_person: document.getElementById('prop-form-contact-person').value.trim(),
         contact_email: document.getElementById('prop-form-contact-email').value.trim(),
         contact_phone: document.getElementById('prop-form-contact-phone').value.trim(),

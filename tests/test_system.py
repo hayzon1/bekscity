@@ -17,6 +17,12 @@ sys.path.insert(0, PROJECT_DIR)
 import database
 import ics_exporter
 import calendar_pdf
+import brand_researcher
+import proposal_pdf
+import proposal_pptx
+import io
+import pptx
+import pypdf
 
 
 class TestBekscitySystem(unittest.TestCase):
@@ -464,6 +470,117 @@ class TestBekscitySystem(unittest.TestCase):
         finally:
             if os.path.exists(tmp_pdf_path):
                 os.remove(tmp_pdf_path)
+
+    def test_brand_research_online_procari(self):
+        """Tests that researching 'Procari' resolves to 'POCARI SWEAT' with full hydration strategy."""
+        strat = brand_researcher.synthesize_partnership_strategy("Procari")
+        self.assertEqual(strat["canonical_name"], "POCARI SWEAT")
+        self.assertEqual(strat["proposed_role"], "Official Hydration Partner")
+        self.assertIn("hydration", strat["why_partner"].lower())
+        self.assertTrue(len(strat["deliverables"]) > 20)
+        self.assertTrue(len(strat["activations"]) > 10)
+        self.assertTrue(len(strat["requests_summary"]) > 10)
+        self.assertTrue(strat["logo_url"].startswith("http"))
+
+        # Test Flask API endpoint
+        from app import app
+        client = app.test_client()
+        res = client.post("/api/proposals/research-brand", json={"brand_name": "Procari", "event_name": "Run and Rumble"})
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["brand"]["canonical_name"], "POCARI SWEAT")
+        self.assertEqual(data["brand"]["proposed_role"], "Official Hydration Partner")
+
+    def test_brand_image_uploads_and_gallery_api(self):
+        """Tests image upload and gallery discovery endpoints."""
+        from app import app
+        client = app.test_client()
+
+        # 1. Gallery images
+        res = client.get("/api/proposals/gallery-images")
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data["success"])
+        self.assertGreaterEqual(data["count"], 1)
+        self.assertTrue(any("image" in img["filename"] for img in data["images"]))
+
+        # 2. Upload brand logo
+        logo_res = client.post(
+            "/api/proposals/upload-image",
+            data={
+                "file": (io.BytesIO(b"dummy brand logo bytes"), "sample_logo.png"),
+                "type": "brand_logo"
+            },
+            content_type="multipart/form-data"
+        )
+        self.assertEqual(logo_res.status_code, 200)
+        logo_data = logo_res.get_json()
+        self.assertTrue(logo_data["success"])
+        self.assertTrue(logo_data["url"].startswith("/static/uploads/brand_logos/"))
+
+        # 3. Upload run club action photo
+        run_res = client.post(
+            "/api/proposals/upload-image",
+            data={
+                "file": (io.BytesIO(b"dummy run club photo bytes"), "runners_pack.jpg"),
+                "type": "run_club"
+            },
+            content_type="multipart/form-data"
+        )
+        self.assertEqual(run_res.status_code, 200)
+        run_data = run_res.get_json()
+        self.assertTrue(run_data["success"])
+        self.assertTrue(run_data["url"].startswith("/static/uploads/run_club/"))
+
+    def test_proposal_widescreen_pdf_and_pptx_deck_generation(self):
+        """Tests 11-page widescreen PDF and 11-slide PowerPoint generation matching the BCRC proposal templates."""
+        conn = database.get_connection(self.temp_db_path)
+        prop = database.get_proposal_by_id("PROP-2026-004", conn=conn)
+        conn.close()
+        self.assertIsNotNone(prop, "Seeded Pocari proposal PROP-2026-004 not found.")
+
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp_pdf:
+            pdf_path = tmp_pdf.name
+        with tempfile.NamedTemporaryFile(suffix=".pptx", delete=False) as tmp_pptx:
+            pptx_path = tmp_pptx.name
+
+        try:
+            # 1. Build and verify 11-page PDF
+            proposal_pdf.build_proposal_pdf(pdf_path, prop)
+            self.assertTrue(os.path.exists(pdf_path))
+            with open(pdf_path, "rb") as f:
+                reader = pypdf.PdfReader(f)
+                self.assertEqual(len(reader.pages), 11, "Proposal deck must be exactly 11 pages")
+                p1 = reader.pages[0]
+                self.assertEqual(int(p1.mediabox.width), 960, "Must be 960pt widescreen width")
+                self.assertEqual(int(p1.mediabox.height), 540, "Must be 540pt widescreen height")
+
+            # 2. Build and verify 11-slide PPTX
+            proposal_pptx.build_proposal_pptx(pptx_path, prop)
+            self.assertTrue(os.path.exists(pptx_path))
+            prs = pptx.Presentation(pptx_path)
+            self.assertEqual(len(prs.slides), 11, "Proposal PowerPoint must be exactly 11 slides")
+            self.assertAlmostEqual(prs.slide_width.inches, 13.333, places=2)
+            self.assertAlmostEqual(prs.slide_height.inches, 7.5, places=2)
+
+            # 3. Test Flask download endpoints
+            from app import app
+            client = app.test_client()
+            res_pdf = client.get(f"/api/proposals/{prop['id']}/pdf")
+            self.assertEqual(res_pdf.status_code, 200)
+            self.assertEqual(res_pdf.mimetype, "application/pdf")
+            self.assertGreater(len(res_pdf.data), 1000)
+
+            res_pptx = client.get(f"/api/proposals/{prop['id']}/pptx")
+            self.assertEqual(res_pptx.status_code, 200)
+            self.assertIn("presentation", res_pptx.mimetype)
+            self.assertGreater(len(res_pptx.data), 1000)
+        finally:
+            if os.path.exists(pdf_path):
+                os.remove(pdf_path)
+            if os.path.exists(pptx_path):
+                os.remove(pptx_path)
 
 
 if __name__ == "__main__":

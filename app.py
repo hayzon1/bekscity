@@ -31,6 +31,9 @@ from calendar_pdf import (
 )
 from itinerary_pdf import build_itinerary_pdf
 from proposal_pdf import build_proposal_pdf
+from proposal_pptx import build_proposal_pptx
+import brand_researcher
+from werkzeug.utils import secure_filename
 import tempfile
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -409,6 +412,68 @@ def api_delete_proposal(prop_id):
     return jsonify({"success": True, "message": f"Proposal {prop_id} deleted successfully."})
 
 
+@app.route("/api/proposals/research-brand", methods=["POST"])
+def api_research_brand():
+    payload = request.get_json(force=True, silent=True) or {}
+    brand_name = payload.get("brand_name", "").strip()
+    event_name = payload.get("event_name", "").strip()
+    if not brand_name:
+        return jsonify({"success": False, "error": "Brand name is required"}), 400
+
+    try:
+        strategy = brand_researcher.synthesize_partnership_strategy(brand_name, event_name=event_name)
+        return jsonify({"success": True, "brand": strategy})
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Brand Research Error: {str(e)}"}), 500
+
+
+@app.route("/api/proposals/upload-image", methods=["POST"])
+def api_upload_proposal_image():
+    if "file" not in request.files:
+        return jsonify({"success": False, "error": "No file part in request"}), 400
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"success": False, "error": "No file selected"}), 400
+
+    img_type = request.form.get("type", "general")
+    allowed_exts = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed_exts:
+        return jsonify({"success": False, "error": f"Invalid format '{ext}'. Allowed: PNG, JPG, JPEG, WEBP, SVG"}), 400
+
+    subfolder = "brand_logos" if img_type == "brand_logo" else "run_club"
+    upload_dir = os.path.join(app.static_folder, "uploads", subfolder)
+    os.makedirs(upload_dir, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    clean_base = secure_filename(os.path.splitext(file.filename)[0]) or "upload"
+    filename = f"{clean_base}_{timestamp}{ext}"
+    dest_path = os.path.join(upload_dir, filename)
+    file.save(dest_path)
+
+    relative_url = f"/static/uploads/{subfolder}/{filename}"
+    return jsonify({
+        "success": True,
+        "url": relative_url,
+        "filename": filename,
+        "message": "Image uploaded successfully."
+    })
+
+
+@app.route("/api/proposals/gallery-images", methods=["GET"])
+def api_get_gallery_images():
+    gallery_dir = os.path.join(app.static_folder, "img", "gallery")
+    os.makedirs(gallery_dir, exist_ok=True)
+    images = []
+    for f in sorted(os.listdir(gallery_dir)):
+        if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+            images.append({
+                "filename": f,
+                "url": f"/static/img/gallery/{f}"
+            })
+    return jsonify({"success": True, "count": len(images), "images": images})
+
+
 @app.route("/api/proposals/<prop_id>/pdf", methods=["GET"])
 def api_download_proposal_pdf(prop_id):
     prop = get_proposal_by_id(prop_id)
@@ -431,6 +496,30 @@ def api_download_proposal_pdf(prop_id):
         )
     except Exception as e:
         return jsonify({"success": False, "error": f"Proposal PDF Error: {str(e)}"}), 500
+
+
+@app.route("/api/proposals/<prop_id>/pptx", methods=["GET"])
+def api_download_proposal_pptx(prop_id):
+    prop = get_proposal_by_id(prop_id)
+    if not prop:
+        return jsonify({"success": False, "error": "Proposal not found"}), 404
+
+    tmp = tempfile.NamedTemporaryFile(suffix=".pptx", delete=False)
+    tmp_path = tmp.name
+    tmp.close()
+
+    try:
+        build_proposal_pptx(tmp_path, prop)
+        clean_brand = "".join(c for c in prop.get("brand_name", "Brand") if c.isalnum() or c in " _-").strip().replace(" ", "_")
+        filename = f"BCRC_Pitch_Deck_{clean_brand}_{prop.get('id', 'deck')}.pptx"
+        return send_file(
+            tmp_path,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Proposal PPTX Error: {str(e)}"}), 500
 
 
 # -----------------------------------------------------------------------------
