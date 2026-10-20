@@ -15,7 +15,47 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit
 from PIL import Image
 
+try:
+    import fitz
+    FITZ_AVAILABLE = True
+except ImportError:
+    fitz = None
+    FITZ_AVAILABLE = False
+
 HERE = os.path.dirname(os.path.abspath(__file__))
+
+TEMPLATE_PDF_CANDIDATES = {
+    "run_and_rumble": [
+        os.path.join(HERE, "proposal_templates", "editable.pdf"),
+        os.path.expanduser("~/Downloads/editable.pdf")
+    ],
+    "partnership_proposal": [
+        os.path.join(HERE, "proposal_templates", "Pocari Sweat Proposal.pdf"),
+        os.path.expanduser("~/Downloads/Pocari Sweat Proposal.pdf")
+    ]
+}
+
+
+def find_pdf_template(template_name="partnership_proposal"):
+    candidates = TEMPLATE_PDF_CANDIDATES.get(template_name, TEMPLATE_PDF_CANDIDATES["partnership_proposal"])
+    for p in candidates:
+        if os.path.exists(p) and os.path.getsize(p) > 100000:
+            return p
+    return None
+
+
+def resolve_local_gallery_path(img_url):
+    if not img_url:
+        return None
+    if img_url.startswith("/static/"):
+        p = os.path.join(HERE, img_url.lstrip("/"))
+        if os.path.exists(p):
+            return p
+    if os.path.exists(img_url):
+        return img_url
+    if img_url.startswith("http"):
+        return safe_download_image(img_url)
+    return None
 
 # 16:9 Widescreen slide format (matches Pocari Sweat Proposal & editable.pdf: 960 x 540 pt)
 W = 960
@@ -114,9 +154,9 @@ def draw_slide_header(c, category, title, page_num, brand_name):
     c.line(50, 42, W - 50, 42)
 
 
-def build_proposal_pdf(output_path, proposal_data):
+def _build_proposal_pdf_reportlab(output_path, proposal_data):
     """
-    Builds the executive 11-page presentation deck PDF matching the BCRC pitch deck template.
+    Fallback generator: builds the executive 11-page presentation deck PDF using ReportLab canvas.
     """
     c = canvas.Canvas(output_path, pagesize=(W, H))
     brand_name = (proposal_data.get("brand_name") or "Brand Partner").strip()
@@ -735,3 +775,142 @@ def build_proposal_pdf(output_path, proposal_data):
     c.showPage()
     c.save()
     return output_path
+
+
+def _build_proposal_pdf_from_template(output_path, proposal_data, template_path, template_type):
+    """
+    Brands the authentic master PDF template matching the user's local device files
+    ('Pocari Sweat Proposal.pdf' or 'editable.pdf') with dynamic brand data, logos, and gallery photos.
+    """
+    doc = fitz.open(template_path)
+    brand_name = (proposal_data.get("brand_name") or "PARTNER BRAND").strip()
+    proposed_role = (proposal_data.get("proposed_role") or proposal_data.get("partnership_tier") or "Official Category Partner").strip()
+
+    # Resolve logo local path
+    logo_source = proposal_data.get("brand_logo_url")
+    logo_local = None
+    if logo_source:
+        if logo_source.startswith("http"):
+            logo_local = safe_download_image(logo_source)
+        elif logo_source.startswith("/static/"):
+            candidate = os.path.join(HERE, logo_source.lstrip("/"))
+            if os.path.exists(candidate):
+                logo_local = candidate
+        elif os.path.exists(logo_source):
+            logo_local = logo_source
+
+    # Parse gallery images
+    gallery_imgs = []
+    raw_gallery = proposal_data.get("run_club_images")
+    if raw_gallery:
+        if isinstance(raw_gallery, str) and raw_gallery.startswith("["):
+            try:
+                gallery_imgs = json.loads(raw_gallery)
+            except Exception:
+                gallery_imgs = []
+        elif isinstance(raw_gallery, str):
+            gallery_imgs = [s.strip() for s in raw_gallery.split(",") if s.strip()]
+        elif isinstance(raw_gallery, list):
+            gallery_imgs = raw_gallery
+
+    if template_type == "run_and_rumble":
+        # 14-page Run & Rumble template (editable.pdf)
+        p1 = doc[0]
+        p1.insert_text(
+            (55, 380),
+            f"Prepared for: {brand_name.upper()}",
+            fontsize=13,
+            fontname="helv",
+            color=(0.85, 0.65, 0.25)
+        )
+        if logo_local and os.path.exists(logo_local):
+            try:
+                p1.insert_image(fitz.Rect(55, 400, 180, 470), filename=logo_local, keep_proportion=True)
+            except Exception as e:
+                print(f"[proposal_pdf] Warning inserting logo into editable.pdf: {e}")
+
+        # Page 12: Photo collage
+        if len(doc) > 11 and gallery_imgs:
+            p12 = doc[11]
+            rects12 = [
+                fitz.Rect(43.2, 129.6, 324.8, 302.4),
+                fitz.Rect(339.2, 129.6, 620.8, 302.4),
+                fitz.Rect(635.2, 129.6, 916.8, 302.4),
+                fitz.Rect(43.2, 316.8, 324.8, 489.6),
+                fitz.Rect(339.2, 316.8, 620.8, 489.6),
+                fitz.Rect(635.2, 316.8, 916.8, 489.6)
+            ]
+            for r, img_url in zip(rects12, gallery_imgs):
+                local_img = resolve_local_gallery_path(img_url)
+                if local_img and os.path.exists(local_img):
+                    try:
+                        p12.insert_image(r, filename=local_img, keep_proportion=False)
+                    except Exception:
+                        pass
+
+    else:
+        # 11-page Partnership Proposal template (Pocari Sweat Proposal.pdf)
+        is_pocari = (brand_name.upper() == "POCARI SWEAT")
+
+        if not is_pocari:
+            for page in doc:
+                # Search and redact POCARI SWEAT
+                hits = page.search_for("POCARI SWEAT")
+                for h in hits:
+                    page.add_redact_annot(h, text=brand_name.upper(), fontname="helv", fontsize=h.height * 0.72)
+
+                # Search and redact Official Hydration Partner
+                hits_role = page.search_for("Official Hydration Partner")
+                for hr in hits_role:
+                    page.add_redact_annot(hr, text=proposed_role, fontname="helv", fontsize=hr.height * 0.72)
+
+                page.apply_redactions()
+
+        # Page 1: Brand Logo replacement
+        if logo_local and os.path.exists(logo_local) and not is_pocari:
+            p1 = doc[0]
+            logo_rect = fitz.Rect(741.72, 32.40, 910.56, 135.72)
+            p1.add_redact_annot(logo_rect, fill=(17/255, 24/255, 39/255))
+            p1.apply_redactions()
+            try:
+                p1.insert_image(logo_rect, filename=logo_local, keep_proportion=True)
+            except Exception as e:
+                print(f"[proposal_pdf] Warning inserting logo into Pocari PDF: {e}")
+
+        # Page 9: 4 Community Gallery images
+        if len(doc) > 8 and gallery_imgs:
+            p9 = doc[8]
+            rects9 = [
+                fitz.Rect(36.0, 158.0, 256.7, 464.3),
+                fitz.Rect(270.4, 157.3, 490.0, 463.6),
+                fitz.Rect(502.4, 159.7, 717.8, 464.3),
+                fitz.Rect(731.8, 158.0, 951.4, 462.7)
+            ]
+            for r, img_url in zip(rects9, gallery_imgs):
+                local_img = resolve_local_gallery_path(img_url)
+                if local_img and os.path.exists(local_img):
+                    try:
+                        p9.insert_image(r, filename=local_img, keep_proportion=False)
+                    except Exception:
+                        pass
+
+    doc.save(output_path)
+    return output_path
+
+
+def build_proposal_pdf(output_path, proposal_data):
+    """
+    Main PDF dispatcher:
+    Uses the master template PDF matching the user's local device files ('Pocari Sweat Proposal.pdf' or 'editable.pdf').
+    Falls back gracefully to ReportLab canvas generator if template is missing.
+    """
+    template_type = proposal_data.get("presentation_template") or "partnership_proposal"
+    tpl_path = find_pdf_template(template_type)
+    if tpl_path and FITZ_AVAILABLE:
+        try:
+            return _build_proposal_pdf_from_template(output_path, proposal_data, tpl_path, template_type)
+        except Exception as e:
+            print(f"[proposal_pdf] Master PDF template branding error: {e}, falling back to ReportLab.")
+
+    return _build_proposal_pdf_reportlab(output_path, proposal_data)
+
