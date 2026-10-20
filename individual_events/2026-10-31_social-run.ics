@@ -3,7 +3,7 @@ VERSION:2.0
 PRODID:-//BEKSCITY RUN CLUB//Event Calendar 2.0//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:BEKSCITY RUN CLUB: Social Run
+X-WR-CALNAME:BEKSCITY: Social Run
 X-WR-TIMEZONE:Africa/Lagos
 X-WR-CALDESC:Official confirmed Saturday runs and community fitness events for BEKSCITY RUN CLUB.
 BEGIN:VTIMEZONE
@@ -20,9 +20,9 @@ END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
 UID:BCRC-20261031-01@bekscity.run
-DTSTAMP:20261020T154835Z
+DTSTAMP:20261020T163850Z
 DTSTART;TZID=Africa/Lagos:20261031T064500
-DTEND;TZID=Africa/Lagos:20261031T083000
+DTEND;TZID=Africa/Lagos:20261031T113000
 SUMMARY:BEKSCITY Run: Social Run
 LOCATION:OOPL\, OOPL (Olusegun Obasanjo Presidential Library grounds)\, Abeokuta\, Ogun State\, Nigeria
 DESCRIPTION:BEKSCITY RUN CLUB — Social Run\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: OOPL\nVenue: OOPL (Olusegun Obasanjo Presidential Library grounds)\nDistance: 5 km\nRoute Stops: Standard scenic loop\nSponsor: Breakfast Club\n\nPLANNED ACTIVITIES:\nMorning community run\, recovery stretching\, and breakfast social time.\n\nABOUT THIS RUN:\nSaturday morning social run gathering at OOPL. Run followed by breakfast and social bonding courtesy of the Breakfast Club.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
@@ -31,19 +31,19 @@ CATEGORIES:Monthly Signature Event
 TRANSP:OPAQUE
 SEQUENCE:0
 BEGIN:VALARM
-TRIGGER:-P1D
+TRIGGER:-P5D
 ACTION:DISPLAY
-DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Run' is tomorrow!
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Run' is in 5 days!
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-PT2H
+TRIGGER:-P3D
 ACTION:DISPLAY
-DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Run' starts in 2 hours!
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Run' is in 3 days!
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT7H
 ACTION:DISPLAY
-DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Social Run' gathers in 15 minutes!
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Social Run' starts in 7 hours!
 END:VALARM
 END:VEVENT
 END:VCALENDAR

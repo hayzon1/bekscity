@@ -148,10 +148,10 @@ class TestBekscitySystem(unittest.TestCase):
         self.assertIn("TZID:Africa/Lagos", ics_content)
         self.assertIn("BEGIN:VEVENT", ics_content)
         
-        # Verify multiple alarms
-        self.assertIn("TRIGGER:-P1D", ics_content, "Missing 1-day reminder")
-        self.assertIn("TRIGGER:-PT2H", ics_content, "Missing 2-hour reminder")
-        self.assertIn("TRIGGER:-PT15M", ics_content, "Missing 15-minute reminder")
+        # Verify multiple alarms (5 days, 3 days, 7 hours)
+        self.assertIn("TRIGGER:-P5D", ics_content, "Missing 5-day reminder")
+        self.assertIn("TRIGGER:-P3D", ics_content, "Missing 3-day reminder")
+        self.assertIn("TRIGGER:-PT7H", ics_content, "Missing 7-hour reminder")
 
         # Verify Google Calendar URL generator
         gcal_url = ics_exporter.generate_google_calendar_url(events[0])
@@ -445,7 +445,7 @@ class TestBekscitySystem(unittest.TestCase):
             # Verify reminder notice text extracted from PDF
             full_text = " ".join(page.extract_text() for page in reader.pages)
             self.assertIn("ADD ALL CONFIRMED RUNS TO CALENDAR", full_text)
-            self.assertIn("3 Reminders (1d, 2h, 15m)", full_text)
+            self.assertIn("3 Reminders (5d, 3d, 7h)", full_text)
 
             # Also verify via Flask test client with master_ics_url query param
             from app import app

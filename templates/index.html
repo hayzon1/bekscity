@@ -119,7 +119,7 @@
           <div id="calendar-dropdown" class="hidden absolute right-0 mt-2 w-72 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
             <div class="p-3 bg-emerald-50 rounded-t-xl">
               <p class="text-xs font-bold text-emerald-900">Add to Personal Calendar</p>
-              <p class="text-[11px] text-emerald-700">Includes 3 reminders (1 day, 2 hours, 15 min prior) with Africa/Lagos timezone.</p>
+              <p class="text-[11px] text-emerald-700">Includes 3 reminders (5 days, 3 days, 7 hours prior) with Africa/Lagos timezone.</p>
             </div>
             <div class="py-1">
               <a href="/api/calendar.ics" download="bekscity_confirmed_runs.ics" class="group flex items-center px-4 py-2.5 text-xs text-gray-700 hover:bg-emerald-50 hover:text-emerald-900">
@@ -923,10 +923,10 @@
             <label class="block font-bold text-emerald-900 text-xs">
               Calendar Sync URL (Embedded in PDF Header &amp; Action Buttons)
             </label>
-            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800">3 Reminders (1d, 2h, 15m)</span>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800">3 Reminders (5d, 3d, 7h)</span>
           </div>
           <p class="text-[11px] text-emerald-800">
-            The prominent green <strong>"ADD ALL CONFIRMED RUNS TO CALENDAR"</strong> button rendered on all pages of the PDF links directly to this URL to automatically subscribe members' devices with Africa/Lagos (WAT) reminders:
+            The prominent green <strong>"ADD ALL CONFIRMED RUNS TO CALENDAR"</strong> button rendered on all pages of the PDF links directly to this URL to automatically subscribe members' devices with Africa/Lagos (WAT) reminders (5 days, 3 days, 7 hours prior):
           </p>
           <input type="url" id="pdf-sync-url" class="font-mono text-[11px] w-full border border-emerald-300 rounded-lg p-2 bg-white text-emerald-950 focus:ring-emerald-500" placeholder="http://127.0.0.1:5050/api/calendar.ics">
         </div>

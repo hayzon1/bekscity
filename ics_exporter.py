@@ -1,7 +1,7 @@
 """
 BEKSCITY RUN CLUB — Calendar Export Module (.ics & Google Calendar)
 Compliant with RFC 5545 iCalendar specification.
-Supports Africa/Lagos timezone, multiple reminders/alarms (1 day, 2 hours, 15 minutes),
+Supports Africa/Lagos timezone, multiple reminders/alarms (5 days, 3 days, 7 hours),
 and single or bulk event exports.
 """
 
@@ -152,19 +152,19 @@ CATEGORIES:{escape_ics_text(event.get('category', 'Running'))}
 TRANSP:OPAQUE
 SEQUENCE:0
 BEGIN:VALARM
-TRIGGER:-P1D
+TRIGGER:-P5D
 ACTION:DISPLAY
-DESCRIPTION:Reminder: BEKSCITY Run '{summary}' is tomorrow!
+DESCRIPTION:Reminder: BEKSCITY Run '{summary}' is in 5 days!
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-PT2H
+TRIGGER:-P3D
 ACTION:DISPLAY
-DESCRIPTION:Reminder: BEKSCITY Run '{summary}' starts in 2 hours!
+DESCRIPTION:Reminder: BEKSCITY Run '{summary}' is in 3 days!
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT7H
 ACTION:DISPLAY
-DESCRIPTION:Alert: BEKSCITY Run '{summary}' gathers in 15 minutes!
+DESCRIPTION:Alert: BEKSCITY Run '{summary}' starts in 7 hours!
 END:VALARM
 END:VEVENT"""
 

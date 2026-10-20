@@ -30,9 +30,9 @@ The **BEKSCITY RUN CLUB Calendar Management System** is a full-stack club operat
    - One primary **Add All Confirmed Runs to Calendar** hero action.
    - Master `.ics` feed with RFC 5545 compliance and `Africa/Lagos` (WAT, UTC+1) timezone.
    - **Multiple Reminders**:
-     - 1 day before (`-P1D`)
-     - 2 hours before (`-PT2H`)
-     - 15 minutes before (`-PT15M`)
+     - 5 days before (`-P5D`)
+     - 3 days before (`-P3D`)
+     - 7 hours before (`-PT7H`)
    - One-click Google Calendar URLs for individual runs.
 
 5. **District Management & Club Operations**:

@@ -3,7 +3,7 @@ VERSION:2.0
 PRODID:-//BEKSCITY RUN CLUB//Event Calendar 2.0//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:BEKSCITY RUN CLUB: Run and Rumble
+X-WR-CALNAME:BEKSCITY: Run and Rumble
 X-WR-TIMEZONE:Africa/Lagos
 X-WR-CALDESC:Official confirmed Saturday runs and community fitness events for BEKSCITY RUN CLUB.
 BEGIN:VTIMEZONE
@@ -20,30 +20,30 @@ END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
 UID:BCRC-20261024-01@bekscity.run
-DTSTAMP:20261020T154835Z
+DTSTAMP:20261020T163850Z
 DTSTART;TZID=Africa/Lagos:20261024T160000
 DTEND;TZID=Africa/Lagos:20261024T210000
 SUMMARY:BEKSCITY Run: Run and Rumble
-LOCATION:Moore Junction\, Abeokuta\, Ogun State\, Nigeria
-DESCRIPTION:BEKSCITY RUN CLUB — Run and Rumble\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: Moore Junction\nDistance: 7 km\nRoute Stops: 3 stops along the route\nPartners: Archers Live\; Game Experience\nEvent Lead: Organising Committee\n\nPLANNED ACTIVITIES:\n7 km run\, three stops along the route\, and post-run games.\n\nABOUT THIS RUN:\nRun and Rumble is a premier evening signature event. Runners take on an energetic 7 km route across the city with three dedicated hydration and regrouping stops. The run concludes with post-run competitive games\, social bonding\, music\, and community celebrations from 4:00 PM to 9:00 PM.\n\nSPECIAL EVENING SCHEDULE:\n• 04:00 PM — Gathering & pre-run excitement at Moore Junction\n• 04:30 PM — Run and Rumble 7 km run (3 stops)\n• 06:30 PM — Post-run games\, social bonding\, and celebrations\n• 09:00 PM — Event close\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+LOCATION:Moore Junction\, Fun Turf MKO stadium\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Run and Rumble\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: Moore Junction\nVenue: Fun Turf MKO stadium\nDistance: 7 km\nRoute Stops: 3 stops along the route\nSponsor: Breakfast Club\, Enny's Kitchen\, Fruit Oasis\, Cozy Bites\nPartners: Archers Live\; Game Experience\nEvent Lead: Organising Committee\n\nPLANNED ACTIVITIES:\n7 km run\, three stops along the route\, and post-run games.\n\nABOUT THIS RUN:\nRun and Rumble is a premier evening signature event. Runners take on an energetic 7 km route across the city with three dedicated hydration and regrouping stops. The run concludes with post-run competitive games\, social bonding\, music\, and community celebrations from 4:00 PM to 9:00 PM.\n\nSPECIAL EVENING SCHEDULE:\n• 04:00 PM — Gathering & pre-run excitement at Moore Junction\n• 04:30 PM — Run and Rumble 7 km run (3 stops)\n• 06:30 PM — Post-run games\, social bonding\, and celebrations\n• 09:00 PM — Event close\n\nBEKSCITY RUN CLUB | Keep Moving Forward
 STATUS:CONFIRMED
 CATEGORIES:Monthly Signature Event
 TRANSP:OPAQUE
 SEQUENCE:0
 BEGIN:VALARM
-TRIGGER:-P1D
+TRIGGER:-P5D
 ACTION:DISPLAY
-DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' is tomorrow!
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' is in 5 days!
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-PT2H
+TRIGGER:-P3D
 ACTION:DISPLAY
-DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' starts in 2 hours!
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' is in 3 days!
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT7H
 ACTION:DISPLAY
-DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' gathers in 15 minutes!
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' starts in 7 hours!
 END:VALARM
 END:VEVENT
 END:VCALENDAR

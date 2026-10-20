@@ -382,7 +382,7 @@ def draw_header(c, title, sub, master_ics_url=None):
         # Subtitle: reminders & timezone
         c.setFillColor(HexColor("#FEF3C7"))
         c.setFont(FONT, 6.8)
-        c.drawString(bx + 14, by + 9, "Tap to sync all runs • 3 Reminders (1d, 2h, 15m) • WAT")
+        c.drawString(bx + 14, by + 9, "Tap to sync all runs • 3 Reminders (5d, 3d, 7h) • WAT")
 
         # Clickable PDF URI link
         c.linkURL(master_ics_url, (bx, by, bx + bw, by + bh), relative=0)
@@ -674,7 +674,7 @@ def build_calendar_pdf(
             "Every Saturday morning: 6:45 check-in, 7:00 warm-up, 7:15 run, 8:15 cooldown, 8:30 coffee and social. Evening or special events show their own times on their card.",
             "Four event types each month: Community Improvement, Sponsor Run, Signature Event, Community Challenge.",
             "A fifth Saturday is an optional extra slot, left open until organisers confirm it.",
-            "Tap 'ADD ALL CONFIRMED RUNS TO CALENDAR' in the header to sync all confirmed runs into Apple Calendar, Google Calendar, or Outlook with 3 automated reminders (1 day, 2 hours, 15 minutes prior) in Africa/Lagos (WAT, UTC+1)."
+            "Tap 'ADD ALL CONFIRMED RUNS TO CALENDAR' in the header to sync all confirmed runs into Apple Calendar, Google Calendar, or Outlook with 3 automated reminders (5 days, 3 days, 7 hours prior) in Africa/Lagos (WAT, UTC+1)."
         ]
         bh = 38 + sum(para_lines("-  " + t, 500, 9.5) * 13 + 3 for t in RHYTHM) + 32
         c.setFillColor(SOFT)
@@ -737,7 +737,7 @@ def build_calendar_pdf(
         c.drawCentredString(306, p2_by + 19, "+ ADD ALL CONFIRMED SATURDAY RUNS TO YOUR CALENDAR")
         c.setFillColor(HexColor("#FEF3C7"))
         c.setFont(FONT, 7.5)
-        c.drawCentredString(306, p2_by + 7, "Tap to sync all runs with 3 automated reminders (1 day, 2 hours, 15 minutes prior) in Africa/Lagos (WAT)")
+        c.drawCentredString(306, p2_by + 7, "Tap to sync all runs with 3 automated reminders (5 days, 3 days, 7 hours prior) in Africa/Lagos (WAT)")
         if master_ics_url:
             c.linkURL(master_ics_url, (40, p2_by, 572, p2_by + 34), relative=0)
 

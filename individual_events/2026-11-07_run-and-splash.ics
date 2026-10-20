@@ -3,7 +3,7 @@ VERSION:2.0
 PRODID:-//BEKSCITY RUN CLUB//Event Calendar 2.0//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:BEKSCITY RUN CLUB: Run and Splash
+X-WR-CALNAME:BEKSCITY: Run and Splash
 X-WR-TIMEZONE:Africa/Lagos
 X-WR-CALDESC:Official confirmed Saturday runs and community fitness events for BEKSCITY RUN CLUB.
 BEGIN:VTIMEZONE
@@ -20,30 +20,30 @@ END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
 UID:BCRC-20261107-01@bekscity.run
-DTSTAMP:20261020T154835Z
-DTSTART;TZID=Africa/Lagos:20261107T064500
-DTEND;TZID=Africa/Lagos:20261107T083000
+DTSTAMP:20261020T163850Z
+DTSTART;TZID=Africa/Lagos:20261107T180000
+DTEND;TZID=Africa/Lagos:20261107T064500
 SUMMARY:BEKSCITY Run: Run and Splash
 LOCATION:TBC\, Abeokuta\, Ogun State\, Nigeria
-DESCRIPTION:BEKSCITY RUN CLUB — Run and Splash\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: TBC\nDistance: 6 km\nRoute Stops: 2 water splash checkpoints\nPartners: Soakers\n\nPLANNED ACTIVITIES:\nHigh energy club run\, hydration splash zones\, and recovery drills.\n\nABOUT THIS RUN:\nRun and Splash in special collaboration with Soakers. An exhilarating group run with designated hydration checkpoints and post-run cool down activities.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+DESCRIPTION:BEKSCITY RUN CLUB — Run and Splash\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: TBC\nDistance: 6 km\nRoute Stops: 2 water splash checkpoints\nSponsor: Breakfast Club\, Enny's Kitchen\, Fruit Oasis\, Cozy Bites\nPartners: Soakers\, Archers Live\n\nPLANNED ACTIVITIES:\nHigh energy club run\, hydration splash zones\, and recovery drills.\n\nABOUT THIS RUN:\nRun and Splash in special collaboration with Soakers. An exhilarating group run with designated hydration checkpoints and post-run cool down activities themed around Halloween.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
 STATUS:CONFIRMED
 CATEGORIES:Monthly Signature Event
 TRANSP:OPAQUE
 SEQUENCE:0
 BEGIN:VALARM
-TRIGGER:-P1D
+TRIGGER:-P5D
 ACTION:DISPLAY
-DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Splash' is tomorrow!
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Splash' is in 5 days!
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-PT2H
+TRIGGER:-P3D
 ACTION:DISPLAY
-DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Splash' starts in 2 hours!
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Splash' is in 3 days!
 END:VALARM
 BEGIN:VALARM
-TRIGGER:-PT15M
+TRIGGER:-PT7H
 ACTION:DISPLAY
-DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Run and Splash' gathers in 15 minutes!
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Run and Splash' starts in 7 hours!
 END:VALARM
 END:VEVENT
 END:VCALENDAR
