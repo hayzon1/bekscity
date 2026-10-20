@@ -217,7 +217,7 @@ def api_generate_pdf():
       - category_accents (boolean, default false)
     """
     year = int(request.args.get("year", 2026))
-    month = int(request.args.get("month", 10))
+    month_arg = request.args.get("month", "all")
     date_color = request.args.get("date_color") or get_setting("date_text_color", DATE_TEXT_COLOR)
     use_category_accents = request.args.get("category_accents", "false").lower() in ("true", "1")
 
@@ -227,23 +227,31 @@ def api_generate_pdf():
     except ValueError as ve:
         return jsonify({"success": False, "error": str(ve)}), 400
 
-    month_str = f"{year:04d}-{month:02d}"
-    events = get_all_events(month=month_str)
+    month_val = None
+    if month_arg and month_arg.lower() not in ("all", "quarter", ""):
+        try:
+            month_val = int(month_arg)
+        except ValueError:
+            month_val = None
 
     tmp_pdf_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "generated_pdfs")
     os.makedirs(tmp_pdf_dir, exist_ok=True)
-    
-    filename = f"BEKSCITY_Calendar_{year}_{month:02d}.pdf"
+
+    if month_val is None:
+        filename = f"bekscity_run_club_calendar_Oct-Dec_{year}.pdf"
+    else:
+        filename = f"bekscity_run_club_calendar_{year}_{month_val:02d}.pdf"
+
     pdf_path = os.path.join(tmp_pdf_dir, filename)
 
     try:
         build_calendar_pdf(
             pdf_path,
-            events=events,
             year=year,
-            month=month,
+            month=month_val,
             date_text_color_override=validated_color,
-            use_category_accents=use_category_accents
+            use_category_accents=use_category_accents,
+            include_cover_pages=True
         )
         return send_file(
             pdf_path,

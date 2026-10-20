@@ -1,0 +1,49 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BEKSCITY RUN CLUB//Event Calendar 2.0//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:BEKSCITY RUN CLUB: Social Day
+X-WR-TIMEZONE:Africa/Lagos
+X-WR-CALDESC:Official confirmed Saturday runs and community fitness events for BEKSCITY RUN CLUB.
+BEGIN:VTIMEZONE
+TZID:Africa/Lagos
+LAST-MODIFIED:20260101T000000Z
+TZURL:http://tzurl.org/zoneinfo-outlook/Africa/Lagos
+X-LIC-LOCATION:Africa/Lagos
+BEGIN:STANDARD
+TZNAME:WAT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0100
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:BCRC-20261128-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261128T064500
+DTEND;TZID=Africa/Lagos:20261128T083000
+SUMMARY:BEKSCITY Run: Social Day
+LOCATION:Fruit Oasis\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Social Day\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: Fruit Oasis\nDistance: 5 km\nRoute Stops: Scenic parkway route to Fruit Oasis\n\nPLANNED ACTIVITIES:\nEasy recovery 5k jog\, fresh fruit breakfast\, healthy lifestyle talk\, and community games.\n\nABOUT THIS RUN:\nMonthly social day celebrating runners' monthly achievements at Fruit Oasis. Easy recovery jog followed by healthy smoothies\, fruit platters\, music\, and social bonding.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Monthly Signature Event
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Day' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Day' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Social Day' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+END:VCALENDAR

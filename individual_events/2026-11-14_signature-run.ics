@@ -1,0 +1,49 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BEKSCITY RUN CLUB//Event Calendar 2.0//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:BEKSCITY RUN CLUB: Signature Run
+X-WR-TIMEZONE:Africa/Lagos
+X-WR-CALDESC:Official confirmed Saturday runs and community fitness events for BEKSCITY RUN CLUB.
+BEGIN:VTIMEZONE
+TZID:Africa/Lagos
+LAST-MODIFIED:20260101T000000Z
+TZURL:http://tzurl.org/zoneinfo-outlook/Africa/Lagos
+X-LIC-LOCATION:Africa/Lagos
+BEGIN:STANDARD
+TZNAME:WAT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0100
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:BCRC-20261114-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261114T064500
+DTEND;TZID=Africa/Lagos:20261114T083000
+SUMMARY:BEKSCITY Run: Signature Run
+LOCATION:MKO Stadium\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Signature Run\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: MKO Stadium\nDistance: 7.5 km\nRoute Stops: Stadium perimeter & boulevard course\n\nPLANNED ACTIVITIES:\nTrack warm-up\, pacing groups (Beginner\, Intermediate\, Fast)\, and cool-down stretch.\n\nABOUT THIS RUN:\nFlagship monthly signature run congregating at MKO Stadium. Pacing groups organized for all fitness levels to build running endurance and camaraderie.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Monthly Signature Event
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Signature Run' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Signature Run' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Signature Run' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+END:VCALENDAR

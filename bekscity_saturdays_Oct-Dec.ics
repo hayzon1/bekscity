@@ -1,0 +1,189 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BEKSCITY RUN CLUB//Event Calendar 2.0//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:BEKSCITY RUN CLUB
+X-WR-TIMEZONE:Africa/Lagos
+X-WR-CALDESC:Official confirmed Saturday runs and community fitness events for BEKSCITY RUN CLUB.
+BEGIN:VTIMEZONE
+TZID:Africa/Lagos
+LAST-MODIFIED:20260101T000000Z
+TZURL:http://tzurl.org/zoneinfo-outlook/Africa/Lagos
+X-LIC-LOCATION:Africa/Lagos
+BEGIN:STANDARD
+TZNAME:WAT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0100
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:BCRC-20261024-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261024T160000
+DTEND;TZID=Africa/Lagos:20261024T210000
+SUMMARY:BEKSCITY Run: Run and Rumble
+LOCATION:Moore Junction\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Run and Rumble\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: Moore Junction\nDistance: 7 km\nRoute Stops: 3 stops along the route\nPartners: Archers Live\; Game Experience\nEvent Lead: Organising Committee\n\nPLANNED ACTIVITIES:\n7 km run\, three stops along the route\, and post-run games.\n\nABOUT THIS RUN:\nRun and Rumble is a premier evening signature event. Runners take on an energetic 7 km route across the city with three dedicated hydration and regrouping stops. The run concludes with post-run competitive games\, social bonding\, music\, and community celebrations from 4:00 PM to 9:00 PM.\n\nSPECIAL EVENING SCHEDULE:\n• 04:00 PM — Gathering & pre-run excitement at Moore Junction\n• 04:30 PM — Run and Rumble 7 km run (3 stops)\n• 06:30 PM — Post-run games\, social bonding\, and celebrations\n• 09:00 PM — Event close\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Monthly Signature Event
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:BCRC-20261031-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261031T064500
+DTEND;TZID=Africa/Lagos:20261031T083000
+SUMMARY:BEKSCITY Run: Social Run
+LOCATION:OOPL\, OOPL (Olusegun Obasanjo Presidential Library grounds)\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Social Run\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: OOPL\nVenue: OOPL (Olusegun Obasanjo Presidential Library grounds)\nDistance: 5 km\nRoute Stops: Standard scenic loop\nSponsor: Breakfast Club\n\nPLANNED ACTIVITIES:\nMorning community run\, recovery stretching\, and breakfast social time.\n\nABOUT THIS RUN:\nSaturday morning social run gathering at OOPL. Run followed by breakfast and social bonding courtesy of the Breakfast Club.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Monthly Signature Event
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Run' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Run' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Social Run' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:BCRC-20261107-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261107T064500
+DTEND;TZID=Africa/Lagos:20261107T083000
+SUMMARY:BEKSCITY Run: Run and Splash
+LOCATION:TBC\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Run and Splash\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: TBC\nDistance: 6 km\nRoute Stops: 2 water splash checkpoints\nPartners: Soakers\n\nPLANNED ACTIVITIES:\nHigh energy club run\, hydration splash zones\, and recovery drills.\n\nABOUT THIS RUN:\nRun and Splash in special collaboration with Soakers. An exhilarating group run with designated hydration checkpoints and post-run cool down activities.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Monthly Signature Event
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Splash' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Splash' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Run and Splash' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:BCRC-20261114-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261114T064500
+DTEND;TZID=Africa/Lagos:20261114T083000
+SUMMARY:BEKSCITY Run: Signature Run
+LOCATION:MKO Stadium\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Signature Run\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: MKO Stadium\nDistance: 7.5 km\nRoute Stops: Stadium perimeter & boulevard course\n\nPLANNED ACTIVITIES:\nTrack warm-up\, pacing groups (Beginner\, Intermediate\, Fast)\, and cool-down stretch.\n\nABOUT THIS RUN:\nFlagship monthly signature run congregating at MKO Stadium. Pacing groups organized for all fitness levels to build running endurance and camaraderie.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Monthly Signature Event
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Signature Run' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Signature Run' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Signature Run' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:BCRC-20261121-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261121T064500
+DTEND;TZID=Africa/Lagos:20261121T083000
+SUMMARY:BEKSCITY Run: Hill Run
+LOCATION:Pharmafit Assembly Point\, Pharmafit Hills Course\, PHARMAFIT DISTRICT\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Hill Run\nCategory: Community Challenge\nDistrict: PHARMAFIT DISTRICT\nMeeting Point: Pharmafit Assembly Point\nVenue: Pharmafit Hills Course\nDistance: 8 km\nRoute Stops: Hill crest checkpoint & summit regroup\nEvent Lead: Pharmafit District Coordinator\n\nPLANNED ACTIVITIES:\nElevation training\, hill incline repeats\, endurance conditioning\, and buddy pacing.\n\nABOUT THIS RUN:\nCommunity challenge focusing on stamina\, hill climbs\, and mental toughness through the Pharmafit District hills. Buddy up with experienced runners to conquer the incline.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Community Challenge
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Hill Run' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Hill Run' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Hill Run' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:BCRC-20261128-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261128T064500
+DTEND;TZID=Africa/Lagos:20261128T083000
+SUMMARY:BEKSCITY Run: Social Day
+LOCATION:Fruit Oasis\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Social Day\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: Fruit Oasis\nDistance: 5 km\nRoute Stops: Scenic parkway route to Fruit Oasis\n\nPLANNED ACTIVITIES:\nEasy recovery 5k jog\, fresh fruit breakfast\, healthy lifestyle talk\, and community games.\n\nABOUT THIS RUN:\nMonthly social day celebrating runners' monthly achievements at Fruit Oasis. Easy recovery jog followed by healthy smoothies\, fruit platters\, music\, and social bonding.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Monthly Signature Event
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Day' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Social Day' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Social Day' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+END:VCALENDAR

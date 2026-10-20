@@ -1,0 +1,49 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BEKSCITY RUN CLUB//Event Calendar 2.0//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:BEKSCITY RUN CLUB: Run and Rumble
+X-WR-TIMEZONE:Africa/Lagos
+X-WR-CALDESC:Official confirmed Saturday runs and community fitness events for BEKSCITY RUN CLUB.
+BEGIN:VTIMEZONE
+TZID:Africa/Lagos
+LAST-MODIFIED:20260101T000000Z
+TZURL:http://tzurl.org/zoneinfo-outlook/Africa/Lagos
+X-LIC-LOCATION:Africa/Lagos
+BEGIN:STANDARD
+TZNAME:WAT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0100
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:BCRC-20261024-01@bekscity.run
+DTSTAMP:20261020T150125Z
+DTSTART;TZID=Africa/Lagos:20261024T160000
+DTEND;TZID=Africa/Lagos:20261024T210000
+SUMMARY:BEKSCITY Run: Run and Rumble
+LOCATION:Moore Junction\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Run and Rumble\nCategory: Monthly Signature Event\nDistrict: ALL DISTRICTS\nMeeting Point: Moore Junction\nDistance: 7 km\nRoute Stops: 3 stops along the route\nPartners: Archers Live\; Game Experience\nEvent Lead: Organising Committee\n\nPLANNED ACTIVITIES:\n7 km run\, three stops along the route\, and post-run games.\n\nABOUT THIS RUN:\nRun and Rumble is a premier evening signature event. Runners take on an energetic 7 km route across the city with three dedicated hydration and regrouping stops. The run concludes with post-run competitive games\, social bonding\, music\, and community celebrations from 4:00 PM to 9:00 PM.\n\nSPECIAL EVENING SCHEDULE:\n• 04:00 PM — Gathering & pre-run excitement at Moore Junction\n• 04:30 PM — Run and Rumble 7 km run (3 stops)\n• 06:30 PM — Post-run games\, social bonding\, and celebrations\n• 09:00 PM — Event close\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+STATUS:CONFIRMED
+CATEGORIES:Monthly Signature Event
+TRANSP:OPAQUE
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' is tomorrow!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' starts in 2 hours!
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT15M
+ACTION:DISPLAY
+DESCRIPTION:Alert: BEKSCITY Run 'BEKSCITY Run: Run and Rumble' gathers in 15 minutes!
+END:VALARM
+END:VEVENT
+END:VCALENDAR
