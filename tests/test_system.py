@@ -406,7 +406,60 @@ class TestBekscitySystem(unittest.TestCase):
         self.assertEqual(prop_pdf_res.mimetype, "application/pdf")
         self.assertTrue(len(prop_pdf_res.data) > 1000)
 
+    def test_pdf_add_all_confirmed_runs_button_and_reminders(self):
+        """Verifies that the generated PDF contains clickable 'ADD ALL CONFIRMED RUNS TO CALENDAR' buttons with 3 reminders."""
+        import pypdf
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp_pdf_path = tmp.name
+
+        try:
+            conn = database.get_connection(self.temp_db_path)
+            events = database.get_all_events(conn=conn)
+            conn.close()
+
+            test_master_url = "http://127.0.0.1:5050/api/calendar.ics"
+            calendar_pdf.build_calendar_pdf(
+                tmp_pdf_path,
+                events=events,
+                include_cover_pages=True,
+                master_ics_url=test_master_url
+            )
+
+            reader = pypdf.PdfReader(tmp_pdf_path)
+            self.assertGreaterEqual(len(reader.pages), 3)
+
+            # Check for link annotations pointing to test_master_url across all pages
+            total_master_links = 0
+            for idx, page in enumerate(reader.pages):
+                annots = page.get("/Annots") or []
+                for a in annots:
+                    obj = a.get_object()
+                    if obj.get("/Subtype") == "/Link":
+                        action = obj.get("/A")
+                        if action and action.get("/URI") == test_master_url:
+                            total_master_links += 1
+
+            # Header appears on every page, plus dedicated buttons on Page 1 & Page 2
+            self.assertGreaterEqual(total_master_links, len(reader.pages), "Each page should have at least the header link to master .ics")
+
+            # Verify reminder notice text extracted from PDF
+            full_text = " ".join(page.extract_text() for page in reader.pages)
+            self.assertIn("ADD ALL CONFIRMED RUNS TO CALENDAR", full_text)
+            self.assertIn("3 Reminders (1d, 2h, 15m)", full_text)
+
+            # Also verify via Flask test client with master_ics_url query param
+            from app import app
+            client = app.test_client()
+            res = client.get(f"/api/calendar/pdf?master_ics_url={test_master_url}")
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(res.mimetype, "application/pdf")
+            self.assertTrue(len(res.data) > 1000)
+        finally:
+            if os.path.exists(tmp_pdf_path):
+                os.remove(tmp_pdf_path)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 

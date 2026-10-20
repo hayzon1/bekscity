@@ -917,6 +917,18 @@
             <button onclick="syncDateColor('#287D58')" class="underline hover:text-gray-900 font-mono">#287D58 (Green)</button>
             <button onclick="syncDateColor('#252525')" class="underline hover:text-gray-900 font-mono">#252525 (Charcoal)</button>
           </div>
+        <!-- Calendar Sync URL for Embedded PDF Action Buttons -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="block font-bold text-emerald-900 text-xs">
+              Calendar Sync URL (Embedded in PDF Header &amp; Action Buttons)
+            </label>
+            <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800">3 Reminders (1d, 2h, 15m)</span>
+          </div>
+          <p class="text-[11px] text-emerald-800">
+            The prominent green <strong>"ADD ALL CONFIRMED RUNS TO CALENDAR"</strong> button rendered on all pages of the PDF links directly to this URL to automatically subscribe members' devices with Africa/Lagos (WAT) reminders:
+          </p>
+          <input type="url" id="pdf-sync-url" class="font-mono text-[11px] w-full border border-emerald-300 rounded-lg p-2 bg-white text-emerald-950 focus:ring-emerald-500" placeholder="http://127.0.0.1:5050/api/calendar.ics">
         </div>
 
         <div class="flex items-center space-x-2 pt-1">
@@ -1994,6 +2006,10 @@
     function openPdfModal() {
       document.getElementById('pdf-month').value = state.currentMonth;
       document.getElementById('pdf-year').value = state.currentYear;
+      const syncInput = document.getElementById('pdf-sync-url');
+      if (syncInput && !syncInput.value) {
+        syncInput.value = `${window.location.origin}/api/calendar.ics`;
+      }
       document.getElementById('pdf-modal').classList.remove('hidden');
     }
 
@@ -2025,11 +2041,13 @@
       const y = document.getElementById('pdf-year').value;
       const col = document.getElementById('pdf-date-color-hex').value;
       const catAcc = document.getElementById('pdf-category-accents').checked;
+      const syncInput = document.getElementById('pdf-sync-url');
+      const syncUrl = (syncInput && syncInput.value.trim()) ? syncInput.value.trim() : `${window.location.origin}/api/calendar.ics`;
 
-      const url = `/api/calendar/pdf?year=${y}&month=${m}&date_color=${encodeURIComponent(col)}&category_accents=${catAcc}`;
+      const url = `/api/calendar/pdf?year=${y}&month=${m}&date_color=${encodeURIComponent(col)}&category_accents=${catAcc}&master_ics_url=${encodeURIComponent(syncUrl)}`;
       window.open(url, '_blank');
       closePdfModal();
-      showToast('Generating calendar PDF with saved event data...');
+      showToast('Generating calendar PDF with embedded calendar sync buttons & reminders...');
     }
 
     // District Modal

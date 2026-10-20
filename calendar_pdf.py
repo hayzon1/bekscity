@@ -57,9 +57,10 @@ DATE_COLOR_BY_CATEGORY = {}
 DATE_AUTO_BACKING = True
 DATE_MIN_CONTRAST = 3.0
 
-# ---- INDIVIDUAL .ics DOWNLOAD LINKS IN THE PDF ---------------------------
+# ---- INDIVIDUAL & MASTER .ics DOWNLOAD LINKS IN THE PDF -------------------
 # Leave "" unless the individual_events folder is really uploaded somewhere public.
 HOSTED_ICS_BASE_URL = ""
+DEFAULT_MASTER_ICS_URL = "http://127.0.0.1:5050/api/calendar.ics"
 
 CATS = ["Community Improvement", "Sponsor Run", "Signature Event", "Monthly Signature Event", "Community Challenge", "TBC"]
 STATUSES = ["Confirmed", "TBC", "Planning slot", "Cancelled"]
@@ -218,8 +219,16 @@ def ics_filename(e):
         d_val = dt.date.fromisoformat(d_val)
     return f"{d_val.isoformat()}_{slug(e)}.ics"
 
-def ics_url(e):
-    return HOSTED_ICS_BASE_URL + quote(ics_filename(e)) if HOSTED_ICS_BASE_URL else ""
+def ics_url(e, base_url=None):
+    if e.get("ics_url"):
+        return e["ics_url"]
+    if base_url:
+        if e.get("id"):
+            return f"{base_url.rstrip('/')}/api/events/{e['id']}/calendar.ics"
+        return f"{base_url.rstrip('/')}/individual_events/{quote(ics_filename(e))}"
+    if HOSTED_ICS_BASE_URL:
+        return HOSTED_ICS_BASE_URL.rstrip('/') + "/" + quote(ics_filename(e))
+    return ""
 
 def event_dict_from_db(db_event):
     """Normalizes database row dict to builder format."""
@@ -292,9 +301,9 @@ def blank_slot(date_obj, nth, total):
     }
 
 # ------------------------------------------------------------------ PDF DRAWING FUNCTIONS
-def card_rows(e):
+def card_rows(e, base_url=None):
     """Field layout of one card. kind: 'text' (wrapping multiline), 'time' (single line), 'combo' (dropdown)."""
-    has_ics = is_confirmed(e) and bool(ics_url(e))
+    has_ics = is_confirmed(e) and bool(ics_url(e, base_url))
     notes_w = 250 if has_ics else 340
     F = lambda key, lab, x, w, size, text, kind="text": dict(
         key=key, label=lab, x=x, w=w, size=size, text=text, kind=kind
@@ -321,8 +330,8 @@ def card_rows(e):
         ],
     ], has_ics
 
-def card_metrics(e):
-    rows, has_ics = card_rows(e)
+def card_metrics(e, base_url=None):
+    rows, has_ics = card_rows(e, base_url)
     heights = []
     for row in rows:
         for f in row:
@@ -330,17 +339,53 @@ def card_metrics(e):
         heights.append(11 + max(f["h"] for f in row) + 7)
     return rows, has_ics, heights, max(148, 4 + sum(heights))
 
-def draw_header(c, title, sub):
+def draw_header(c, title, sub, master_ics_url=None):
     c.setFillColor(INK)
     c.rect(0, H - 90, W, 90, fill=1, stroke=0)
     c.setFillColor(ACC)
     c.rect(0, H - 94, W, 4, fill=1, stroke=0)
     c.setFillColor(white)
-    c.setFont(FONTB, 24)
-    c.drawString(40, H - 50, title)
-    c.setFont(FONT, 10)
+    c.setFont(FONTB, 22)
+    c.drawString(40, H - 48, title)
+    c.setFont(FONT, 9.5)
     c.setFillColor(HexColor("#cfcfd6"))
-    c.drawString(40, H - 72, sub)
+    c.drawString(40, H - 70, sub)
+
+    # ADD ALL CONFIRMED RUNS TO CALENDAR BUTTON (WITH REMINDERS)
+    if master_ics_url:
+        bx = 328
+        by = H - 74
+        bw = 244
+        bh = 38
+        # Button background: rich dark emerald green with gold border
+        c.setFillColor(HexColor("#1e5e42"))
+        c.setStrokeColor(HexColor("#D9A441"))
+        c.setLineWidth(1.2)
+        c.roundRect(bx, by, bw, bh, 6, fill=1, stroke=1)
+
+        # Vector calendar icon
+        ix, iy, isize = bx + 10, by + 18, 12
+        c.setStrokeColor(white)
+        c.setLineWidth(1)
+        c.roundRect(ix, iy, isize, isize, 2, fill=0, stroke=1)
+        c.setFillColor(HexColor("#D9A441"))
+        c.rect(ix, iy + isize - 3.5, isize, 3.5, fill=1, stroke=0)
+        c.setFillColor(white)
+        c.circle(ix + 3, iy + isize + 0.5, 0.8, fill=1, stroke=0)
+        c.circle(ix + isize - 3, iy + isize + 0.5, 0.8, fill=1, stroke=0)
+
+        # Button title
+        c.setFillColor(white)
+        c.setFont(FONTB, 7.8)
+        c.drawString(bx + 28, by + 22, "ADD ALL CONFIRMED RUNS TO CALENDAR")
+
+        # Subtitle: reminders & timezone
+        c.setFillColor(HexColor("#FEF3C7"))
+        c.setFont(FONT, 6.8)
+        c.drawString(bx + 14, by + 9, "Tap to sync all runs • 3 Reminders (1d, 2h, 15m) • WAT")
+
+        # Clickable PDF URI link
+        c.linkURL(master_ics_url, (bx, by, bx + bw, by + bh), relative=0)
 
 def draw_field(form, name, x, y, w, h=18, value="", size=9, fill=white, border=LINE, multi=True):
     form.textfield(
@@ -372,10 +417,10 @@ def draw_para(c, text, x, y, w, size=9, lead=12, col=HexColor("#333338"), font=F
 def para_lines(text, w, size=9, font=FONT):
     return len(simpleSplit(text, font, size, w))
 
-def draw_card(c, form, top, n, total, e, custom_date_color=None, custom_cat_colors=None):
+def draw_card(c, form, top, n, total, e, custom_date_color=None, custom_cat_colors=None, base_url=None):
     d = e["date"]
     confirmed = is_confirmed(e)
-    rows, has_ics, heights, ch = card_metrics(e)
+    rows, has_ics, heights, ch = card_metrics(e, base_url)
     col = block_colour(e)
     dcol, panel = date_style(e, custom_date_color, custom_cat_colors)
 
@@ -431,13 +476,14 @@ def draw_card(c, form, top, n, total, e, custom_date_color=None, custom_cat_colo
 
     by = last_field_top - 18  # button / hint aligned with the top of the Notes field
     if confirmed:
-        if has_ics:
+        single_ics_link = ics_url(e, base_url)
+        if single_ics_link:
             c.setFillColor(INK)
             c.roundRect(370, by, 84, 18, 4, fill=1, stroke=0)
             c.setFillColor(white)
             c.setFont(FONTB, 6.8)
             c.drawCentredString(412, by + 6, "DOWNLOAD .ICS")
-            c.linkURL(ics_url(e), (370, by, 454, by + 18), relative=0)
+            c.linkURL(single_ics_link, (370, by, 454, by + 18), relative=0)
 
         c.setFillColor(ACC)
         c.roundRect(462, by, 100, 18, 4, fill=1, stroke=0)
@@ -524,15 +570,22 @@ def build_calendar_pdf(
     month=None,
     date_text_color_override=None,
     use_category_accents=False,
-    include_cover_pages=True
+    include_cover_pages=True,
+    master_ics_url=None,
+    base_url=None
 ):
     """
     Constructs the exact BEKSCITY RUN CLUB Calendar PDF matching the user's template:
-    Page 1: Club Information, The 3 Cofounders & Our 4 Districts
-    Page 2: Monthly Event Structure & 4 Pillars
-    Month Pages: October to December 2026 (or specific month requested)
+    Page 1: Club Information, The 3 Cofounders & Our 4 Districts (with Master Calendar Sync button)
+    Page 2: Monthly Event Structure & 4 Pillars (with Master Calendar Sync banner)
+    Month Pages: October to December 2026 (each with header Master Calendar Sync button & individual links)
     """
     import database
+
+    if not master_ics_url:
+        master_ics_url = DEFAULT_MASTER_ICS_URL
+    if not base_url:
+        base_url = master_ics_url.rsplit("/api/", 1)[0] if "/api/" in master_ics_url else "http://127.0.0.1:5050"
 
     # If events not provided, fetch from database
     if events is None:
@@ -564,7 +617,7 @@ def build_calendar_pdf(
 
     # ------------------------------------------------------------------ PAGE 1: CLUB INFORMATION
     if include_cover_pages:
-        draw_header(c, CLUB, "Community calendar  |  24 October to December 2026  |  Run every Saturday")
+        draw_header(c, CLUB, "Community calendar  |  24 October to December 2026  |  Run every Saturday", master_ics_url=master_ics_url)
         y = H - 125
         c.setFillColor(INK)
         c.setFont(FONTB, 14)
@@ -621,9 +674,9 @@ def build_calendar_pdf(
             "Every Saturday morning: 6:45 check-in, 7:00 warm-up, 7:15 run, 8:15 cooldown, 8:30 coffee and social. Evening or special events show their own times on their card.",
             "Four event types each month: Community Improvement, Sponsor Run, Signature Event, Community Challenge.",
             "A fifth Saturday is an optional extra slot, left open until organisers confirm it.",
-            "Only confirmed events have ADD TO CALENDAR buttons. The .ics files add a 30-minute reminder to each."
+            "Tap 'ADD ALL CONFIRMED RUNS TO CALENDAR' in the header to sync all confirmed runs into Apple Calendar, Google Calendar, or Outlook with 3 automated reminders (1 day, 2 hours, 15 minutes prior) in Africa/Lagos (WAT, UTC+1)."
         ]
-        bh = 38 + sum(para_lines("-  " + t, 500, 9.5) * 13 + 3 for t in RHYTHM) + 4
+        bh = 38 + sum(para_lines("-  " + t, 500, 9.5) * 13 + 3 for t in RHYTHM) + 32
         c.setFillColor(SOFT)
         c.roundRect(40, y - bh, 532, bh, 8, fill=1, stroke=0)
         c.setFillColor(INK)
@@ -632,10 +685,23 @@ def build_calendar_pdf(
         yy = y - 38
         for t in RHYTHM:
             yy = draw_para(c, "-  " + t, 54, yy, 500, 9.5, 13) - 3
+
+        # Dedicated action button inside Page 1 Rhythm card
+        btn_y = y - bh + 8
+        c.setFillColor(HexColor("#1e5e42"))
+        c.setStrokeColor(HexColor("#D9A441"))
+        c.setLineWidth(1)
+        c.roundRect(54, btn_y, 504, 22, 4, fill=1, stroke=1)
+        c.setFillColor(white)
+        c.setFont(FONTB, 8.5)
+        c.drawCentredString(54 + 252, btn_y + 6.5, "+ ADD ALL CONFIRMED RUNS TO MY CALENDAR (WITH 3 REMINDERS)")
+        if master_ics_url:
+            c.linkURL(master_ics_url, (54, btn_y, 558, btn_y + 22), relative=0)
+
         c.showPage()
 
         # ------------------------------------------------------------------ PAGE 2: MONTHLY EVENT STRUCTURE GUIDE
-        draw_header(c, "MONTHLY EVENT STRUCTURE", "Four pillars of BEKSCITY RUN CLUB")
+        draw_header(c, "MONTHLY EVENT STRUCTURE", f"Four pillars of {CLUB}", master_ics_url=master_ics_url)
         PILLARS = [
             ("Community Improvement", "Improve technique, confidence, consistency and personal performance.",
              "Beginner-friendly runs and PB work, drills and form coaching, individual goals, monthly progress check-ins (distance or time), short talks on nutrition, recovery and injury prevention."),
@@ -659,6 +725,22 @@ def build_calendar_pdf(
             yy = draw_para(c, purpose, 58, y - 38, 500, 9.5, 12, font=FONTB, col=INK)
             draw_para(c, acts, 58, yy - 4, 500, 9, 12)
             y -= h + 20
+
+        # Action banner at bottom of Page 2
+        p2_by = 48
+        c.setFillColor(HexColor("#1e5e42"))
+        c.setStrokeColor(HexColor("#D9A441"))
+        c.setLineWidth(1.2)
+        c.roundRect(40, p2_by, 532, 34, 6, fill=1, stroke=1)
+        c.setFillColor(white)
+        c.setFont(FONTB, 9)
+        c.drawCentredString(306, p2_by + 19, "+ ADD ALL CONFIRMED SATURDAY RUNS TO YOUR CALENDAR")
+        c.setFillColor(HexColor("#FEF3C7"))
+        c.setFont(FONT, 7.5)
+        c.drawCentredString(306, p2_by + 7, "Tap to sync all runs with 3 automated reminders (1 day, 2 hours, 15 minutes prior) in Africa/Lagos (WAT)")
+        if master_ics_url:
+            c.linkURL(master_ics_url, (40, p2_by, 572, p2_by + 34), relative=0)
+
         c.showPage()
 
     # ------------------------------------------------------------------ MONTH PAGES (cards grow to fit wrapped text)
@@ -675,15 +757,15 @@ def build_calendar_pdf(
 
     for (yr, mo), evs in month_event_groups:
         title = dt.date(yr, mo, 1).strftime("%B %Y").upper()
-        draw_header(c, title, f"{CLUB}  |  Saturday programme")
+        draw_header(c, title, f"{CLUB}  |  Saturday programme", master_ics_url=master_ics_url)
         top = H - 108
         for (n, total, e) in evs:
-            ch = card_metrics(e)[3]
+            ch = card_metrics(e, base_url)[3]
             if top - ch < MARGIN_BOTTOM:
                 c.showPage()
-                draw_header(c, title, f"{CLUB}  |  Saturday programme  |  continued")
+                draw_header(c, title, f"{CLUB}  |  Saturday programme  |  continued", master_ics_url=master_ics_url)
                 top = H - 108
-            draw_card(c, form, top, n, total, e, custom_date_color=custom_date_col)
+            draw_card(c, form, top, n, total, e, custom_date_color=custom_date_col, base_url=base_url)
             top -= ch + CARD_GAP
         c.showPage()
 

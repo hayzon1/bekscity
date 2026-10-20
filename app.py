@@ -250,6 +250,8 @@ def api_generate_pdf():
         filename = f"bekscity_run_club_calendar_{year}_{month_val:02d}.pdf"
 
     pdf_path = os.path.join(tmp_pdf_dir, filename)
+    master_ics_url = request.args.get("master_ics_url") or f"{request.host_url.rstrip('/')}/api/calendar.ics"
+    base_url = request.host_url.rstrip('/')
 
     try:
         build_calendar_pdf(
@@ -258,7 +260,9 @@ def api_generate_pdf():
             month=month_val,
             date_text_color_override=validated_color,
             use_category_accents=use_category_accents,
-            include_cover_pages=True
+            include_cover_pages=True,
+            master_ics_url=master_ics_url,
+            base_url=base_url
         )
         return send_file(
             pdf_path,
