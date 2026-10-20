@@ -86,16 +86,24 @@ def safe_download_image(url, cache_dir="static/uploads/cache"):
     if not url or not url.startswith("http"):
         return None
     try:
+        # Normalize Wikimedia thumbnail width to 500px to avoid HTTP 400 on non-standard sizes (e.g. 300px)
+        if "wikimedia.org" in url and "/thumb/" in url:
+            url = re.sub(r"/\d+px-", "/500px-", url)
+
         os.makedirs(cache_dir, exist_ok=True)
-        filename = re.sub(r"[^a-zA-Z0-9_\.-]", "_", url.split("?")[0].split("/")[-1])
+        base_name = url.split("?")[0].split("/")[-1]
+        filename = re.sub(r"[^a-zA-Z0-9_\.-]", "_", base_name)
         if not filename.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
             filename += ".png"
         local_path = os.path.join(cache_dir, filename)
         if os.path.exists(local_path) and os.path.getsize(local_path) > 100:
             return local_path
 
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (BCRC Pitch Deck Builder)"})
-        with urllib.request.urlopen(req, timeout=4) as response:
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "BekscityRunClub/2.0 (contact@bekscity.run; runner-proposal-engine)"}
+        )
+        with urllib.request.urlopen(req, timeout=6) as response:
             with open(local_path, "wb") as f:
                 f.write(response.read())
 
@@ -867,15 +875,30 @@ def _build_proposal_pdf_from_template(output_path, proposal_data, template_path,
                 page.apply_redactions()
 
         # Page 1: Brand Logo replacement
-        if logo_local and os.path.exists(logo_local) and not is_pocari:
+        # Unconditionally obliterate the original Pocari Sweat logo if this proposal is for another brand!
+        if not is_pocari:
             p1 = doc[0]
             logo_rect = fitz.Rect(741.72, 32.40, 910.56, 135.72)
             p1.add_redact_annot(logo_rect, fill=(17/255, 24/255, 39/255))
             p1.apply_redactions()
-            try:
-                p1.insert_image(logo_rect, filename=logo_local, keep_proportion=True)
-            except Exception as e:
-                print(f"[proposal_pdf] Warning inserting logo into Pocari PDF: {e}")
+
+            if logo_local and os.path.exists(logo_local):
+                try:
+                    p1.insert_image(logo_rect, filename=logo_local, keep_proportion=True)
+                except Exception as e:
+                    print(f"[proposal_pdf] Warning inserting logo into Pocari PDF: {e}")
+            else:
+                # Polished fallback badge when brand logo is unavailable
+                try:
+                    p1.draw_rect(logo_rect, color=(217/255, 164/255, 65/255), width=1.5, fill=(24/255, 32/255, 47/255))
+                    badge_text = brand_name.upper()
+                    font_sz = min(13.0, max(8.5, 130.0 / max(1, len(badge_text))))
+                    text_w = fitz.get_text_length(badge_text, fontname="helv", fontsize=font_sz)
+                    tx = logo_rect.x0 + (logo_rect.width - text_w) / 2
+                    ty = logo_rect.y0 + (logo_rect.height / 2) + (font_sz / 3)
+                    p1.insert_text((tx, ty), badge_text, fontname="helv", fontsize=font_sz, color=(1, 1, 1))
+                except Exception as e:
+                    print(f"[proposal_pdf] Warning drawing brand badge: {e}")
 
         # Page 9: 4 Community Gallery images
         if len(doc) > 8 and gallery_imgs:

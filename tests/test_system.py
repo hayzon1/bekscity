@@ -657,9 +657,49 @@ class TestBekscitySystem(unittest.TestCase):
         # Clean up added member
         database.delete_community_member(new_m["id"])
 
+    def test_proposal_brand_logo_redbull_redaction(self):
+        """Verifies Red Bull logo resolution and unconditional Pocari logo redaction."""
+        import tempfile
+        import fitz
+        strat = brand_researcher.synthesize_partnership_strategy("Red Bull")
+        self.assertEqual(strat["canonical_name"], "RED BULL")
+        self.assertIn("500px-RedBullEnergyDrink", strat["logo_url"])
+
+        tmp_pdf = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+        tmp_pdf_path = tmp_pdf.name
+        tmp_pdf.close()
+
+        try:
+            from proposal_pdf import build_proposal_pdf
+            build_proposal_pdf(tmp_pdf_path, {
+                "brand_name": strat["canonical_name"],
+                "proposed_role": strat["proposed_role"],
+                "category": strat["category"],
+                "brand_logo_url": strat["logo_url"],
+                "presentation_template": "partnership_proposal"
+            })
+
+            doc = fitz.open(tmp_pdf_path)
+            self.assertEqual(len(doc), 11)
+            # Verify 0 Pocari text occurrences
+            total_pocari_hits = sum(len(p.search_for("POCARI")) for p in doc)
+            self.assertEqual(total_pocari_hits, 0)
+
+            # Verify Page 1 has 2 images: BCRC crest and Red Bull logo (not Pocari)
+            p1 = doc[0]
+            imgs = p1.get_images()
+            self.assertEqual(len(imgs), 2)
+            # Pocari logo xref in template was 36; ensure it was replaced
+            img_xrefs = [img[0] for img in imgs]
+            self.assertNotIn(36, img_xrefs)
+        finally:
+            if os.path.exists(tmp_pdf_path):
+                os.remove(tmp_pdf_path)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
 
 

@@ -49,9 +49,12 @@ def fetch_image_bytes(img_source):
                 return f.read()
 
         if img_source.startswith("http://") or img_source.startswith("https://"):
+            # Normalize Wikimedia thumbnail width to 500px to avoid HTTP 400
+            if "wikimedia.org" in img_source and "/thumb/" in img_source:
+                img_source = re.sub(r"/\d+px-", "/500px-", img_source)
             req = urllib.request.Request(
                 img_source,
-                headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
+                headers={"User-Agent": "BekscityRunClub/2.0 (contact@bekscity.run; runner-proposal-engine)"}
             )
             with urllib.request.urlopen(req, timeout=8) as res:
                 return res.read()

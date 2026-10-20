@@ -48,7 +48,8 @@ CURATED_BRANDS = {
         ),
         "value_amount": "₦1,500,000 Sponsorship + 1,200 Chilled Product Units",
         "partnership_tier": "Official Hydration Partner",
-        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Pocari_Sweat_logo.png/330px-Pocari_Sweat_logo.png"
+        "pitch_hook": "We'd like to invite POCARI SWEAT to become the Official Hydration Partner of BEKSCITY RUN CLUB.",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Pocari_Sweat_logo.png/500px-Pocari_Sweat_logo.png"
     },
     "red bull": {
         "canonical_name": "RED BULL",
@@ -82,7 +83,8 @@ CURATED_BRANDS = {
         ),
         "value_amount": "₦2,000,000 Sponsorship + Sound Support & 800 Cans",
         "partnership_tier": "Official Energy & Performance Partner",
-        "logo_url": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/RedBullEnergyDrink.svg/300px-RedBullEnergyDrink.svg.png"
+        "pitch_hook": "Energize Abeokuta's premier urban running community with RED BULL's iconic vitality.",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/RedBullEnergyDrink.svg/500px-RedBullEnergyDrink.svg.png"
     },
     "nike": {
         "canonical_name": "NIKE",
@@ -114,7 +116,8 @@ CURATED_BRANDS = {
         ),
         "value_amount": "Technical Kit Outfitting + ₦2,500,000 Sponsorship",
         "partnership_tier": "Official Footwear & Apparel Partner",
-        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/330px-Logo_NIKE.svg.png"
+        "pitch_hook": "Equip Abeokuta's fastest runners with cutting-edge NIKE performance wear.",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/500px-Logo_NIKE.svg.png"
     }
 }
 
@@ -168,12 +171,19 @@ def query_wikipedia_online(search_term):
         summary_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{urllib.parse.quote(best_title)}"
         req2 = urllib.request.Request(summary_url, headers={"User-Agent": "BekscityRunClub/2.0 (contact@bekscity.run)"})
         with urllib.request.urlopen(req2, timeout=5) as res2:
-            s_data = json.loads(res2.read().decode("utf-8"))
+            thumb = s_data.get("thumbnail", {}).get("source")
+            if not thumb:
+                orig = s_data.get("originalimage", {}).get("source")
+                if orig and any(orig.lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".webp"]):
+                    thumb = orig
+            if thumb and "wikimedia.org" in thumb and "/thumb/" in thumb:
+                thumb = re.sub(r"/\d+px-", "/500px-", thumb)
+
             return {
                 "title": s_data.get("title", best_title),
                 "description": s_data.get("description", ""),
                 "extract": s_data.get("extract", ""),
-                "thumbnail": s_data.get("thumbnail", {}).get("source")
+                "thumbnail": thumb
             }
     except Exception as e:
         print(f"[BrandResearcher] Online query warning for '{search_term}': {e}")

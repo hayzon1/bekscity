@@ -1083,7 +1083,7 @@ def seed_default_proposals(conn=None):
             "deliverables": "Recognition as Official Hydration Partner of BCRC\nAgreed brand visibility across event materials and digital promotions\nPOCARI SWEAT branded hydration stations at key course checkpoints\nDedicated post-run hydration and recovery activation area\nDefined digital and social media sponsor mentions (200k+ reach)\nProduct sampling and direct engagement with runners\nInclusion in official recap photography and videography content",
             "brand_benefits": "Direct physical sampling to 600+ active health-conscious consumers\n200,000+ views across Instagram and TikTok recap media\nCategory exclusivity in sports hydration & electrolyte beverages\nAssociation with healthy living, fitness, and youth community movement",
             "activations": "● POCARI SWEAT Hydration Station at Mile 5\n● POCARI SWEAT Hydration & Recovery Zone at Moore Junction\n● Direct product sampling & runner engagement\n● Educational hydration messaging approved by brand",
-            "brand_logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Pocari_Sweat_logo.png/330px-Pocari_Sweat_logo.png",
+            "brand_logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Pocari_Sweat_logo.png/500px-Pocari_Sweat_logo.png",
             "run_club_images": "[\"/static/img/gallery/image1.jpeg\", \"/static/img/gallery/image5.jpeg\", \"/static/img/gallery/image6.jpeg\"]",
             "contact_person": "The POCARI SWEAT Team",
             "contact_email": "partnerships@pocarisweat.ng",
