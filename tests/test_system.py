@@ -208,6 +208,56 @@ class TestBekscitySystem(unittest.TestCase):
         self.assertEqual(len(events_restored), 6)
         conn.close()
 
+    def test_cofounders_districts_and_clean_page2(self):
+        """Verifies cofounder details, district meet-up points, and that Page 2 is free of unwanted boxes."""
+        import pypdf
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp_pdf_path = tmp.name
+
+        try:
+            conn = database.get_connection(self.temp_db_path)
+            events = database.get_all_events(conn=conn)
+            conn.close()
+
+            calendar_pdf.build_calendar_pdf(tmp_pdf_path, events=events, include_cover_pages=True)
+            reader = pypdf.PdfReader(tmp_pdf_path)
+            
+            # Check Page 1 annots (cofounders and districts)
+            p1_annots = {}
+            for a in reader.pages[0].get("/Annots") or []:
+                obj = a.get_object()
+                t = obj.get("/T")
+                v = obj.get("/V")
+                if t:
+                    p1_annots[str(t)] = str(v)
+
+            self.assertIn("Oladipupo Abdulazeez", p1_annots.get("cof1_name", ""))
+            self.assertIn("08101674646", p1_annots.get("cof1_phone", ""))
+            self.assertIn("jughead_x3", p1_annots.get("cof1_social", ""))
+            self.assertIn("Shittu Oluwadamilare", p1_annots.get("cof2_name", ""))
+            self.assertIn("08168120117", p1_annots.get("cof2_phone", ""))
+            self.assertIn("sweetboycoal", p1_annots.get("cof2_social", ""))
+            self.assertIn("Adebanjo Oluwatobiloba", p1_annots.get("cof3_name", ""))
+            self.assertIn("07069582118", p1_annots.get("cof3_phone", ""))
+            self.assertIn("tobenzin", p1_annots.get("cof3_social", ""))
+
+            self.assertEqual(p1_annots.get("dist_0_spot"), "Moore junction")
+            self.assertEqual(p1_annots.get("dist_1_spot"), "Kemta junction")
+            self.assertEqual(p1_annots.get("dist_2_spot"), "Skating ground, Panseke")
+            self.assertEqual(p1_annots.get("dist_3_spot"), "Funaab gate")
+
+            # Check Page 2 clean content
+            p2_text = reader.pages[1].extract_text()
+            self.assertNotIn("CONFIRMING OR ADDING AN EVENT", p2_text)
+            self.assertNotIn("MONTHS WITH FIVE SATURDAYS", p2_text)
+            self.assertIn("COMMUNITY IMPROVEMENT", p2_text)
+            self.assertIn("SPONSOR RUN", p2_text)
+            self.assertIn("SIGNATURE EVENT", p2_text)
+            self.assertIn("COMMUNITY CHALLENGE", p2_text)
+        finally:
+            if os.path.exists(tmp_pdf_path):
+                os.remove(tmp_pdf_path)
+
 
 if __name__ == "__main__":
     unittest.main()

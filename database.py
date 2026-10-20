@@ -29,11 +29,25 @@ VALID_STATUSES = [
 VALID_DISTRICTS = [
     "MILE DISTRICT",
     "PHARMAFIT DISTRICT",
+    "PANSEKE DISTRICT",
     "PANSHEKE DISTRICT",
     "FUNAAB DISTRICT",
     "ALL DISTRICTS",
     "TBC",
     ""
+]
+
+COFOUNDERS_DEFAULT = [
+    {"name": "Oladipupo Abdulazeez", "role": "Co-founder", "phone": "08101674646", "social": "jughead_x3"},
+    {"name": "Shittu Oluwadamilare", "role": "Co-founder", "phone": "08168120117", "social": "sweetboycoal"},
+    {"name": "Adebanjo Oluwatobiloba", "role": "Co-founder", "phone": "07069582118", "social": "tobenzin"}
+]
+
+DISTRICTS_DEFAULT = [
+    {"name": "MILE DISTRICT", "spot": "Moore junction", "lead": "", "contact": ""},
+    {"name": "PHARMAFIT DISTRICT", "spot": "Kemta junction", "lead": "", "contact": ""},
+    {"name": "PANSEKE DISTRICT", "spot": "Skating ground, Panseke", "lead": "", "contact": ""},
+    {"name": "FUNAAB DISTRICT", "spot": "Funaab gate", "lead": "", "contact": ""}
 ]
 
 
@@ -234,8 +248,8 @@ def seed_default_events(conn=None):
             "start_time": "06:45",
             "end_time": "08:30",
             "timezone": "Africa/Lagos",
-            "meeting_point": "Pharmafit Assembly Point",
-            "venue": "Pharmafit Hills Course",
+            "meeting_point": "Kemta junction",
+            "venue": "Kemta junction",
             "district": "PHARMAFIT DISTRICT",
             "sponsor": "",
             "partners": "",
@@ -244,7 +258,7 @@ def seed_default_events(conn=None):
             "description": "Community challenge focusing on stamina, hill climbs, and mental toughness through the Pharmafit District hills. Buddy up with experienced runners to conquer the incline.",
             "distance": "8 km",
             "route_stops": "Hill crest checkpoint & summit regroup",
-            "notes": "District flag run for PHARMAFIT DISTRICT."
+            "notes": "District flag run for PHARMAFIT DISTRICT starting at Kemta junction."
         },
         {
             "date": "2026-11-28",

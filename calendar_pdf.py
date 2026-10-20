@@ -19,9 +19,22 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# ------------------------------------------------------------------ SETTINGS
 CLUB = "BEKSCITY RUN CLUB"
-DISTRICTS = ["MILE DISTRICT", "PHARMAFIT DISTRICT", "PANSHEKE DISTRICT", "FUNAAB DISTRICT"]
+DISTRICTS = ["MILE DISTRICT", "PHARMAFIT DISTRICT", "PANSEKE DISTRICT", "FUNAAB DISTRICT"]
+
+COFOUNDERS_DATA = [
+    {"name": "Oladipupo Abdulazeez", "role": "Co-founder", "phone": "08101674646", "social": "jughead_x3"},
+    {"name": "Shittu Oluwadamilare", "role": "Co-founder", "phone": "08168120117", "social": "sweetboycoal"},
+    {"name": "Adebanjo Oluwatobiloba", "role": "Co-founder", "phone": "07069582118", "social": "tobenzin"}
+]
+
+DISTRICTS_DATA = [
+    {"name": "MILE DISTRICT", "spot": "Moore junction", "lead": "", "contact": ""},
+    {"name": "PHARMAFIT DISTRICT", "spot": "Kemta junction", "lead": "", "contact": ""},
+    {"name": "PANSEKE DISTRICT", "spot": "Skating ground, Panseke", "lead": "", "contact": ""},
+    {"name": "FUNAAB DISTRICT", "spot": "Funaab gate", "lead": "", "contact": ""}
+]
+
 MONTHS = [(2026, 10), (2026, 11), (2026, 12)]
 START_DATE = dt.date(2026, 10, 24)   # calendar starts here; earlier Saturdays are left out
 TZ = "Africa/Lagos"
@@ -564,6 +577,7 @@ def build_calendar_pdf(
         gap = 11
         CF_H = 220
         for i in range(3):
+            cf = COFOUNDERS_DATA[i]
             x = 40 + i * (cardw + gap)
             top = y
             c.setFillColor(GOLD)
@@ -575,9 +589,15 @@ def build_calendar_pdf(
             c.setFillColor(INK)
             c.setFont(FONTB, 10)
             c.drawString(x + 10, top - 18, f"COFOUNDER {i+1}")
-            for k, (lab, nm) in enumerate([("Full name", "name"), ("Role / focus", "role"), ("Phone / WhatsApp", "phone"), ("Instagram / email", "social")]):
+            fields_info = [
+                ("Full name", "name", cf["name"]),
+                ("Role / focus", "role", cf["role"]),
+                ("Phone / WhatsApp", "phone", cf["phone"]),
+                ("Instagram / email", "social", cf["social"])
+            ]
+            for k, (lab, nm, val) in enumerate(fields_info):
                 draw_label(c, lab, x + 10, top - 44 - k * 46)
-                draw_field(form, f"cof{i+1}_{nm}", x + 10, top - 46 - k * 46 - 28, cardw - 20, 28, fill=white, border=GOLDB)
+                draw_field(form, f"cof{i+1}_{nm}", x + 10, top - 46 - k * 46 - 28, cardw - 20, 28, value=val, fill=white, border=GOLDB)
         y -= CF_H + 25
         c.setFillColor(INK)
         c.setFont(FONTB, 14)
@@ -590,11 +610,11 @@ def build_calendar_pdf(
         draw_label(c, "District lead", 392, y - 4)
         draw_label(c, "Lead contact", 482, y - 4)
         y -= 34
-        for i, d in enumerate(DISTRICTS):
-            draw_field(form, f"dist_{i}_name", 40, y, 140, 30, value=d)
-            draw_field(form, f"dist_{i}_spot", 186, y, 196, 30)
-            draw_field(form, f"dist_{i}_lead", 388, y, 84, 30)
-            draw_field(form, f"dist_{i}_contact", 478, y, 94, 30)
+        for i, dist in enumerate(DISTRICTS_DATA):
+            draw_field(form, f"dist_{i}_name", 40, y, 140, 30, value=dist["name"])
+            draw_field(form, f"dist_{i}_spot", 186, y, 196, 30, value=dist["spot"])
+            draw_field(form, f"dist_{i}_lead", 388, y, 84, 30, value=dist["lead"])
+            draw_field(form, f"dist_{i}_contact", 478, y, 94, 30, value=dist["contact"])
             y -= 36
         y -= 10
         RHYTHM = [
@@ -615,7 +635,7 @@ def build_calendar_pdf(
         c.showPage()
 
         # ------------------------------------------------------------------ PAGE 2: MONTHLY EVENT STRUCTURE GUIDE
-        draw_header(c, "MONTHLY EVENT STRUCTURE", "Four pillars, plus an optional fifth Saturday")
+        draw_header(c, "MONTHLY EVENT STRUCTURE", "Four pillars of BEKSCITY RUN CLUB")
         PILLARS = [
             ("Community Improvement", "Improve technique, confidence, consistency and personal performance.",
              "Beginner-friendly runs and PB work, drills and form coaching, individual goals, monthly progress check-ins (distance or time), short talks on nutrition, recovery and injury prevention."),
@@ -626,45 +646,19 @@ def build_calendar_pdf(
             ("Community Challenge", "Build endurance, accountability and stronger relationships.",
              "Long run, hill run or interval session. Member spotlights and milestone shout-outs. Buddy-up or volunteer support. Record format, distance or intensity, lead runner and buddy assignments."),
         ]
-        y = H - 112
+        y = H - 118
         for name, purpose, acts in PILLARS:
             col = CATCOL[name]
-            h = max(90, 36 + para_lines(purpose, 500, 9.5, FONTB) * 12 + 3 + para_lines(acts, 500, 9) * 12 + 8)
+            h = max(100, 36 + para_lines(purpose, 500, 9.5, FONTB) * 12 + 3 + para_lines(acts, 500, 9) * 12 + 10)
             c.setFillColor(SOFT)
             c.roundRect(40, y - h, 532, h, 8, fill=1, stroke=0)
             c.setFillColor(col)
             c.rect(40, y - h, 7, h, fill=1, stroke=0)
             c.setFont(FONTB, 12)
-            c.drawString(58, y - 20, name.upper())
-            yy = draw_para(c, purpose, 58, y - 36, 500, 9.5, 12, font=FONTB, col=INK)
-            draw_para(c, acts, 58, yy - 3, 500, 9, 12)
-            y -= h + 8
-
-        FIVE = "The fifth Saturday is an extra slot: another Community Improvement or Sponsor Run, a special Signature Event, a Community Challenge, or a collaboration or celebration. It stays an unconfirmed planning slot until organisers confirm the details."
-        h = 41 + (para_lines(FIVE, 505, 8.8) - 1) * 11
-        c.setFillColor(GOLD)
-        c.setStrokeColor(GOLDB)
-        c.setLineWidth(1.2)
-        c.roundRect(40, y - h, 532, h, 8, fill=1, stroke=1)
-        c.setFillColor(INK)
-        c.setFont(FONTB, 10.5)
-        c.drawString(54, y - 17, "MONTHS WITH FIVE SATURDAYS")
-        draw_para(c, FIVE, 54, y - 31, 505, 8.8, 11)
-        y -= h + 8
-
-        ADD = (
-            "Typing in this PDF only changes the PDF. Changing a Status dropdown here does NOT create or remove calendar links, "
-            "because a PDF cannot rebuild its own links or the .ics files. To confirm an event, update its record in the "
-            "Event Manager dashboard. The database, PDF, Google links and .ics files stay permanently synchronized. "
-            "Planning, TBC and cancelled events never get links or .ics entries."
-        )
-        h = 41 + (para_lines(ADD, 505, 8.8) - 1) * 11
-        c.setFillColor(SOFT)
-        c.roundRect(40, y - h, 532, h, 8, fill=1, stroke=0)
-        c.setFillColor(INK)
-        c.setFont(FONTB, 10.5)
-        c.drawString(54, y - 17, "CONFIRMING OR ADDING AN EVENT")
-        draw_para(c, ADD, 54, y - 31, 505, 8.8, 11)
+            c.drawString(58, y - 22, name.upper())
+            yy = draw_para(c, purpose, 58, y - 38, 500, 9.5, 12, font=FONTB, col=INK)
+            draw_para(c, acts, 58, yy - 4, 500, 9, 12)
+            y -= h + 20
         c.showPage()
 
     # ------------------------------------------------------------------ MONTH PAGES (cards grow to fit wrapped text)

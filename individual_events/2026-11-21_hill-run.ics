@@ -20,12 +20,12 @@ END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
 UID:BCRC-20261121-01@bekscity.run
-DTSTAMP:20261020T150125Z
+DTSTAMP:20261020T154835Z
 DTSTART;TZID=Africa/Lagos:20261121T064500
 DTEND;TZID=Africa/Lagos:20261121T083000
 SUMMARY:BEKSCITY Run: Hill Run
-LOCATION:Pharmafit Assembly Point\, Pharmafit Hills Course\, PHARMAFIT DISTRICT\, Abeokuta\, Ogun State\, Nigeria
-DESCRIPTION:BEKSCITY RUN CLUB — Hill Run\nCategory: Community Challenge\nDistrict: PHARMAFIT DISTRICT\nMeeting Point: Pharmafit Assembly Point\nVenue: Pharmafit Hills Course\nDistance: 8 km\nRoute Stops: Hill crest checkpoint & summit regroup\nEvent Lead: Pharmafit District Coordinator\n\nPLANNED ACTIVITIES:\nElevation training\, hill incline repeats\, endurance conditioning\, and buddy pacing.\n\nABOUT THIS RUN:\nCommunity challenge focusing on stamina\, hill climbs\, and mental toughness through the Pharmafit District hills. Buddy up with experienced runners to conquer the incline.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
+LOCATION:Kemta junction\, PHARMAFIT DISTRICT\, Abeokuta\, Ogun State\, Nigeria
+DESCRIPTION:BEKSCITY RUN CLUB — Hill Run\nCategory: Community Challenge\nDistrict: PHARMAFIT DISTRICT\nMeeting Point: Kemta junction\nDistance: 8 km\nRoute Stops: Hill crest checkpoint & summit regroup\nEvent Lead: Pharmafit District Coordinator\n\nPLANNED ACTIVITIES:\nElevation training\, hill incline repeats\, endurance conditioning\, and buddy pacing.\n\nABOUT THIS RUN:\nCommunity challenge focusing on stamina\, hill climbs\, and mental toughness through the Pharmafit District hills. Buddy up with experienced runners to conquer the incline.\n\nSTANDARD SCHEDULE:\n• 06:45 AM — Check-in and gathering\n• 07:00 AM — Warm-up session\n• 07:15 AM — Group run departs\n• 08:15 AM — Cooldown & stretching\n• 08:30 AM — Refreshments & community social\n\nBEKSCITY RUN CLUB | Keep Moving Forward
 STATUS:CONFIRMED
 CATEGORIES:Community Challenge
 TRANSP:OPAQUE
