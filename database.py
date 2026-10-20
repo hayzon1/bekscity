@@ -98,6 +98,47 @@ def init_db(db_path=None):
             )
         """)
 
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS itineraries (
+                id TEXT PRIMARY KEY,
+                event_id TEXT NOT NULL,
+                title TEXT NOT NULL,
+                date TEXT NOT NULL,
+                lead_organizer TEXT,
+                meeting_point TEXT,
+                route_summary TEXT,
+                distance TEXT,
+                timeline TEXT NOT NULL,
+                route_checkpoints TEXT,
+                volunteer_roles TEXT,
+                logistics_items TEXT,
+                safety_plan TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+        """)
+
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS proposals (
+                id TEXT PRIMARY KEY,
+                brand_name TEXT NOT NULL,
+                event_id TEXT,
+                event_name TEXT,
+                partnership_tier TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'DRAFT',
+                value_amount TEXT,
+                pitch_hook TEXT,
+                deliverables TEXT,
+                brand_benefits TEXT,
+                contact_person TEXT,
+                contact_email TEXT,
+                contact_phone TEXT,
+                notes TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+        """)
+
         # Default settings
         default_settings = {
             "date_text_color": "#D9A441",
@@ -115,6 +156,8 @@ def init_db(db_path=None):
             """, (k, v, now_iso))
 
     seed_default_events(conn)
+    seed_default_itineraries(conn)
+    seed_default_proposals(conn)
     conn.close()
 
 
@@ -774,3 +817,563 @@ def import_events_json(backup_data, mode="merge", conn=None):
         conn.close()
 
     return len(events)
+
+
+def parse_json_safely(val, default):
+    if not val:
+        return default
+    if isinstance(val, (list, dict)):
+        return val
+    try:
+        return json.loads(val)
+    except Exception:
+        return default
+
+
+def seed_default_itineraries(conn=None):
+    """
+    Seeds default operational run sheets/itineraries for marquee BCRC events.
+    """
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    now_iso = datetime.now().isoformat()
+    cursor = conn.cursor()
+
+    # Find event ID for Run and Rumble (2026-10-24)
+    cursor.execute("SELECT id FROM events WHERE date = '2026-10-24' LIMIT 1")
+    ev1 = cursor.fetchone()
+    ev1_id = ev1["id"] if ev1 else "BCRC-20261024-01"
+
+    cursor.execute("SELECT id FROM events WHERE date = '2026-10-31' LIMIT 1")
+    ev2 = cursor.fetchone()
+    ev2_id = ev2["id"] if ev2 else "BCRC-20261031-01"
+
+    itineraries_seed = [
+        {
+            "id": "ITIN-20261024-01",
+            "event_id": ev1_id,
+            "title": "Run and Rumble Official Run Sheet & Operations Itinerary",
+            "date": "2026-10-24",
+            "lead_organizer": "Oladipupo Abdulazeez (08101674646)",
+            "meeting_point": "Moore Junction, Mile District",
+            "route_summary": "Moore Junction -> Ibara Roundabout -> Panseke Skating Ground -> Kemta Junction -> Moore Junction",
+            "distance": "7 km",
+            "timeline": json.dumps([
+                {"time": "15:30", "activity": "Marshals & Pacing Crew Arrival & Radio Check", "location": "Moore Junction", "lead": "Adebanjo O."},
+                {"time": "16:00", "activity": "Runner Check-in, Bib collection & Audio Setup", "location": "Moore Junction Hub", "lead": "Secretariat"},
+                {"time": "16:30", "activity": "Dynamic Mobility & Warm-up Session", "location": "Main Stage / Moore", "lead": "Fitness Lead"},
+                {"time": "16:45", "activity": "Safety Briefing, Route Protocol & District Calls", "location": "Starting Line", "lead": "Shittu O."},
+                {"time": "17:00", "activity": "Run Gun-Start (7 km Group Waves)", "location": "Moore Junction Outbound", "lead": "Pacing Team"},
+                {"time": "17:35", "activity": "Stop 1: Panseke Skating Ground (Hydration & Regroup)", "location": "Panseke Hub", "lead": "Hydration Crew A"},
+                {"time": "18:10", "activity": "Stop 2: Kemta Junction / Pharmafit (Energy gels & Electrolytes)", "location": "Pharmafit Hub", "lead": "Hydration Crew B"},
+                {"time": "18:40", "activity": "Stop 3: Ibara Underpass (Final regroup before sprint finish)", "location": "Ibara Hub", "lead": "Safety Marshals"},
+                {"time": "19:15", "activity": "Finish Line Arrival & Medals / Hydration", "location": "Moore Junction Arena", "lead": "Volunteer Lead"},
+                {"time": "19:30 - 21:00", "activity": "Run and Rumble Evening Games & Social Festival with Archers Live", "location": "Festival Grounds", "lead": "All Co-Founders"}
+            ]),
+            "route_checkpoints": json.dumps([
+                {"name": "Start / Finish Gate", "location": "Moore Junction", "distance_mark": "0.0 km / 7.0 km", "notes": "Medical station, DJ booth, baggage drop"},
+                {"name": "Checkpoint 1 - Water Station", "location": "Panseke Skating Ground", "distance_mark": "2.4 km", "notes": "Water pouches, trash collection baskets"},
+                {"name": "Checkpoint 2 - Electrolyte Hub", "location": "Kemta Junction", "distance_mark": "4.8 km", "notes": "First aid kit, glucose, electrolyte mix"},
+                {"name": "Checkpoint 3 - Regroup Point", "location": "Ibara Underpass", "distance_mark": "6.1 km", "notes": "Whistles, glow batons, high-vis marshals"}
+            ]),
+            "volunteer_roles": json.dumps([
+                {"role": "Lead Cyclist / Pacer", "assignee": "Shittu Oluwadamilare (08168120117)", "contact": "08168120117", "duty": "Front convoy pace setter and route clearance"},
+                {"role": "Sweeper & Rear Safety Escort", "assignee": "Oladipupo Abdulazeez (08101674646)", "contact": "08101674646", "duty": "Ensure no runner is left behind, emergency liaison"},
+                {"role": "Hydration Lead", "assignee": "Adebanjo Oluwatobiloba (07069582118)", "contact": "07069582118", "duty": "Supply distribution across all 3 checkpoints"},
+                {"role": "Event Logistics & Media", "assignee": "BCRC Media Crew", "contact": "@jughead_x3 / @sweetboycoal", "duty": "Photo, video coverage, sound setup"}
+            ]),
+            "logistics_items": json.dumps([
+                "500 BCRC Hydration Water Pouches",
+                "12 Traffic Cones & Safety Reflective Batons",
+                "First Aid Bag & Cold Sprays",
+                "2 Mega-phones for Safety Marshals",
+                "PA Sound System & Generator for Finish Games",
+                "Event Arch & Finish Banners"
+            ]),
+            "safety_plan": "All runners must wear reflective gear or high-vis club shirts. Emergency ambulance vehicle on standby along Ibara corridor. Sweep vehicle follows 50m behind final walking group. Emergency hotlines: 08101674646 / 08168120117."
+        },
+        {
+            "id": "ITIN-20261031-01",
+            "event_id": ev2_id,
+            "title": "OOPL Morning Social Run & Breakfast Itinerary",
+            "date": "2026-10-31",
+            "lead_organizer": "Adebanjo Oluwatobiloba (07069582118)",
+            "meeting_point": "OOPL (Olusegun Obasanjo Presidential Library grounds)",
+            "route_summary": "OOPL Main Gate -> Presidential Boulevard -> Cultural Center Loop -> OOPL Amphitheater",
+            "distance": "5 km",
+            "timeline": json.dumps([
+                {"time": "06:30", "activity": "Organisers and Breakfast Crew Setup", "location": "OOPL Grounds", "lead": "Breakfast Club & BCRC"},
+                {"time": "06:45", "activity": "Runner Assembly & Sign-in", "location": "OOPL Gate 1", "lead": "Secretariat"},
+                {"time": "07:00", "activity": "Warm-up & Joint Mobility Session", "location": "Courtyard", "lead": "Fitness Lead"},
+                {"time": "07:15", "activity": "5 km Social Run Kickoff", "location": "OOPL Boulevard", "lead": "Pacers (6:00 / 7:00 / Walkers)"},
+                {"time": "08:00", "activity": "Cool-down Stretches & Group Photo", "location": "OOPL Amphitheater", "lead": "Shittu O."},
+                {"time": "08:15 - 09:30", "activity": "Breakfast Club Social, Networking & Smoothies", "location": "OOPL Garden", "lead": "Breakfast Club Sponsor"}
+            ]),
+            "route_checkpoints": json.dumps([
+                {"name": "Start & Finish Hub", "location": "OOPL Gate 1", "distance_mark": "0.0 km / 5.0 km", "notes": "Registration desk & water dispenser"},
+                {"name": "Turnaround Loop", "location": "Cultural Center Roundabout", "distance_mark": "2.5 km", "notes": "Marshal with water dispenser"}
+            ]),
+            "volunteer_roles": json.dumps([
+                {"role": "Pace Coordinator", "assignee": "Oladipupo Abdulazeez", "contact": "08101674646", "duty": "Coordinate 3 pace groups (fast, steady, walk/jog)"},
+                {"role": "Breakfast Liaison", "assignee": "Adebanjo Oluwatobiloba", "contact": "07069582118", "duty": "Coordinate catering setup with Breakfast Club sponsor"},
+                {"role": "First Aid & Sweeper", "assignee": "Shittu Oluwadamilare", "contact": "08168120117", "duty": "Monitor course safety and provide hydration"}
+            ]),
+            "logistics_items": json.dumps([
+                "Breakfast Club Catering Tables & Napkins",
+                "Ice Chests & Chilled Water Dispenser",
+                "Course Directional Arrows (10x)",
+                "BCRC Welcome Banner",
+                "First Aid Kit"
+            ]),
+            "safety_plan": "Protected route inside private OOPL grounds and boulevard. Low vehicular traffic. Marshals stationed at road intersections."
+        }
+    ]
+
+    with conn:
+        for it in itineraries_seed:
+            cursor.execute("SELECT id FROM itineraries WHERE id = ?", (it["id"],))
+            if not cursor.fetchone():
+                cursor.execute("""
+                    INSERT INTO itineraries (
+                        id, event_id, title, date, lead_organizer, meeting_point,
+                        route_summary, distance, timeline, route_checkpoints,
+                        volunteer_roles, logistics_items, safety_plan,
+                        created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    it["id"], it["event_id"], it["title"], it["date"],
+                    it["lead_organizer"], it["meeting_point"], it["route_summary"],
+                    it["distance"], it["timeline"], it["route_checkpoints"],
+                    it["volunteer_roles"], it["logistics_items"], it["safety_plan"],
+                    now_iso, now_iso
+                ))
+
+    if close_conn:
+        conn.close()
+
+
+def seed_default_proposals(conn=None):
+    """
+    Seeds default sponsorship & partnership proposals.
+    """
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    now_iso = datetime.now().isoformat()
+    cursor = conn.cursor()
+
+    proposals_seed = [
+        {
+            "id": "PROP-2026-001",
+            "brand_name": "Breakfast Club Africa",
+            "event_id": "BCRC-20261031-01",
+            "event_name": "Social Run & Breakfast Series",
+            "partnership_tier": "Gold Nutrition Partner",
+            "status": "ACCEPTED",
+            "value_amount": "₦750,000 + In-Kind Refreshments",
+            "pitch_hook": "Powering Abeokuta's premier urban running community with healthy morning nutrition and high-engagement brand activations.",
+            "deliverables": "Exclusive post-run breakfast branding\nPop-up sampling station at OOPL\nLogo on digital event flyers and monthly calendar PDF\nDedicated social media feature reel and newsletter sponsor highlight\nOpportunity to offer discount coupons to 300+ active club members",
+            "brand_benefits": "Direct access to health-conscious young professionals and sports enthusiasts\nHigh digital impressions across Instagram and WhatsApp channels\nPhysical experiential touchpoint with targeted demographics",
+            "contact_person": "Kemi Adeleke (Head of Partnerships)",
+            "contact_email": "partnerships@breakfastclub.ng",
+            "contact_phone": "08031234567",
+            "notes": "Confirmed sponsorship for October 31 Social Run. Deliverables reviewed and locked in."
+        },
+        {
+            "id": "PROP-2026-002",
+            "brand_name": "Archers Live Entertainment",
+            "event_id": "BCRC-20261024-01",
+            "event_name": "Run and Rumble Evening Festival",
+            "partnership_tier": "Headline Experience Partner",
+            "status": "ACCEPTED",
+            "value_amount": "₦1,200,000 Joint Co-Promotion",
+            "pitch_hook": "Merging fitness and nightlife: Bringing the ultimate interactive game experience and sound stage to the finish line of Run and Rumble.",
+            "deliverables": "Co-branded event identity ('Run and Rumble powered by Archers Live')\nInteractive gaming arena setup at Moore Junction venue\nDJ equipment, sound system, lighting, and stage production\nInclusion in official calendar and press release",
+            "brand_benefits": "Brand integration with Abeokuta's largest fitness-social event\n500+ live participants and spectators\nMassive viral user-generated content from event games",
+            "contact_person": "Tunde Balogun (Creative Director)",
+            "contact_email": "hello@archerslive.com",
+            "contact_phone": "08099887766",
+            "notes": "Signed agreement. Sound checks and stage logistics set for 3:00 PM on Oct 24."
+        },
+        {
+            "id": "PROP-2026-003",
+            "brand_name": "Soakers Hydration & Energy",
+            "event_id": "BCRC-20261107-01",
+            "event_name": "Run and Splash Water Festival",
+            "partnership_tier": "Official Hydration Sponsor",
+            "status": "UNDER_REVIEW",
+            "value_amount": "₦500,000 + 1,000 Beverage Units",
+            "pitch_hook": "Hydrate over 400 runners during the most refreshing community water run in Ogun State.",
+            "deliverables": "Branded hydration stations at KM 2.5 and finish line\nProduct sampling to every finisher\nLogo placement on bibs and event banner\nSocial media shoutouts across Instagram (@bekscityrunclub)",
+            "brand_benefits": "Zero-waste sampling opportunity\nAssociation with high-energy youth movement\nBrand loyalty among active runners",
+            "contact_person": "Femi Sowande",
+            "contact_email": "sponsorships@soakersenergy.com",
+            "contact_phone": "08023456789",
+            "notes": "Proposal pitch deck sent. Follow-up meeting scheduled with brand manager."
+        }
+    ]
+
+    with conn:
+        for pr in proposals_seed:
+            cursor.execute("SELECT id FROM proposals WHERE id = ?", (pr["id"],))
+            if not cursor.fetchone():
+                cursor.execute("""
+                    INSERT INTO proposals (
+                        id, brand_name, event_id, event_name, partnership_tier,
+                        status, value_amount, pitch_hook, deliverables,
+                        brand_benefits, contact_person, contact_email,
+                        contact_phone, notes, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    pr["id"], pr["brand_name"], pr["event_id"], pr["event_name"],
+                    pr["partnership_tier"], pr["status"], pr["value_amount"],
+                    pr["pitch_hook"], pr["deliverables"], pr["brand_benefits"],
+                    pr["contact_person"], pr["contact_email"], pr["contact_phone"],
+                    pr["notes"], now_iso, now_iso
+                ))
+
+    if close_conn:
+        conn.close()
+
+
+def get_all_itineraries(conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM itineraries ORDER BY date ASC, created_at DESC")
+    rows = cursor.fetchall()
+    res = []
+    for r in rows:
+        d = dict(r)
+        d["timeline"] = parse_json_safely(d.get("timeline"), [])
+        d["route_checkpoints"] = parse_json_safely(d.get("route_checkpoints"), [])
+        d["volunteer_roles"] = parse_json_safely(d.get("volunteer_roles"), [])
+        d["logistics_items"] = parse_json_safely(d.get("logistics_items"), [])
+        res.append(d)
+    if close_conn:
+        conn.close()
+    return res
+
+
+def get_itinerary_by_id(itin_id, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM itineraries WHERE id = ?", (itin_id,))
+    row = cursor.fetchone()
+    if not row:
+        if close_conn:
+            conn.close()
+        return None
+    d = dict(row)
+    d["timeline"] = parse_json_safely(d.get("timeline"), [])
+    d["route_checkpoints"] = parse_json_safely(d.get("route_checkpoints"), [])
+    d["volunteer_roles"] = parse_json_safely(d.get("volunteer_roles"), [])
+    d["logistics_items"] = parse_json_safely(d.get("logistics_items"), [])
+    if close_conn:
+        conn.close()
+    return d
+
+
+def get_itinerary_by_event_id(event_id, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM itineraries WHERE event_id = ? ORDER BY created_at DESC LIMIT 1", (event_id,))
+    row = cursor.fetchone()
+    if not row:
+        if close_conn:
+            conn.close()
+        return None
+    d = dict(row)
+    d["timeline"] = parse_json_safely(d.get("timeline"), [])
+    d["route_checkpoints"] = parse_json_safely(d.get("route_checkpoints"), [])
+    d["volunteer_roles"] = parse_json_safely(d.get("volunteer_roles"), [])
+    d["logistics_items"] = parse_json_safely(d.get("logistics_items"), [])
+    if close_conn:
+        conn.close()
+    return d
+
+
+def create_itinerary(data, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    now_iso = datetime.now().isoformat()
+    itin_date = data.get("date", datetime.now().strftime("%Y-%m-%d"))
+    clean_date = itin_date.replace("-", "")
+    prefix = f"ITIN-{clean_date}-"
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM itineraries WHERE id LIKE ? ORDER BY id DESC LIMIT 1", (f"{prefix}%",))
+    row = cursor.fetchone()
+    seq = 1
+    if row:
+        parts = row["id"].split("-")
+        if len(parts) >= 3 and parts[-1].isdigit():
+            seq = int(parts[-1]) + 1
+    itin_id = data.get("id") or f"{prefix}{seq:02d}"
+
+    def ensure_json(v):
+        if isinstance(v, (list, dict)):
+            return json.dumps(v)
+        return str(v or "[]")
+
+    timeline_val = ensure_json(data.get("timeline", []))
+    checkpoints_val = ensure_json(data.get("route_checkpoints", []))
+    volunteers_val = ensure_json(data.get("volunteer_roles", []))
+    logistics_val = ensure_json(data.get("logistics_items", []))
+
+    with conn:
+        cursor.execute("""
+            INSERT INTO itineraries (
+                id, event_id, title, date, lead_organizer, meeting_point,
+                route_summary, distance, timeline, route_checkpoints,
+                volunteer_roles, logistics_items, safety_plan,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            itin_id,
+            data.get("event_id", ""),
+            data.get("title", "Event Run Sheet"),
+            itin_date,
+            data.get("lead_organizer", ""),
+            data.get("meeting_point", ""),
+            data.get("route_summary", ""),
+            data.get("distance", ""),
+            timeline_val,
+            checkpoints_val,
+            volunteers_val,
+            logistics_val,
+            data.get("safety_plan", ""),
+            now_iso,
+            now_iso
+        ))
+
+    created = get_itinerary_by_id(itin_id, conn=conn)
+    if close_conn:
+        conn.close()
+    return created
+
+
+def update_itinerary(itin_id, data, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    now_iso = datetime.now().isoformat()
+    def ensure_json(v):
+        if isinstance(v, (list, dict)):
+            return json.dumps(v)
+        return str(v or "[]")
+
+    fields = []
+    params = []
+    for k in ["title", "date", "lead_organizer", "meeting_point", "route_summary", "distance", "safety_plan", "event_id"]:
+        if k in data:
+            fields.append(f"{k} = ?")
+            params.append(data[k])
+    for k in ["timeline", "route_checkpoints", "volunteer_roles", "logistics_items"]:
+        if k in data:
+            fields.append(f"{k} = ?")
+            params.append(ensure_json(data[k]))
+
+    if not fields:
+        if close_conn:
+            conn.close()
+        return get_itinerary_by_id(itin_id)
+
+    fields.append("updated_at = ?")
+    params.append(now_iso)
+    params.append(itin_id)
+
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(f"UPDATE itineraries SET {', '.join(fields)} WHERE id = ?", params)
+
+    updated = get_itinerary_by_id(itin_id, conn=conn)
+    if close_conn:
+        conn.close()
+    return updated
+
+
+def delete_itinerary(itin_id, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM itineraries WHERE id = ?", (itin_id,))
+        count = cursor.rowcount
+    if close_conn:
+        conn.close()
+    return count > 0
+
+
+def get_all_proposals(status=None, search=None, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    query = "SELECT * FROM proposals WHERE 1=1"
+    params = []
+    if status:
+        query += " AND UPPER(status) = UPPER(?)"
+        params.append(status)
+    if search:
+        s = f"%{search}%"
+        query += " AND (brand_name LIKE ? OR event_name LIKE ? OR partnership_tier LIKE ? OR pitch_hook LIKE ?)"
+        params.extend([s, s, s, s])
+
+    query += " ORDER BY created_at DESC"
+    cursor = conn.cursor()
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    res = [dict(r) for r in rows]
+    if close_conn:
+        conn.close()
+    return res
+
+
+def get_proposal_by_id(prop_id, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM proposals WHERE id = ?", (prop_id,))
+    row = cursor.fetchone()
+    if not row:
+        if close_conn:
+            conn.close()
+        return None
+    res = dict(row)
+    if close_conn:
+        conn.close()
+    return res
+
+
+def create_proposal(data, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    now_iso = datetime.now().isoformat()
+    year = datetime.now().strftime("%Y")
+    prefix = f"PROP-{year}-"
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM proposals WHERE id LIKE ? ORDER BY id DESC LIMIT 1", (f"{prefix}%",))
+    row = cursor.fetchone()
+    seq = 1
+    if row:
+        parts = row["id"].split("-")
+        if len(parts) >= 3 and parts[-1].isdigit():
+            seq = int(parts[-1]) + 1
+    prop_id = data.get("id") or f"{prefix}{seq:03d}"
+
+    with conn:
+        cursor.execute("""
+            INSERT INTO proposals (
+                id, brand_name, event_id, event_name, partnership_tier,
+                status, value_amount, pitch_hook, deliverables,
+                brand_benefits, contact_person, contact_email,
+                contact_phone, notes, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            prop_id,
+            data.get("brand_name", "Brand Partner"),
+            data.get("event_id", ""),
+            data.get("event_name", ""),
+            data.get("partnership_tier", "Headline Sponsor"),
+            data.get("status", "DRAFT").upper(),
+            data.get("value_amount", ""),
+            data.get("pitch_hook", ""),
+            data.get("deliverables", ""),
+            data.get("brand_benefits", ""),
+            data.get("contact_person", ""),
+            data.get("contact_email", ""),
+            data.get("contact_phone", ""),
+            data.get("notes", ""),
+            now_iso,
+            now_iso
+        ))
+
+    created = get_proposal_by_id(prop_id, conn=conn)
+    if close_conn:
+        conn.close()
+    return created
+
+
+def update_proposal(prop_id, data, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    now_iso = datetime.now().isoformat()
+    valid_cols = [
+        "brand_name", "event_id", "event_name", "partnership_tier",
+        "status", "value_amount", "pitch_hook", "deliverables",
+        "brand_benefits", "contact_person", "contact_email",
+        "contact_phone", "notes"
+    ]
+    fields = []
+    params = []
+    for k in valid_cols:
+        if k in data:
+            fields.append(f"{k} = ?")
+            val = data[k]
+            if k == "status" and val:
+                val = str(val).upper()
+            params.append(val)
+
+    if not fields:
+        if close_conn:
+            conn.close()
+        return get_proposal_by_id(prop_id)
+
+    fields.append("updated_at = ?")
+    params.append(now_iso)
+    params.append(prop_id)
+
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(f"UPDATE proposals SET {', '.join(fields)} WHERE id = ?", params)
+
+    updated = get_proposal_by_id(prop_id, conn=conn)
+    if close_conn:
+        conn.close()
+    return updated
+
+
+def delete_proposal(prop_id, conn=None):
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM proposals WHERE id = ?", (prop_id,))
+        count = cursor.rowcount
+    if close_conn:
+        conn.close()
+    return count > 0
+

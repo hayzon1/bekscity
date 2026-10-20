@@ -258,6 +258,155 @@ class TestBekscitySystem(unittest.TestCase):
             if os.path.exists(tmp_pdf_path):
                 os.remove(tmp_pdf_path)
 
+    def test_itineraries_crud_and_pdf(self):
+        """Validates itinerary storage, CRUD, and PDF generation."""
+        import itinerary_pdf
+        conn = database.get_connection(self.temp_db_path)
+        
+        # Test default seeded itineraries
+        itins = database.get_all_itineraries(conn=conn)
+        self.assertTrue(len(itins) >= 2)
+        itin1 = database.get_itinerary_by_id("ITIN-20261024-01", conn=conn)
+        self.assertIsNotNone(itin1)
+        self.assertIn("Run and Rumble", itin1["title"])
+        self.assertTrue(len(itin1["timeline"]) >= 5)
+        self.assertIn("Moore Junction", itin1["meeting_point"])
+
+        # Test creating new itinerary
+        new_itin_data = {
+            "title": "Abeokuta Sunrise 10K",
+            "date": "2026-12-05",
+            "lead_organizer": "Shittu Oluwadamilare",
+            "meeting_point": "Skating ground, Panseke",
+            "distance": "10 km",
+            "route_summary": "Panseke -> Omida -> Ibara -> Panseke",
+            "timeline": [{"time": "06:00", "activity": "Gather", "location": "Panseke", "lead": "Shittu O."}],
+            "route_checkpoints": [{"name": "CP1", "distance_mark": "5.0 km", "notes": "Water station"}],
+            "volunteer_roles": [{"role": "Pacer", "assignee": "Abdulazeez", "contact": "08101674646", "duty": "6:00/km"}],
+            "logistics_items": ["Cones", "Water"],
+            "safety_plan": "First aid on site"
+        }
+        created = database.create_itinerary(new_itin_data, conn=conn)
+        self.assertIsNotNone(created)
+        self.assertEqual(created["title"], "Abeokuta Sunrise 10K")
+        self.assertEqual(len(created["timeline"]), 1)
+
+        # Test updating itinerary
+        updated = database.update_itinerary(created["id"], {"title": "Abeokuta Sunrise 12K", "distance": "12 km"}, conn=conn)
+        self.assertEqual(updated["title"], "Abeokuta Sunrise 12K")
+        self.assertEqual(updated["distance"], "12 km")
+
+        # Test PDF build
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp_pdf = tmp.name
+        try:
+            itinerary_pdf.build_itinerary_pdf(tmp_pdf, updated)
+            self.assertTrue(os.path.exists(tmp_pdf))
+            self.assertTrue(os.path.getsize(tmp_pdf) > 1000)
+        finally:
+            if os.path.exists(tmp_pdf):
+                os.remove(tmp_pdf)
+
+        # Test deleting itinerary
+        deleted = database.delete_itinerary(created["id"], conn=conn)
+        self.assertTrue(deleted)
+        self.assertIsNone(database.get_itinerary_by_id(created["id"], conn=conn))
+        conn.close()
+
+    def test_proposals_crud_and_pdf(self):
+        """Validates proposals pipeline, CRUD, and formal proposal PDF generation."""
+        import proposal_pdf
+        conn = database.get_connection(self.temp_db_path)
+
+        # Test default seeded proposals
+        props = database.get_all_proposals(conn=conn)
+        self.assertTrue(len(props) >= 3)
+        p1 = database.get_proposal_by_id("PROP-2026-001", conn=conn)
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1["brand_name"], "Breakfast Club Africa")
+        self.assertEqual(p1["status"], "ACCEPTED")
+
+        # Test creating new proposal
+        new_prop_data = {
+            "brand_name": "Peak Milk Nigeria",
+            "event_name": "Family Fun Run",
+            "partnership_tier": "Nutrition Sponsor",
+            "status": "DRAFT",
+            "value_amount": "₦1,500,000",
+            "pitch_hook": "Power your mornings with Peak Milk",
+            "deliverables": "Sampling booth\nSocial media feature",
+            "brand_benefits": "Direct family reach",
+            "contact_person": "Grace Obi",
+            "contact_email": "grace@peakmilk.ng",
+            "contact_phone": "08012345678"
+        }
+        created = database.create_proposal(new_prop_data, conn=conn)
+        self.assertIsNotNone(created)
+        self.assertEqual(created["brand_name"], "Peak Milk Nigeria")
+        self.assertEqual(created["status"], "DRAFT")
+
+        # Test updating proposal status
+        updated = database.update_proposal(created["id"], {"status": "SENT", "value_amount": "₦2,000,000"}, conn=conn)
+        self.assertEqual(updated["status"], "SENT")
+        self.assertEqual(updated["value_amount"], "₦2,000,000")
+
+        # Test Proposal PDF build
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp_pdf = tmp.name
+        try:
+            proposal_pdf.build_proposal_pdf(tmp_pdf, updated)
+            self.assertTrue(os.path.exists(tmp_pdf))
+            self.assertTrue(os.path.getsize(tmp_pdf) > 1000)
+        finally:
+            if os.path.exists(tmp_pdf):
+                os.remove(tmp_pdf)
+
+        # Test deleting proposal
+        deleted = database.delete_proposal(created["id"], conn=conn)
+        self.assertTrue(deleted)
+        self.assertIsNone(database.get_proposal_by_id(created["id"], conn=conn))
+        conn.close()
+
+    def test_flask_handling_page_api_endpoints(self):
+        """Tests the Flask REST API endpoints for handling page operations."""
+        from app import app
+        client = app.test_client()
+
+        # 1. Club info
+        res = client.get("/api/club-info")
+        self.assertEqual(res.status_code, 200)
+        info = res.get_json()
+        self.assertEqual(len(info["co_founders"]), 3)
+        self.assertEqual(info["co_founders"][0]["name"], "Oladipupo Abdulazeez")
+        self.assertEqual(info["co_founders"][1]["name"], "Shittu Oluwadamilare")
+        self.assertEqual(info["co_founders"][2]["name"], "Adebanjo Oluwatobiloba")
+        self.assertEqual(len(info["districts"]), 4)
+
+        # 2. Itineraries endpoints
+        res = client.get("/api/itineraries")
+        self.assertEqual(res.status_code, 200)
+        itins = res.get_json()["itineraries"]
+        self.assertTrue(len(itins) >= 1)
+        first_itin_id = itins[0]["id"]
+
+        pdf_res = client.get(f"/api/itineraries/{first_itin_id}/pdf")
+        self.assertEqual(pdf_res.status_code, 200)
+        self.assertEqual(pdf_res.mimetype, "application/pdf")
+        self.assertTrue(len(pdf_res.data) > 1000)
+
+        # 3. Proposals endpoints
+        res = client.get("/api/proposals")
+        self.assertEqual(res.status_code, 200)
+        props = res.get_json()["proposals"]
+        self.assertTrue(len(props) >= 1)
+        first_prop_id = props[0]["id"]
+
+        prop_pdf_res = client.get(f"/api/proposals/{first_prop_id}/pdf")
+        self.assertEqual(prop_pdf_res.status_code, 200)
+        self.assertEqual(prop_pdf_res.mimetype, "application/pdf")
+        self.assertTrue(len(prop_pdf_res.data) > 1000)
+
 
 if __name__ == "__main__":
     unittest.main()
+

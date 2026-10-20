@@ -17,6 +17,10 @@ from database import (
     init_db, get_all_events, get_event_by_id, create_event, update_event,
     duplicate_event, delete_event, update_event_status, get_stats,
     get_setting, set_setting, export_events_json, import_events_json,
+    get_all_itineraries, get_itinerary_by_id, get_itinerary_by_event_id,
+    create_itinerary, update_itinerary, delete_itinerary,
+    get_all_proposals, get_proposal_by_id, create_proposal,
+    update_proposal, delete_proposal,
     VALID_CATEGORIES, VALID_STATUSES, VALID_DISTRICTS
 )
 from ics_exporter import (
@@ -25,6 +29,9 @@ from ics_exporter import (
 from calendar_pdf import (
     build_calendar_pdf, validate_hex_color, DATE_TEXT_COLOR
 )
+from itinerary_pdf import build_itinerary_pdf
+from proposal_pdf import build_proposal_pdf
+import tempfile
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.config["JSON_SORT_KEYS"] = False
@@ -261,6 +268,222 @@ def api_generate_pdf():
         )
     except Exception as e:
         return jsonify({"success": False, "error": f"PDF Generation Error: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------------------------
+# REST API: RUN ITINERARIES & OPERATIONS
+# -----------------------------------------------------------------------------
+@app.route("/api/itineraries", methods=["GET"])
+def api_get_itineraries():
+    event_id = request.args.get("event_id")
+    if event_id:
+        itin = get_itinerary_by_event_id(event_id)
+        return jsonify({"success": True, "itineraries": [itin] if itin else []})
+    itins = get_all_itineraries()
+    return jsonify({"success": True, "count": len(itins), "itineraries": itins})
+
+
+@app.route("/api/itineraries/<itin_id>", methods=["GET"])
+def api_get_itinerary(itin_id):
+    itin = get_itinerary_by_id(itin_id)
+    if not itin:
+        return jsonify({"success": False, "error": "Itinerary not found"}), 404
+    return jsonify({"success": True, "itinerary": itin})
+
+
+@app.route("/api/itineraries", methods=["POST"])
+def api_create_itinerary():
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"success": False, "error": "Invalid JSON payload"}), 400
+    if not data.get("title"):
+        return jsonify({"success": False, "error": "Title is required"}), 400
+    try:
+        created = create_itinerary(data)
+        return jsonify({"success": True, "itinerary": created, "message": "Itinerary created successfully."}), 201
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/itineraries/<itin_id>", methods=["PUT"])
+def api_update_itinerary(itin_id):
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"success": False, "error": "Invalid JSON payload"}), 400
+    try:
+        updated = update_itinerary(itin_id, data)
+        if not updated:
+            return jsonify({"success": False, "error": "Itinerary not found"}), 404
+        return jsonify({"success": True, "itinerary": updated, "message": "Itinerary updated successfully."})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/itineraries/<itin_id>", methods=["DELETE"])
+def api_delete_itinerary(itin_id):
+    deleted = delete_itinerary(itin_id)
+    if not deleted:
+        return jsonify({"success": False, "error": "Itinerary not found"}), 404
+    return jsonify({"success": True, "message": f"Itinerary {itin_id} deleted successfully."})
+
+
+@app.route("/api/itineraries/<itin_id>/pdf", methods=["GET"])
+def api_download_itinerary_pdf(itin_id):
+    itin = get_itinerary_by_id(itin_id)
+    if not itin:
+        return jsonify({"success": False, "error": "Itinerary not found"}), 404
+
+    tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+    tmp_path = tmp.name
+    tmp.close()
+
+    try:
+        build_itinerary_pdf(tmp_path, itin)
+        filename = f"BCRC_Itinerary_{itin.get('date', 'run')}_{itin.get('id', 'sheet')}.pdf"
+        return send_file(
+            tmp_path,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/pdf"
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Itinerary PDF Error: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------------------------
+# REST API: SPONSORSHIP & BRAND PROPOSALS
+# -----------------------------------------------------------------------------
+@app.route("/api/proposals", methods=["GET"])
+def api_get_proposals():
+    status = request.args.get("status")
+    search = request.args.get("search")
+    props = get_all_proposals(status=status, search=search)
+    return jsonify({"success": True, "count": len(props), "proposals": props})
+
+
+@app.route("/api/proposals/<prop_id>", methods=["GET"])
+def api_get_proposal(prop_id):
+    prop = get_proposal_by_id(prop_id)
+    if not prop:
+        return jsonify({"success": False, "error": "Proposal not found"}), 404
+    return jsonify({"success": True, "proposal": prop})
+
+
+@app.route("/api/proposals", methods=["POST"])
+def api_create_proposal():
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"success": False, "error": "Invalid JSON payload"}), 400
+    if not data.get("brand_name"):
+        return jsonify({"success": False, "error": "Brand name is required"}), 400
+    try:
+        created = create_proposal(data)
+        return jsonify({"success": True, "proposal": created, "message": "Proposal created successfully."}), 201
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/proposals/<prop_id>", methods=["PUT"])
+def api_update_proposal(prop_id):
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"success": False, "error": "Invalid JSON payload"}), 400
+    try:
+        updated = update_proposal(prop_id, data)
+        if not updated:
+            return jsonify({"success": False, "error": "Proposal not found"}), 404
+        return jsonify({"success": True, "proposal": updated, "message": "Proposal updated successfully."})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/proposals/<prop_id>", methods=["DELETE"])
+def api_delete_proposal(prop_id):
+    deleted = delete_proposal(prop_id)
+    if not deleted:
+        return jsonify({"success": False, "error": "Proposal not found"}), 404
+    return jsonify({"success": True, "message": f"Proposal {prop_id} deleted successfully."})
+
+
+@app.route("/api/proposals/<prop_id>/pdf", methods=["GET"])
+def api_download_proposal_pdf(prop_id):
+    prop = get_proposal_by_id(prop_id)
+    if not prop:
+        return jsonify({"success": False, "error": "Proposal not found"}), 404
+
+    tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+    tmp_path = tmp.name
+    tmp.close()
+
+    try:
+        build_proposal_pdf(tmp_path, prop)
+        clean_brand = "".join(c for c in prop.get("brand_name", "Brand") if c.isalnum() or c in " _-").strip().replace(" ", "_")
+        filename = f"BCRC_Proposal_{clean_brand}_{prop.get('id', 'deck')}.pdf"
+        return send_file(
+            tmp_path,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/pdf"
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Proposal PDF Error: {str(e)}"}), 500
+
+
+# -----------------------------------------------------------------------------
+# REST API: CLUB INFO & COMMAND CENTER
+# -----------------------------------------------------------------------------
+@app.route("/api/club-info", methods=["GET"])
+def api_get_club_info():
+    return jsonify({
+        "success": True,
+        "club_name": "BEKSCITY RUN CLUB",
+        "tagline": "Run. Improve. Connect.",
+        "co_founders": [
+            {
+                "name": "Oladipupo Abdulazeez",
+                "phone": "08101674646",
+                "handle": "jughead_x3",
+                "instagram_link": "https://instagram.com/jughead_x3",
+                "role": "Co-Founder & Route / Sweeper Operations Lead"
+            },
+            {
+                "name": "Shittu Oluwadamilare",
+                "phone": "08168120117",
+                "handle": "sweetboycoal",
+                "instagram_link": "https://instagram.com/sweetboycoal",
+                "role": "Co-Founder & Logistics / Pacing Convoy Lead"
+            },
+            {
+                "name": "Adebanjo Oluwatobiloba",
+                "phone": "07069582118",
+                "handle": "tobenzin",
+                "instagram_link": "https://instagram.com/tobenzin",
+                "role": "Co-Founder & Community / Hydration Lead"
+            }
+        ],
+        "districts": [
+            {
+                "name": "Mile District",
+                "meeting_point": "Moore junction",
+                "description": "Historic central hub of Abeokuta; meeting point for premier signature events like Run and Rumble."
+            },
+            {
+                "name": "Pharmafit District",
+                "meeting_point": "Kemta junction",
+                "description": "Hill terrain district focused on elevation conditioning, hill repeats, and endurance stamina."
+            },
+            {
+                "name": "Panseke District",
+                "meeting_point": "Skating ground, panseke/",
+                "description": "Vibrant commercial and youth activity sector; high-energy regrouping and sprint checkpoints."
+            },
+            {
+                "name": "Funaab District",
+                "meeting_point": "Funaab gate",
+                "description": "Collegiate gateway for long-distance tempo training and student athletic integration."
+            }
+        ]
+    })
 
 
 # -----------------------------------------------------------------------------

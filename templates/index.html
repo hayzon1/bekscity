@@ -167,8 +167,32 @@
     </div>
   </header>
 
+  <!-- MAIN NAVIGATION TABS (BCRC HANDLING PAGE HUB) -->
+  <div class="bg-brand-charcoal text-white border-b border-gray-800 sticky top-0 sm:top-[69px] z-20 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 overflow-x-auto py-2.5">
+      <button onclick="switchMainTab('events')" id="main-nav-events" class="main-nav-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 bg-brand-gold text-gray-950 shadow-md transition-all">
+        <span>📅</span>
+        <span>Run Calendar & Events</span>
+      </button>
+      <button onclick="switchMainTab('itineraries')" id="main-nav-itineraries" class="main-nav-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 text-gray-300 hover:text-white hover:bg-gray-800 transition-all">
+        <span>⏱️</span>
+        <span>Run Itineraries & Operations</span>
+        <span id="itinerary-nav-badge" class="bg-gray-700 text-brand-gold text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">0</span>
+      </button>
+      <button onclick="switchMainTab('proposals')" id="main-nav-proposals" class="main-nav-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 text-gray-300 hover:text-white hover:bg-gray-800 transition-all">
+        <span>🤝</span>
+        <span>Sponsorship & Proposals</span>
+        <span id="proposal-nav-badge" class="bg-gray-700 text-brand-gold text-[10px] px-2 py-0.5 rounded-full font-bold ml-1">0</span>
+      </button>
+      <button onclick="switchMainTab('districts')" id="main-nav-districts" class="main-nav-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 text-gray-300 hover:text-white hover:bg-gray-800 transition-all">
+        <span>🏢</span>
+        <span>Districts & Command Center</span>
+      </button>
+    </div>
+  </div>
+
   <!-- SECONDARY TOOLBAR: VIEW TOGGLE, MONTH SELECTOR & FILTERS -->
-  <div class="bg-white border-b border-gray-200 shadow-sm">
+  <div id="events-toolbar" class="bg-white border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
       
       <!-- View Switcher -->
@@ -237,57 +261,441 @@
   <!-- MAIN CONTENT CONTAINER -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
     
-    <!-- FIFTH SATURDAY NOTIFICATION BANNER (When current month has 5 Saturdays) -->
-    <div id="fifth-saturday-banner" class="hidden mb-6 bg-amber-50 border border-amber-300 rounded-xl p-4 flex items-start space-x-3 text-amber-900">
-      <span class="text-xl">⭐</span>
-      <div class="flex-1">
-        <h3 class="font-bold text-sm">Fifth Saturday Planning Slot Detected in this Month!</h3>
-        <p class="text-xs text-amber-800 mt-0.5">
-          This month has 5 Saturdays. Fifth Saturdays are dedicated club planning slots for pop-up runs, special community collaborations, or cross-district challenges. 
-          By club policy, fifth Saturday events remain open planning opportunities until the organiser explicitly confirms them.
-        </p>
-      </div>
-      <button onclick="scheduleFifthSaturday()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm whitespace-nowrap">
-        + Plan 5th Saturday Run
-      </button>
-    </div>
-
-    <!-- CALENDAR GRID VIEW -->
-    <div id="calendar-view" class="space-y-6">
+    <!-- 1. EVENTS & CALENDAR TAB SECTION -->
+    <div id="tab-section-events" class="space-y-6">
       
-      <!-- Day-of-week headers -->
-      <div class="grid grid-cols-7 gap-2 text-center text-xs font-display font-extrabold text-gray-600 uppercase tracking-wider py-2 bg-gray-100 rounded-xl">
-        <div>Sun</div>
-        <div>Mon</div>
-        <div>Tue</div>
-        <div>Wed</div>
-        <div>Thu</div>
-        <div>Fri</div>
-        <div class="text-brand-green">Saturday (Club Runs)</div>
+      <!-- FIFTH SATURDAY NOTIFICATION BANNER (When current month has 5 Saturdays) -->
+      <div id="fifth-saturday-banner" class="hidden bg-amber-50 border border-amber-300 rounded-xl p-4 flex items-start space-x-3 text-amber-900">
+        <span class="text-xl">⭐</span>
+        <div class="flex-1">
+          <h3 class="font-bold text-sm">Fifth Saturday Planning Slot Detected in this Month!</h3>
+          <p class="text-xs text-amber-800 mt-0.5">
+            This month has 5 Saturdays. Fifth Saturdays are dedicated club planning slots for pop-up runs, special community collaborations, or cross-district challenges. 
+            By club policy, fifth Saturday events remain open planning opportunities until the organiser explicitly confirms them.
+          </p>
+        </div>
+        <button onclick="scheduleFifthSaturday()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-sm whitespace-nowrap">
+          + Plan 5th Saturday Run
+        </button>
       </div>
 
-      <!-- Calendar Day Cells Grid -->
-      <div id="calendar-grid-cells" class="grid grid-cols-7 gap-2 min-h-[500px]">
-        <!-- Rendered by JS -->
-      </div>
+      <!-- CALENDAR GRID VIEW -->
+      <div id="calendar-view" class="space-y-6">
+        <!-- Day-of-week headers -->
+        <div class="grid grid-cols-7 gap-2 text-center text-xs font-display font-extrabold text-gray-600 uppercase tracking-wider py-2 bg-gray-100 rounded-xl">
+          <div>Sun</div>
+          <div>Mon</div>
+          <div>Tue</div>
+          <div>Wed</div>
+          <div>Thu</div>
+          <div>Fri</div>
+          <div class="text-brand-green">Saturday (Club Runs)</div>
+        </div>
 
-    </div>
-
-    <!-- EVENT LIST VIEW -->
-    <div id="list-view" class="hidden space-y-4">
-      <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <h2 class="font-display font-bold text-lg text-gray-900 flex items-center space-x-2">
-          <span>All Scheduled & Confirmed Runs</span>
-          <span id="list-count-badge" class="bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
-        </h2>
-        <div class="text-xs text-gray-500">
-          Showing events matching your filter criteria
+        <!-- Calendar Day Cells Grid -->
+        <div id="calendar-grid-cells" class="grid grid-cols-7 gap-2 min-h-[500px]">
+          <!-- Rendered by JS -->
         </div>
       </div>
 
-      <div id="event-list-container" class="space-y-3">
+      <!-- EVENT LIST VIEW -->
+      <div id="list-view" class="hidden space-y-4">
+        <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+          <h2 class="font-display font-bold text-lg text-gray-900 flex items-center space-x-2">
+            <span>All Scheduled & Confirmed Runs</span>
+            <span id="list-count-badge" class="bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+          </h2>
+          <div class="text-xs text-gray-500">
+            Showing events matching your filter criteria
+          </div>
+        </div>
+
+        <div id="event-list-container" class="space-y-3">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. RUN ITINERARIES & OPERATIONS TAB SECTION -->
+    <div id="tab-section-itineraries" class="hidden space-y-6">
+      <!-- Header Banner & Action Bar -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl">⏱️</span>
+            <h2 class="text-xl font-display font-extrabold text-gray-900">Event Run Sheets & Operational Itineraries</h2>
+            <span id="itinerary-total-count" class="bg-brand-goldLight text-brand-goldDark text-xs px-2.5 py-0.5 rounded-full font-bold">0 Active</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">
+            Minute-by-minute operational run plans, volunteer pace teams, route checkpoints, hydration stations, and 1-page printable race operations PDF run sheets.
+          </p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="openItineraryModal()" class="bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-display font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow flex items-center space-x-2 transition-transform active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>+ ADD OPERATIONAL ITINERARY</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <div class="relative flex-1 min-w-[240px] max-w-md">
+          <input type="text" id="itinerary-search" oninput="filterItineraries()" placeholder="Search run sheets by title, lead, or route..." class="w-full bg-white border border-gray-300 rounded-lg pl-8 pr-3 py-2 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-gold">
+          <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <div class="text-xs text-gray-500 flex items-center space-x-2">
+          <span>Sort:</span>
+          <select id="itinerary-sort" onchange="renderItineraries()" class="bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-gold">
+            <option value="asc">Date: Upcoming First</option>
+            <option value="desc">Date: Latest First</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Itineraries Grid -->
+      <div id="itineraries-container" class="grid grid-cols-1 gap-5">
         <!-- Rendered by JS -->
       </div>
+    </div>
+
+    <!-- 3. SPONSORSHIP & PROPOSALS TAB SECTION -->
+    <div id="tab-section-proposals" class="hidden space-y-6">
+      <!-- Header Banner & Action Bar -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl">🤝</span>
+            <h2 class="text-xl font-display font-extrabold text-gray-900">Brand Sponsorship & Proposals Pipeline</h2>
+            <span id="proposal-total-count" class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0 Deals</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">
+            Sort and track commercial brand partnerships, deliverables, pitch decks, and generate formal 2-page sponsorship proposal PDFs.
+          </p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="openProposalModal()" class="bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-display font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow flex items-center space-x-2 transition-transform active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>+ CREATE SPONSORSHIP PROPOSAL</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pipeline Metric Summary Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5">
+          <p class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Accepted Deals</p>
+          <p class="text-lg font-black text-emerald-950 font-display mt-0.5" id="metric-accepted-count">0</p>
+          <p class="text-[10px] text-emerald-600 font-medium">Locked in sponsorships</p>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+          <p class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Under Review</p>
+          <p class="text-lg font-black text-amber-950 font-display mt-0.5" id="metric-review-count">0</p>
+          <p class="text-[10px] text-amber-600 font-medium">Pitch delivered to brands</p>
+        </div>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
+          <p class="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Sent / In Pitch</p>
+          <p class="text-lg font-black text-blue-950 font-display mt-0.5" id="metric-sent-count">0</p>
+          <p class="text-[10px] text-blue-600 font-medium">Active proposals</p>
+        </div>
+        <div class="bg-gray-100 border border-gray-200 rounded-xl p-3.5">
+          <p class="text-[11px] font-bold text-gray-600 uppercase tracking-wider">Draft Proposals</p>
+          <p class="text-lg font-black text-gray-900 font-display mt-0.5" id="metric-draft-count">0</p>
+          <p class="text-[10px] text-gray-500 font-medium">Internal preparation</p>
+        </div>
+      </div>
+
+      <!-- Status Pipeline Filters & Search -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <!-- Status Tabs -->
+        <div class="flex items-center space-x-1 bg-white p-1 rounded-lg border border-gray-200 overflow-x-auto">
+          <button onclick="filterProposalStatus('')" id="prop-filter-all" class="prop-status-tab px-3 py-1 rounded text-xs font-bold bg-brand-charcoal text-white">All Deals</button>
+          <button onclick="filterProposalStatus('ACCEPTED')" id="prop-filter-accepted" class="prop-status-tab px-3 py-1 rounded text-xs font-bold text-gray-600 hover:text-emerald-700">Accepted</button>
+          <button onclick="filterProposalStatus('UNDER_REVIEW')" id="prop-filter-review" class="prop-status-tab px-3 py-1 rounded text-xs font-bold text-gray-600 hover:text-amber-700">Under Review</button>
+          <button onclick="filterProposalStatus('SENT')" id="prop-filter-sent" class="prop-status-tab px-3 py-1 rounded text-xs font-bold text-gray-600 hover:text-blue-700">Sent</button>
+          <button onclick="filterProposalStatus('DRAFT')" id="prop-filter-draft" class="prop-status-tab px-3 py-1 rounded text-xs font-bold text-gray-600 hover:text-gray-900">Drafts</button>
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative min-w-[220px]">
+          <input type="text" id="proposal-search" oninput="filterProposals()" placeholder="Search brand, tier, or event..." class="w-full bg-white border border-gray-300 rounded-lg pl-8 pr-3 py-1.5 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-gold">
+          <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+      </div>
+
+      <!-- Proposals Grid -->
+      <div id="proposals-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- 4. DISTRICTS & COMMAND CENTER TAB SECTION -->
+    <div id="tab-section-districts" class="hidden space-y-6">
+      
+      <!-- Command Center Header -->
+      <div class="bg-brand-charcoal text-white rounded-2xl p-6 shadow-md border-2 border-brand-gold flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="bg-brand-gold text-gray-950 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded tracking-wider">BEKSCITY RUN CLUB COMMAND CENTER</span>
+          <h2 class="text-2xl font-display font-black text-white mt-2">Executive Leadership & District Operations</h2>
+          <p class="text-xs text-gray-300 mt-1">Official directory for co-founders, permanent district assembly points, and Saturday race day logistics.</p>
+        </div>
+        <div class="flex items-center space-x-2 text-xs">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-emerald-400 font-bold">Operations Active: Africa/Lagos (WAT, UTC+1)</span>
+        </div>
+      </div>
+
+      <!-- Co-Founders Directory Cards -->
+      <div>
+        <h3 class="text-base font-display font-extrabold text-gray-900 mb-3 flex items-center space-x-2">
+          <span>👑</span>
+          <span>The 3 Co-Founders of BEKSCITY RUN CLUB</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Co-founder 1: Oladipupo Abdulazeez -->
+          <div class="bg-white border-2 border-amber-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-amber-100 rounded-bl-full flex items-start justify-end p-2 text-amber-800 font-bold text-xs">#01</div>
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-12 h-12 rounded-xl bg-amber-500 text-gray-950 font-black font-display text-xl flex items-center justify-center shadow">OA</div>
+              <div>
+                <h4 class="font-extrabold text-gray-950 text-sm">Oladipupo Abdulazeez</h4>
+                <p class="text-[11px] text-amber-800 font-semibold">Co-Founder & Route / Sweeper Lead</p>
+              </div>
+            </div>
+            <div class="space-y-2 text-xs pt-2 border-t border-gray-100">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-500">Phone Hotline:</span>
+                <a href="tel:08101674646" class="font-mono font-bold text-gray-900 hover:text-brand-green flex items-center space-x-1">
+                  <span>📞</span><span>08101674646</span>
+                </a>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-500">Social / IG:</span>
+                <a href="https://instagram.com/jughead_x3" target="_blank" class="font-bold text-brand-goldDark hover:underline flex items-center space-x-1">
+                  <span>📸</span><span>@jughead_x3</span>
+                </a>
+              </div>
+              <div class="bg-gray-50 p-2 rounded-lg text-[11px] text-gray-600 mt-2">
+                <strong>Race Day Role:</strong> Route safety coordinator, course inspection, and rear sweep vehicle operations.
+              </div>
+            </div>
+          </div>
+
+          <!-- Co-founder 2: Shittu Oluwadamilare -->
+          <div class="bg-white border-2 border-amber-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-amber-100 rounded-bl-full flex items-start justify-end p-2 text-amber-800 font-bold text-xs">#02</div>
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-12 h-12 rounded-xl bg-amber-500 text-gray-950 font-black font-display text-xl flex items-center justify-center shadow">SO</div>
+              <div>
+                <h4 class="font-extrabold text-gray-950 text-sm">Shittu Oluwadamilare</h4>
+                <p class="text-[11px] text-amber-800 font-semibold">Co-Founder & Lead Pacer / Logistics</p>
+              </div>
+            </div>
+            <div class="space-y-2 text-xs pt-2 border-t border-gray-100">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-500">Phone Hotline:</span>
+                <a href="tel:08168120117" class="font-mono font-bold text-gray-900 hover:text-brand-green flex items-center space-x-1">
+                  <span>📞</span><span>08168120117</span>
+                </a>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-500">Social / IG:</span>
+                <a href="https://instagram.com/sweetboycoal" target="_blank" class="font-bold text-brand-goldDark hover:underline flex items-center space-x-1">
+                  <span>📸</span><span>@sweetboycoal</span>
+                </a>
+              </div>
+              <div class="bg-gray-50 p-2 rounded-lg text-[11px] text-gray-600 mt-2">
+                <strong>Race Day Role:</strong> Lead cyclist/runner convoy, pacer synchronization, and timing coordination.
+              </div>
+            </div>
+          </div>
+
+          <!-- Co-founder 3: Adebanjo Oluwatobiloba -->
+          <div class="bg-white border-2 border-amber-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-amber-100 rounded-bl-full flex items-start justify-end p-2 text-amber-800 font-bold text-xs">#03</div>
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-12 h-12 rounded-xl bg-amber-500 text-gray-950 font-black font-display text-xl flex items-center justify-center shadow">AO</div>
+              <div>
+                <h4 class="font-extrabold text-gray-950 text-sm">Adebanjo Oluwatobiloba</h4>
+                <p class="text-[11px] text-amber-800 font-semibold">Co-Founder & Community / Hydration Lead</p>
+              </div>
+            </div>
+            <div class="space-y-2 text-xs pt-2 border-t border-gray-100">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-500">Phone Hotline:</span>
+                <a href="tel:07069582118" class="font-mono font-bold text-gray-900 hover:text-brand-green flex items-center space-x-1">
+                  <span>📞</span><span>07069582118</span>
+                </a>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-500">Social / IG:</span>
+                <a href="https://instagram.com/tobenzin" target="_blank" class="font-bold text-brand-goldDark hover:underline flex items-center space-x-1">
+                  <span>📸</span><span>@tobenzin</span>
+                </a>
+              </div>
+              <div class="bg-gray-50 p-2 rounded-lg text-[11px] text-gray-600 mt-2">
+                <strong>Race Day Role:</strong> Hydration station setup, volunteer briefing, and sponsor partner reception.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Four Permanent Club Districts -->
+      <div>
+        <h3 class="text-base font-display font-extrabold text-gray-900 mb-3 flex items-center space-x-2">
+          <span>📍</span>
+          <span>Four Permanent Club Districts & Assembly Points</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- District 1 -->
+          <div class="bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-sm hover:border-emerald-400 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">District 1</span>
+              <span class="text-emerald-600 text-sm">🏛️</span>
+            </div>
+            <h4 class="font-display font-bold text-base text-gray-900">MILE DISTRICT</h4>
+            <div class="mt-2 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+              <p class="text-[10px] text-emerald-800 uppercase font-extrabold">Permanent Meet-up Point</p>
+              <p class="text-xs font-black text-emerald-950 mt-0.5">Moore junction</p>
+            </div>
+            <p class="text-[11px] text-gray-600 mt-2">Central gathering zone for marquee signature runs like Run and Rumble.</p>
+          </div>
+
+          <!-- District 2 -->
+          <div class="bg-white border-2 border-blue-200 rounded-2xl p-4 shadow-sm hover:border-blue-400 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-800">District 2</span>
+              <span class="text-blue-600 text-sm">⛰️</span>
+            </div>
+            <h4 class="font-display font-bold text-base text-gray-900">PHARMAFIT DISTRICT</h4>
+            <div class="mt-2 bg-blue-50 p-2.5 rounded-xl border border-blue-200">
+              <p class="text-[10px] text-blue-800 uppercase font-extrabold">Permanent Meet-up Point</p>
+              <p class="text-xs font-black text-blue-950 mt-0.5">Kemta junction</p>
+            </div>
+            <p class="text-[11px] text-gray-600 mt-2">Hill terrain district dedicated to elevation training and endurance stamina.</p>
+          </div>
+
+          <!-- District 3 -->
+          <div class="bg-white border-2 border-purple-200 rounded-2xl p-4 shadow-sm hover:border-purple-400 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-800">District 3</span>
+              <span class="text-purple-600 text-sm">🛹</span>
+            </div>
+            <h4 class="font-display font-bold text-base text-gray-900">PANSEKE DISTRICT</h4>
+            <div class="mt-2 bg-purple-50 p-2.5 rounded-xl border border-purple-200">
+              <p class="text-[10px] text-purple-800 uppercase font-extrabold">Permanent Meet-up Point</p>
+              <p class="text-xs font-black text-purple-950 mt-0.5">Skating ground, panseke/</p>
+            </div>
+            <p class="text-[11px] text-gray-600 mt-2">High-energy youth and commercial center; critical regrouping and sprint checkpoints.</p>
+          </div>
+
+          <!-- District 4 -->
+          <div class="bg-white border-2 border-amber-200 rounded-2xl p-4 shadow-sm hover:border-amber-400 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800">District 4</span>
+              <span class="text-amber-600 text-sm">🎓</span>
+            </div>
+            <h4 class="font-display font-bold text-base text-gray-900">FUNAAB DISTRICT</h4>
+            <div class="mt-2 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+              <p class="text-[10px] text-amber-800 uppercase font-extrabold">Permanent Meet-up Point</p>
+              <p class="text-xs font-black text-amber-950 mt-0.5">Funaab gate</p>
+            </div>
+            <p class="text-[11px] text-gray-600 mt-2">Collegiate connector district for campus tempo runs and student athlete integration.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Saturday Official Run Schedule & Logistics Checklist -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Saturday Schedule -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-3">
+          <h4 class="font-display font-bold text-base text-gray-900 flex items-center space-x-2">
+            <span>⏰</span>
+            <span>Official Saturday Run Timeline Protocol</span>
+          </h4>
+          <div class="space-y-2.5 text-xs">
+            <div class="flex items-center space-x-3 p-2 rounded-lg bg-gray-50 border border-gray-100">
+              <span class="font-mono font-extrabold text-brand-green bg-emerald-50 px-2 py-1 rounded">06:45 AM</span>
+              <div>
+                <p class="font-bold text-gray-900">Gathering & Attendance</p>
+                <p class="text-[11px] text-gray-500">Member sign-in, bib distributions, briefing</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3 p-2 rounded-lg bg-gray-50 border border-gray-100">
+              <span class="font-mono font-extrabold text-brand-green bg-emerald-50 px-2 py-1 rounded">07:00 AM</span>
+              <div>
+                <p class="font-bold text-gray-900">Group Warm-Up</p>
+                <p class="text-[11px] text-gray-500">Dynamic stretching, joint mobility & pace team calls</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3 p-2 rounded-lg bg-gray-50 border border-gray-100">
+              <span class="font-mono font-extrabold text-brand-green bg-emerald-50 px-2 py-1 rounded">07:15 AM</span>
+              <div>
+                <p class="font-bold text-gray-900">Run Gun-Start</p>
+                <p class="text-[11px] text-gray-500">Pace groups depart with escort cyclists</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3 p-2 rounded-lg bg-gray-50 border border-gray-100">
+              <span class="font-mono font-extrabold text-brand-green bg-emerald-50 px-2 py-1 rounded">08:15 AM</span>
+              <div>
+                <p class="font-bold text-gray-900">Cooldown & Recovery</p>
+                <p class="text-[11px] text-gray-500">Hydration, muscle release, group victory photo</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3 p-2 rounded-lg bg-gray-50 border border-gray-100">
+              <span class="font-mono font-extrabold text-brand-green bg-emerald-50 px-2 py-1 rounded">08:30 AM</span>
+              <div>
+                <p class="font-bold text-gray-900">Coffee, Fruits & Social</p>
+                <p class="text-[11px] text-gray-500">Networking, partner discussions, club community games</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Equipment Checklist -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex justify-between items-center">
+            <h4 class="font-display font-bold text-base text-gray-900 flex items-center space-x-2">
+              <span>📋</span>
+              <span>Race Day Equipment Checklist</span>
+            </h4>
+            <button onclick="resetChecklist()" class="text-[10px] text-brand-goldDark font-bold hover:underline">Reset Checklist</button>
+          </div>
+          <div class="space-y-2 text-xs" id="checklist-container">
+            <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" onchange="saveChecklist()" class="rounded text-brand-gold w-4 h-4" data-item="pouches">
+              <span class="text-gray-800">500 BCRC Hydration Water Pouches & Ice</span>
+            </label>
+            <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" onchange="saveChecklist()" class="rounded text-brand-gold w-4 h-4" data-item="cones">
+              <span class="text-gray-800">12 Traffic Cones & Safety Reflective Batons</span>
+            </label>
+            <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" onchange="saveChecklist()" class="rounded text-brand-gold w-4 h-4" data-item="firstaid">
+              <span class="text-gray-800">First Aid Bag, Bandages & Muscle Cold Sprays</span>
+            </label>
+            <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" onchange="saveChecklist()" class="rounded text-brand-gold w-4 h-4" data-item="megaphones">
+              <span class="text-gray-800">2 Mega-phones for Safety Marshals & Briefing</span>
+            </label>
+            <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" onchange="saveChecklist()" class="rounded text-brand-gold w-4 h-4" data-item="sound">
+              <span class="text-gray-800">PA Sound System & Generator for Venue Games</span>
+            </label>
+            <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" onchange="saveChecklist()" class="rounded text-brand-gold w-4 h-4" data-item="banners">
+              <span class="text-gray-800">BCRC Finish Arch & Partner Banners</span>
+            </label>
+            <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" onchange="saveChecklist()" class="rounded text-brand-gold w-4 h-4" data-item="sweeper">
+              <span class="text-gray-800">Safety Sweep Escort Vehicle Confirmed</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </main>
@@ -672,6 +1080,240 @@
     </div>
   </div>
 
+  <!-- ITINERARY EDIT / CREATE MODAL -->
+  <div id="itinerary-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-gray-200 overflow-hidden transform transition-all">
+      <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
+        <div>
+          <h3 id="itinerary-modal-title" class="font-display font-bold text-lg text-white">Event Run Sheet & Itinerary Builder</h3>
+          <p class="text-xs text-brand-gold">Generates 1-page high-visibility race operations PDF run sheets</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span id="itinerary-modal-id" class="text-xs font-mono bg-gray-800 text-brand-gold px-2.5 py-1 rounded">AUTO-ID</span>
+          <button onclick="closeItineraryModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">✕</button>
+        </div>
+      </div>
+
+      <form id="itinerary-form" onsubmit="saveItineraryForm(event)" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto text-xs">
+        <input type="hidden" id="itin-form-id" name="id">
+
+        <!-- Link to Event & Title -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Link to Confirmed Event</label>
+            <select id="itin-form-event-select" onchange="syncItineraryFromEvent(this.value)" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+              <option value="">-- Custom / No Event Link --</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block font-bold text-gray-700 mb-1">Run Sheet Title *</label>
+            <input type="text" id="itin-form-title" required placeholder="e.g. Run and Rumble Official Run Sheet & Operations Itinerary" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Date, Distance, Coordinator -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Event Date *</label>
+            <input type="date" id="itin-form-date" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Distance & Format</label>
+            <input type="text" id="itin-form-distance" placeholder="e.g. 7 km, 5 km, 10 km" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Lead Coordinator</label>
+            <input type="text" id="itin-form-lead" placeholder="e.g. Oladipupo Abdulazeez (08101674646)" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Meeting Point & Route Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Assembly & Meeting Point</label>
+            <input type="text" id="itin-form-meeting" placeholder="e.g. Moore Junction, Mile District" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Course & Route Summary</label>
+            <input type="text" id="itin-form-route" placeholder="e.g. Moore Junction -> Ibara -> Panseke -> Kemta -> Moore" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Dynamic Minute-by-Minute Timeline Builder -->
+        <div class="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <h4 class="font-bold text-gray-900 text-sm flex items-center space-x-1.5">
+                <span>⏱️</span>
+                <span>Minute-by-Minute Timeline</span>
+              </h4>
+              <p class="text-[11px] text-gray-500">Scheduled checkpoints, warmup, start wave, and cooldown times</p>
+            </div>
+            <button type="button" onclick="addTimelineRow()" class="bg-brand-charcoal text-white hover:bg-black font-bold text-xs px-2.5 py-1 rounded-lg shadow-sm">
+              + Add Step
+            </button>
+          </div>
+          <div id="timeline-rows-container" class="space-y-2">
+            <!-- Timeline rows rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Dynamic Checkpoints & Volunteers -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Route Checkpoints -->
+          <div class="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-gray-900 text-xs">Route Hydration Checkpoints</h4>
+              <button type="button" onclick="addCheckpointRow()" class="text-[11px] font-bold text-brand-green hover:underline">+ Add Checkpoint</button>
+            </div>
+            <div id="checkpoint-rows-container" class="space-y-2">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Volunteer Assignments -->
+          <div class="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-3">
+            <div class="flex justify-between items-center">
+              <h4 class="font-bold text-gray-900 text-xs">Pacer & Marshal Assignments</h4>
+              <button type="button" onclick="addVolunteerRow()" class="text-[11px] font-bold text-brand-green hover:underline">+ Add Role</button>
+            </div>
+            <div id="volunteer-rows-container" class="space-y-2">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Logistics & Safety Plan -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Equipment & Logistics (One item per line)</label>
+            <textarea id="itin-form-logistics" rows="3" placeholder="500 BCRC Hydration Water Pouches&#10;12 Traffic Cones & Safety Reflective Batons&#10;First Aid Bag & Cold Sprays" class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Emergency & Course Safety Protocol</label>
+            <textarea id="itin-form-safety" rows="3" placeholder="All runners must wear reflective gear. Emergency ambulance on standby along Ibara corridor. Sweep vehicle follows 50m behind." class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="pt-4 border-t border-gray-200 flex justify-end space-x-2">
+          <button type="button" onclick="closeItineraryModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">Cancel</button>
+          <button type="submit" class="bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-display font-extrabold px-5 py-2 rounded-lg shadow">
+            Save Operational Itinerary
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PROPOSAL EDIT / CREATE MODAL -->
+  <div id="proposal-modal" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-gray-200 overflow-hidden transform transition-all">
+      <div class="bg-brand-charcoal text-white px-6 py-4 flex justify-between items-center">
+        <div>
+          <h3 id="proposal-modal-title" class="font-display font-bold text-lg text-white">Brand Sponsorship Proposal Editor</h3>
+          <p class="text-xs text-brand-gold">Generates formal 2-page sponsorship proposal PDFs</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span id="proposal-modal-id" class="text-xs font-mono bg-gray-800 text-brand-gold px-2.5 py-1 rounded">AUTO-ID</span>
+          <button onclick="closeProposalModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">✕</button>
+        </div>
+      </div>
+
+      <form id="proposal-form" onsubmit="saveProposalForm(event)" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto text-xs">
+        <input type="hidden" id="prop-form-id" name="id">
+
+        <!-- Brand Name & Event -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Brand / Company Name *</label>
+            <input type="text" id="prop-form-brand" required placeholder="e.g. Breakfast Club Africa, Archers Live, Soakers" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Target Event Name</label>
+            <input type="text" id="prop-form-event" placeholder="e.g. Run and Rumble Evening Festival, Social Run" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Tier, Status, Valuation -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Partnership Tier *</label>
+            <select id="prop-form-tier" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+              <option value="Headline Experience Partner">Headline Experience Partner</option>
+              <option value="Gold Nutrition Partner">Gold Nutrition Partner</option>
+              <option value="Official Hydration Sponsor">Official Hydration Sponsor</option>
+              <option value="Wellness Partner">Wellness Partner</option>
+              <option value="Community Partner">Community Partner</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Proposal Pipeline Status *</label>
+            <select id="prop-form-status" required class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+              <option value="DRAFT">DRAFT (Internal Draft)</option>
+              <option value="SENT">SENT (Proposal Dispatched)</option>
+              <option value="UNDER_REVIEW">UNDER_REVIEW (Active Pitch)</option>
+              <option value="ACCEPTED">ACCEPTED (Confirmed Partner)</option>
+              <option value="DECLINED">DECLINED</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Commercial / In-Kind Value</label>
+            <input type="text" id="prop-form-value" placeholder="e.g. ₦1,200,000 + 1,000 Beverage Units" class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Pitch Hook -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Executive Pitch Hook</label>
+          <input type="text" id="prop-form-pitch" placeholder="e.g. Powering Abeokuta's premier urban running movement with healthy morning nutrition and high-engagement brand activations." class="w-full text-sm border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none">
+        </div>
+
+        <!-- Deliverables & Brand Benefits -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Brand Deliverables (One per line)</label>
+            <textarea id="prop-form-deliverables" rows="4" placeholder="Exclusive post-run breakfast branding&#10;Pop-up sampling station at venue&#10;Logo on digital event flyers & calendar PDF&#10;Dedicated Instagram reel & newsletter highlight" class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Audience & Commercial Benefits (One per line)</label>
+            <textarea id="prop-form-benefits" rows="4" placeholder="Direct access to 300+ health-conscious active young professionals&#10;High digital reach across Instagram & WhatsApp communities&#10;Experiential touchpoint and product trial" class="w-full text-xs border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-gold focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-3.5 rounded-xl border border-gray-200">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Contact Person</label>
+            <input type="text" id="prop-form-contact-person" placeholder="e.g. Kemi Adeleke" class="w-full text-xs border border-gray-300 rounded-lg p-2 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Contact Email</label>
+            <input type="email" id="prop-form-contact-email" placeholder="e.g. partnerships@brand.ng" class="w-full text-xs border border-gray-300 rounded-lg p-2 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Contact Phone</label>
+            <input type="tel" id="prop-form-contact-phone" placeholder="e.g. 08031234567" class="w-full text-xs border border-gray-300 rounded-lg p-2 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Internal Notes & Meeting Log</label>
+          <textarea id="prop-form-notes" rows="2" placeholder="Agreed terms, follow-up schedule, payment status..." class="w-full text-xs border border-gray-300 rounded-lg p-2 focus:outline-none"></textarea>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="pt-4 border-t border-gray-200 flex justify-end space-x-2">
+          <button type="button" onclick="closeProposalModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">Cancel</button>
+          <button type="submit" class="bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-display font-extrabold px-5 py-2 rounded-lg shadow">
+            Save Sponsorship Proposal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
@@ -681,11 +1323,17 @@
       currentYear: 2026,
       currentMonth: 10, // 10 = October (matches seed events)
       currentView: 'calendar',
+      currentMainTab: 'events',
       events: [],
+      itineraries: [],
+      proposals: [],
+      selectedProposalStatus: '',
       stats: {},
       settings: { date_text_color: '#D9A441' },
       isFormDirty: false,
-      editingEventId: null
+      editingEventId: null,
+      editingItineraryId: null,
+      editingProposalId: null
     };
 
     // Category Color Helpers
@@ -767,6 +1415,9 @@
       await loadSettings();
       await loadStats();
       await loadEvents();
+      await loadItineraries();
+      await loadProposals();
+      loadChecklist();
       setupFormListeners();
     });
 
@@ -1426,6 +2077,739 @@
         showToast('Restore error: ' + e.message, 'error');
       }
     }
+
+    // -------------------------------------------------------------------------
+    // BCRC HANDLING PAGE: MAIN TAB SWITCHING
+    // -------------------------------------------------------------------------
+    function switchMainTab(tab) {
+      state.currentMainTab = tab;
+      
+      const tabs = ['events', 'itineraries', 'proposals', 'districts'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`main-nav-${t}`);
+        const sec = document.getElementById(`tab-section-${t}`);
+        if (t === tab) {
+          if (btn) {
+            btn.className = 'main-nav-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 bg-brand-gold text-gray-950 shadow-md transition-all';
+          }
+          if (sec) sec.classList.remove('hidden');
+        } else {
+          if (btn) {
+            btn.className = 'main-nav-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-2 text-gray-300 hover:text-white hover:bg-gray-800 transition-all';
+          }
+          if (sec) sec.classList.add('hidden');
+        }
+      });
+
+      // Events secondary toolbar
+      const evToolbar = document.getElementById('events-toolbar');
+      if (evToolbar) {
+        if (tab === 'events') {
+          evToolbar.classList.remove('hidden');
+        } else {
+          evToolbar.classList.add('hidden');
+        }
+      }
+
+      if (tab === 'itineraries') {
+        loadItineraries();
+      } else if (tab === 'proposals') {
+        loadProposals();
+      } else if (tab === 'districts') {
+        loadChecklist();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // BCRC HANDLING PAGE: RUN ITINERARIES & OPERATIONS
+    // -------------------------------------------------------------------------
+    async function loadItineraries() {
+      try {
+        const res = await fetch('/api/itineraries');
+        const data = await res.json();
+        if (data.success) {
+          state.itineraries = data.itineraries || [];
+          
+          // Update badge counts
+          const count = state.itineraries.length;
+          const navBadge = document.getElementById('itinerary-nav-badge');
+          const totalBadge = document.getElementById('itinerary-total-count');
+          if (navBadge) navBadge.textContent = count;
+          if (totalBadge) totalBadge.textContent = `${count} Active`;
+
+          renderItineraries();
+        }
+      } catch (e) {
+        console.error('Failed to load itineraries:', e);
+      }
+    }
+
+    function renderItineraries(customList) {
+      const container = document.getElementById('itineraries-container');
+      if (!container) return;
+
+      let list = customList !== undefined ? customList : [...state.itineraries];
+      const sortOrder = document.getElementById('itinerary-sort')?.value || 'asc';
+      list.sort((a, b) => {
+        const da = a.date || '';
+        const db = b.date || '';
+        return sortOrder === 'asc' ? da.localeCompare(db) : db.localeCompare(da);
+      });
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center">
+            <span class="text-4xl">⏱️</span>
+            <h3 class="text-base font-bold text-gray-800 mt-2">No Run Sheets Found</h3>
+            <p class="text-xs text-gray-500 mt-1">Create an operational run sheet for your upcoming Saturday runs.</p>
+            <button onclick="openItineraryModal()" class="mt-4 bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-bold text-xs px-4 py-2 rounded-xl shadow-sm">
+              + Add First Run Sheet
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(itin => {
+        const timelineSteps = Array.isArray(itin.timeline) ? itin.timeline : [];
+        const checkpoints = Array.isArray(itin.route_checkpoints) ? itin.route_checkpoints : [];
+        const volunteers = Array.isArray(itin.volunteer_roles) ? itin.volunteer_roles : [];
+
+        return `
+          <div class="bg-white border-2 border-gray-200 hover:border-brand-gold rounded-2xl p-5 shadow-sm hover:shadow-md transition-all space-y-4">
+            
+            <!-- Top Header & Primary Actions -->
+            <div class="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-gray-100">
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="bg-brand-charcoal text-brand-gold font-mono font-bold text-xs px-2.5 py-1 rounded-lg">${itin.date}</span>
+                  <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-2.5 py-0.5 rounded-full">${itin.distance || 'Route'}</span>
+                  <span class="text-gray-400 font-mono text-[11px]">${itin.id}</span>
+                </div>
+                <h3 class="text-lg font-display font-black text-gray-950 mt-1">${itin.title}</h3>
+                <p class="text-xs text-gray-600">
+                  <strong>Assembly:</strong> ${itin.meeting_point || 'TBC'} • <strong>Course:</strong> ${itin.route_summary || 'Standard loop'}
+                </p>
+                <p class="text-[11px] text-gray-500">
+                  <strong>Lead Coordinator:</strong> ${itin.lead_organizer || 'Organising Committee'}
+                </p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex items-center space-x-2">
+                <a href="/api/itineraries/${itin.id}/pdf" target="_blank" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center space-x-1.5 shadow transition-colors">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/></svg>
+                  <span>Download Run Sheet PDF</span>
+                </a>
+                <button onclick="openItineraryModal('${itin.id}')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs px-3 py-2 rounded-xl border border-gray-300">
+                  ✏️ Edit
+                </button>
+                <button onclick="deleteItinerary('${itin.id}')" class="text-gray-400 hover:text-red-600 p-2 rounded-lg" title="Delete Itinerary">
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <!-- Minute-by-Minute Timeline Stepper -->
+            <div>
+              <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Minute-by-Minute Timeline Preview</p>
+              <div class="flex items-center gap-2 overflow-x-auto pb-2">
+                ${timelineSteps.map(step => `
+                  <div class="flex-shrink-0 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 min-w-[150px]">
+                    <span class="text-xs font-mono font-extrabold text-brand-green">${step.time || ''}</span>
+                    <p class="text-xs font-bold text-gray-900 truncate mt-0.5">${step.activity || ''}</p>
+                    <p class="text-[10px] text-gray-500 truncate">${step.location || ''} • ${step.lead || ''}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Route Checkpoints & Pacer summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-gray-100 text-xs">
+              <div>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Hydration Checkpoints (${checkpoints.length})</span>
+                <div class="flex flex-wrap gap-1.5 mt-1">
+                  ${checkpoints.map(cp => `
+                    <span class="bg-blue-50 text-blue-900 border border-blue-200 text-[11px] px-2 py-0.5 rounded-lg font-medium">
+                      📍 <strong>${cp.distance_mark || ''}:</strong> ${cp.name || ''}
+                    </span>
+                  `).join('')}
+                </div>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Pacing & Marshal Assignments (${volunteers.length})</span>
+                <div class="flex flex-wrap gap-1.5 mt-1">
+                  ${volunteers.map(v => `
+                    <span class="bg-amber-50 text-amber-900 border border-amber-200 text-[11px] px-2 py-0.5 rounded-lg font-medium">
+                      🎽 <strong>${v.role || ''}:</strong> ${v.assignee || ''}
+                    </span>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterItineraries() {
+      const q = (document.getElementById('itinerary-search')?.value || '').toLowerCase().trim();
+      if (!q) {
+        renderItineraries();
+        return;
+      }
+      const filtered = state.itineraries.filter(it => {
+        return (it.title || '').toLowerCase().includes(q) ||
+               (it.lead_organizer || '').toLowerCase().includes(q) ||
+               (it.route_summary || '').toLowerCase().includes(q) ||
+               (it.meeting_point || '').toLowerCase().includes(q);
+      });
+      renderItineraries(filtered);
+    }
+
+    function openItineraryModal(itinId = null) {
+      state.editingItineraryId = itinId;
+      const modal = document.getElementById('itinerary-modal');
+      const form = document.getElementById('itinerary-form');
+      form.reset();
+
+      // Populate events dropdown
+      const evSelect = document.getElementById('itin-form-event-select');
+      evSelect.innerHTML = '<option value="">-- Custom / No Event Link --</option>' + 
+        state.events.map(ev => `<option value="${ev.id}">${ev.date} — ${ev.name} (${ev.status})</option>`).join('');
+
+      document.getElementById('timeline-rows-container').innerHTML = '';
+      document.getElementById('checkpoint-rows-container').innerHTML = '';
+      document.getElementById('volunteer-rows-container').innerHTML = '';
+
+      if (itinId) {
+        const itin = state.itineraries.find(i => i.id === itinId);
+        if (itin) {
+          document.getElementById('itinerary-modal-title').textContent = 'Edit Operational Run Sheet';
+          document.getElementById('itinerary-modal-id').textContent = itin.id;
+          document.getElementById('itin-form-id').value = itin.id;
+          document.getElementById('itin-form-event-select').value = itin.event_id || '';
+          document.getElementById('itin-form-title').value = itin.title || '';
+          document.getElementById('itin-form-date').value = itin.date || '';
+          document.getElementById('itin-form-distance').value = itin.distance || '';
+          document.getElementById('itin-form-lead').value = itin.lead_organizer || '';
+          document.getElementById('itin-form-meeting').value = itin.meeting_point || '';
+          document.getElementById('itin-form-route').value = itin.route_summary || '';
+          
+          const logistics = Array.isArray(itin.logistics_items) ? itin.logistics_items.join('\n') : (itin.logistics_items || '');
+          document.getElementById('itin-form-logistics').value = logistics;
+          document.getElementById('itin-form-safety').value = itin.safety_plan || '';
+
+          (itin.timeline || []).forEach(step => addTimelineRow(step));
+          (itin.route_checkpoints || []).forEach(cp => addCheckpointRow(cp));
+          (itin.volunteer_roles || []).forEach(vol => addVolunteerRow(vol));
+        }
+      } else {
+        document.getElementById('itinerary-modal-title').textContent = 'Create Operational Run Sheet';
+        document.getElementById('itinerary-modal-id').textContent = 'AUTO-ID';
+        document.getElementById('itin-form-id').value = '';
+        document.getElementById('itin-form-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('itin-form-lead').value = 'Oladipupo Abdulazeez (08101674646)';
+        
+        // Add default sample rows
+        addTimelineRow({ time: '06:45', activity: 'Runner Gathering & Check-in', location: 'Meeting Point', lead: 'Secretariat' });
+        addTimelineRow({ time: '07:00', activity: 'Dynamic Warm-up & Safety Briefing', location: 'Stage', lead: 'Lead Pacer' });
+        addTimelineRow({ time: '07:15', activity: 'Run Gun-Start Waves', location: 'Start Line', lead: 'Pacing Team' });
+        addTimelineRow({ time: '08:15', activity: 'Finish Line & Cooldown', location: 'Finish Gate', lead: 'Hydration Crew' });
+
+        addCheckpointRow({ name: 'Start & Finish Arch', distance_mark: '0.0 km', notes: 'First aid, water dispensers' });
+        addCheckpointRow({ name: 'Water & Electrolyte Station', distance_mark: '2.5 km', notes: 'Hydration pouches, trash bins' });
+
+        addVolunteerRow({ role: 'Lead Convoy Pacer', assignee: 'Shittu Oluwadamilare', contact: '08168120117', duty: 'Front escort' });
+        addVolunteerRow({ role: 'Rear Safety Sweeper', assignee: 'Oladipupo Abdulazeez', contact: '08101674646', duty: 'Ensure no runner behind' });
+        addVolunteerRow({ role: 'Hydration Director', assignee: 'Adebanjo Oluwatobiloba', contact: '07069582118', duty: 'Water supplies' });
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeItineraryModal() {
+      document.getElementById('itinerary-modal').classList.add('hidden');
+    }
+
+    function syncItineraryFromEvent(eventId) {
+      if (!eventId) return;
+      const ev = state.events.find(e => e.id === eventId);
+      if (!ev) return;
+
+      document.getElementById('itin-form-title').value = `${ev.name} Official Run Sheet & Operations Itinerary`;
+      document.getElementById('itin-form-date').value = ev.date;
+      document.getElementById('itin-form-meeting').value = ev.meeting_point || ev.venue || '';
+      document.getElementById('itin-form-distance').value = ev.distance || '';
+      document.getElementById('itin-form-route').value = ev.route_stops || '';
+      document.getElementById('itin-form-lead').value = ev.event_lead || 'Oladipupo Abdulazeez (08101674646)';
+    }
+
+    function addTimelineRow(step = {}) {
+      const container = document.getElementById('timeline-rows-container');
+      const div = document.createElement('div');
+      div.className = 'timeline-row flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200';
+      div.innerHTML = `
+        <input type="text" placeholder="16:00" value="${step.time || ''}" class="timeline-time w-20 text-xs border border-gray-300 rounded p-1.5 font-mono">
+        <input type="text" placeholder="Activity (e.g. Dynamic Warm-up)" value="${step.activity || ''}" class="timeline-activity flex-1 text-xs border border-gray-300 rounded p-1.5 font-bold">
+        <input type="text" placeholder="Location" value="${step.location || ''}" class="timeline-location w-32 text-xs border border-gray-300 rounded p-1.5">
+        <input type="text" placeholder="Lead Person" value="${step.lead || ''}" class="timeline-lead w-28 text-xs border border-gray-300 rounded p-1.5">
+        <button type="button" onclick="this.closest('.timeline-row').remove()" class="text-red-500 hover:text-red-700 p-1 font-bold">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function addCheckpointRow(cp = {}) {
+      const container = document.getElementById('checkpoint-rows-container');
+      const div = document.createElement('div');
+      div.className = 'checkpoint-row flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200';
+      div.innerHTML = `
+        <input type="text" placeholder="Checkpoint Name" value="${cp.name || ''}" class="cp-name flex-1 text-xs border border-gray-300 rounded p-1.5 font-bold">
+        <input type="text" placeholder="Dist (e.g. 2.4 km)" value="${cp.distance_mark || ''}" class="cp-dist w-24 text-xs border border-gray-300 rounded p-1.5 font-mono">
+        <input type="text" placeholder="Amenities / Notes" value="${cp.notes || ''}" class="cp-notes flex-1 text-xs border border-gray-300 rounded p-1.5">
+        <button type="button" onclick="this.closest('.checkpoint-row').remove()" class="text-red-500 hover:text-red-700 p-1 font-bold">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function addVolunteerRow(vol = {}) {
+      const container = document.getElementById('volunteer-rows-container');
+      const div = document.createElement('div');
+      div.className = 'volunteer-row flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200';
+      div.innerHTML = `
+        <input type="text" placeholder="Role (e.g. Lead Pacer)" value="${vol.role || ''}" class="vol-role w-28 text-xs border border-gray-300 rounded p-1.5 font-bold">
+        <input type="text" placeholder="Assignee Name" value="${vol.assignee || ''}" class="vol-assignee flex-1 text-xs border border-gray-300 rounded p-1.5">
+        <input type="text" placeholder="Phone" value="${vol.contact || ''}" class="vol-contact w-24 text-xs border border-gray-300 rounded p-1.5 font-mono">
+        <input type="text" placeholder="Duty" value="${vol.duty || ''}" class="vol-duty flex-1 text-xs border border-gray-300 rounded p-1.5">
+        <button type="button" onclick="this.closest('.volunteer-row').remove()" class="text-red-500 hover:text-red-700 p-1 font-bold">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    async function saveItineraryForm(e) {
+      e.preventDefault();
+      
+      const itinId = document.getElementById('itin-form-id').value;
+      const timelineRows = document.querySelectorAll('#timeline-rows-container .timeline-row');
+      const timeline = [];
+      timelineRows.forEach(row => {
+        const time = row.querySelector('.timeline-time')?.value.trim();
+        const activity = row.querySelector('.timeline-activity')?.value.trim();
+        const location = row.querySelector('.timeline-location')?.value.trim();
+        const lead = row.querySelector('.timeline-lead')?.value.trim();
+        if (time || activity) {
+          timeline.push({ time, activity, location, lead });
+        }
+      });
+
+      const checkpointRows = document.querySelectorAll('#checkpoint-rows-container .checkpoint-row');
+      const checkpoints = [];
+      checkpointRows.forEach(row => {
+        const name = row.querySelector('.cp-name')?.value.trim();
+        const distance_mark = row.querySelector('.cp-dist')?.value.trim();
+        const notes = row.querySelector('.cp-notes')?.value.trim();
+        if (name) {
+          checkpoints.push({ name, distance_mark, notes });
+        }
+      });
+
+      const volunteerRows = document.querySelectorAll('#volunteer-rows-container .volunteer-row');
+      const volunteers = [];
+      volunteerRows.forEach(row => {
+        const role = row.querySelector('.vol-role')?.value.trim();
+        const assignee = row.querySelector('.vol-assignee')?.value.trim();
+        const contact = row.querySelector('.vol-contact')?.value.trim();
+        const duty = row.querySelector('.vol-duty')?.value.trim();
+        if (role || assignee) {
+          volunteers.push({ role, assignee, contact, duty });
+        }
+      });
+
+      const logisticsRaw = document.getElementById('itin-form-logistics').value;
+      const logistics_items = logisticsRaw.split('\n').map(l => l.trim()).filter(Boolean);
+
+      const payload = {
+        event_id: document.getElementById('itin-form-event-select').value,
+        title: document.getElementById('itin-form-title').value.trim(),
+        date: document.getElementById('itin-form-date').value,
+        distance: document.getElementById('itin-form-distance').value.trim(),
+        lead_organizer: document.getElementById('itin-form-lead').value.trim(),
+        meeting_point: document.getElementById('itin-form-meeting').value.trim(),
+        route_summary: document.getElementById('itin-form-route').value.trim(),
+        timeline: timeline,
+        route_checkpoints: checkpoints,
+        volunteer_roles: volunteers,
+        logistics_items: logistics_items,
+        safety_plan: document.getElementById('itin-form-safety').value.trim()
+      };
+
+      try {
+        let res;
+        if (itinId) {
+          res = await fetch(`/api/itineraries/${itinId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } else {
+          res = await fetch('/api/itineraries', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Operational itinerary saved successfully.');
+          closeItineraryModal();
+          await loadItineraries();
+        } else {
+          showToast(data.error || 'Failed to save itinerary.', 'error');
+        }
+      } catch (err) {
+        showToast('Error saving itinerary: ' + err.message, 'error');
+      }
+    }
+
+    async function deleteItinerary(id) {
+      if (!confirm('Are you sure you want to permanently delete this operational run sheet?')) return;
+      try {
+        const res = await fetch(`/api/itineraries/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          await loadItineraries();
+        } else {
+          showToast(data.error || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showToast('Delete error: ' + err.message, 'error');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // BCRC HANDLING PAGE: SPONSORSHIP & PROPOSALS
+    // -------------------------------------------------------------------------
+    async function loadProposals() {
+      try {
+        const res = await fetch('/api/proposals');
+        const data = await res.json();
+        if (data.success) {
+          state.proposals = data.proposals || [];
+
+          // Compute pipeline metric counters
+          const total = state.proposals.length;
+          const accepted = state.proposals.filter(p => (p.status || '').toUpperCase() === 'ACCEPTED').length;
+          const review = state.proposals.filter(p => (p.status || '').toUpperCase() === 'UNDER_REVIEW').length;
+          const sent = state.proposals.filter(p => (p.status || '').toUpperCase() === 'SENT').length;
+          const draft = state.proposals.filter(p => (p.status || '').toUpperCase() === 'DRAFT').length;
+
+          const navBadge = document.getElementById('proposal-nav-badge');
+          const totalBadge = document.getElementById('proposal-total-count');
+          if (navBadge) navBadge.textContent = total;
+          if (totalBadge) totalBadge.textContent = `${total} Deals`;
+
+          const mAcc = document.getElementById('metric-accepted-count');
+          const mRev = document.getElementById('metric-review-count');
+          const mSent = document.getElementById('metric-sent-count');
+          const mDraft = document.getElementById('metric-draft-count');
+          if (mAcc) mAcc.textContent = accepted;
+          if (mRev) mRev.textContent = review;
+          if (mSent) mSent.textContent = sent;
+          if (mDraft) mDraft.textContent = draft;
+
+          renderProposals();
+        }
+      } catch (e) {
+        console.error('Failed to load proposals:', e);
+      }
+    }
+
+    function renderProposals(customList) {
+      const container = document.getElementById('proposals-container');
+      if (!container) return;
+
+      let list = customList !== undefined ? customList : [...state.proposals];
+      if (state.selectedProposalStatus) {
+        list = list.filter(p => (p.status || '').toUpperCase() === state.selectedProposalStatus);
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center">
+            <span class="text-4xl">🤝</span>
+            <h3 class="text-base font-bold text-gray-800 mt-2">No Proposals Found</h3>
+            <p class="text-xs text-gray-500 mt-1">Create a formal brand sponsorship proposal for BCRC partners.</p>
+            <button onclick="openProposalModal()" class="mt-4 bg-brand-gold hover:bg-brand-goldDark text-gray-950 font-bold text-xs px-4 py-2 rounded-xl shadow-sm">
+              + Create First Proposal
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(prop => {
+        const st = (prop.status || 'DRAFT').toUpperCase();
+        let badgeStyle = 'bg-gray-100 text-gray-700 border-gray-300';
+        if (st === 'ACCEPTED') badgeStyle = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+        else if (st === 'UNDER_REVIEW') badgeStyle = 'bg-amber-100 text-amber-800 border-amber-300';
+        else if (st === 'SENT') badgeStyle = 'bg-blue-100 text-blue-800 border-blue-300';
+        else if (st === 'DECLINED') badgeStyle = 'bg-red-100 text-red-800 border-red-300';
+
+        const deliverablesList = (prop.deliverables || '').split('\n').filter(Boolean).slice(0, 3);
+
+        return `
+          <div class="bg-white border-2 border-gray-200 hover:border-brand-gold rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+            
+            <div class="space-y-3">
+              <!-- Status & Tier -->
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${badgeStyle}">
+                  ● ${st}
+                </span>
+                <span class="font-mono text-xs text-gray-400">${prop.id}</span>
+              </div>
+
+              <!-- Brand Name & Event -->
+              <div>
+                <h3 class="text-xl font-display font-black text-gray-950">${prop.brand_name}</h3>
+                <p class="text-xs font-bold text-brand-goldDark mt-0.5">${prop.partnership_tier || 'Headline Partner'}</p>
+                <p class="text-xs text-gray-500 mt-0.5">Target: <strong>${prop.event_name || 'Weekly Signature Run'}</strong></p>
+              </div>
+
+              <!-- Valuation Amount -->
+              <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5">
+                <p class="text-[10px] text-amber-800 uppercase font-extrabold">Commercial / Partnership Value</p>
+                <p class="text-sm font-black text-amber-950 mt-0.5">${prop.value_amount || 'Terms per agreement'}</p>
+              </div>
+
+              <!-- Pitch Hook -->
+              ${prop.pitch_hook ? `
+                <p class="text-xs text-gray-600 italic bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                  "${prop.pitch_hook}"
+                </p>
+              ` : ''}
+
+              <!-- Deliverables Preview -->
+              ${deliverablesList.length > 0 ? `
+                <div class="space-y-1">
+                  <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Key Deliverables:</p>
+                  <ul class="text-[11px] text-gray-700 space-y-0.5">
+                    ${deliverablesList.map(d => `<li class="truncate">• ${d}</li>`).join('')}
+                  </ul>
+                </div>
+              ` : ''}
+
+              <!-- Contact -->
+              ${prop.contact_person || prop.contact_phone ? `
+                <div class="pt-2 border-t border-gray-100 text-[11px] text-gray-500 flex justify-between">
+                  <span>${prop.contact_person || 'Brand Contact'}</span>
+                  <span class="font-mono">${prop.contact_phone || prop.contact_email || ''}</span>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Card Actions -->
+            <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <a href="/api/proposals/${prop.id}/pdf" target="_blank" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center space-x-1 shadow transition-colors">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/></svg>
+                <span>Download PDF</span>
+              </a>
+              <button onclick="openProposalModal('${prop.id}')" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs px-3 py-2 rounded-xl border border-gray-300">
+                ✏️ Edit
+              </button>
+              <button onclick="deleteProposal('${prop.id}')" class="text-gray-400 hover:text-red-600 p-2 rounded-lg" title="Delete Proposal">
+                🗑️
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterProposalStatus(status) {
+      state.selectedProposalStatus = status;
+      
+      const tabMap = {
+        '': 'prop-filter-all',
+        'ACCEPTED': 'prop-filter-accepted',
+        'UNDER_REVIEW': 'prop-filter-review',
+        'SENT': 'prop-filter-sent',
+        'DRAFT': 'prop-filter-draft'
+      };
+
+      Object.entries(tabMap).forEach(([st, id]) => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          if (st === status) {
+            btn.className = 'prop-status-tab px-3 py-1 rounded text-xs font-bold bg-brand-charcoal text-white';
+          } else {
+            btn.className = 'prop-status-tab px-3 py-1 rounded text-xs font-bold text-gray-600 hover:text-gray-900';
+          }
+        }
+      });
+
+      renderProposals();
+    }
+
+    function filterProposals() {
+      const q = (document.getElementById('proposal-search')?.value || '').toLowerCase().trim();
+      if (!q) {
+        renderProposals();
+        return;
+      }
+      const filtered = state.proposals.filter(p => {
+        return (p.brand_name || '').toLowerCase().includes(q) ||
+               (p.event_name || '').toLowerCase().includes(q) ||
+               (p.partnership_tier || '').toLowerCase().includes(q) ||
+               (p.pitch_hook || '').toLowerCase().includes(q);
+      });
+      renderProposals(filtered);
+    }
+
+    function openProposalModal(propId = null) {
+      state.editingProposalId = propId;
+      const modal = document.getElementById('proposal-modal');
+      const form = document.getElementById('proposal-form');
+      form.reset();
+
+      if (propId) {
+        const p = state.proposals.find(item => item.id === propId);
+        if (p) {
+          document.getElementById('proposal-modal-title').textContent = 'Edit Sponsorship Proposal';
+          document.getElementById('proposal-modal-id').textContent = p.id;
+          document.getElementById('prop-form-id').value = p.id;
+          document.getElementById('prop-form-brand').value = p.brand_name || '';
+          document.getElementById('prop-form-event').value = p.event_name || '';
+          document.getElementById('prop-form-tier').value = p.partnership_tier || 'Headline Experience Partner';
+          document.getElementById('prop-form-status').value = (p.status || 'DRAFT').toUpperCase();
+          document.getElementById('prop-form-value').value = p.value_amount || '';
+          document.getElementById('prop-form-pitch').value = p.pitch_hook || '';
+          document.getElementById('prop-form-deliverables').value = p.deliverables || '';
+          document.getElementById('prop-form-benefits').value = p.brand_benefits || '';
+          document.getElementById('prop-form-contact-person').value = p.contact_person || '';
+          document.getElementById('prop-form-contact-email').value = p.contact_email || '';
+          document.getElementById('prop-form-contact-phone').value = p.contact_phone || '';
+          document.getElementById('prop-form-notes').value = p.notes || '';
+        }
+      } else {
+        document.getElementById('proposal-modal-title').textContent = 'Create Sponsorship Proposal';
+        document.getElementById('proposal-modal-id').textContent = 'AUTO-ID';
+        document.getElementById('prop-form-id').value = '';
+        document.getElementById('prop-form-tier').value = 'Gold Nutrition Partner';
+        document.getElementById('prop-form-status').value = 'DRAFT';
+        document.getElementById('prop-form-deliverables').value = 'Exclusive post-run brand showcase\nPop-up sampling station at event venue\nLogo on digital event flyers & calendar PDF\nDedicated Instagram reel sponsor feature';
+        document.getElementById('prop-form-benefits').value = 'Direct experiential access to 300+ health-conscious active young professionals\nHigh digital impression across BCRC social media communities\nPhysical engagement and premium product trials';
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeProposalModal() {
+      document.getElementById('proposal-modal').classList.add('hidden');
+    }
+
+    async function saveProposalForm(e) {
+      e.preventDefault();
+
+      const propId = document.getElementById('prop-form-id').value;
+      const payload = {
+        brand_name: document.getElementById('prop-form-brand').value.trim(),
+        event_name: document.getElementById('prop-form-event').value.trim(),
+        partnership_tier: document.getElementById('prop-form-tier').value,
+        status: document.getElementById('prop-form-status').value,
+        value_amount: document.getElementById('prop-form-value').value.trim(),
+        pitch_hook: document.getElementById('prop-form-pitch').value.trim(),
+        deliverables: document.getElementById('prop-form-deliverables').value.trim(),
+        brand_benefits: document.getElementById('prop-form-benefits').value.trim(),
+        contact_person: document.getElementById('prop-form-contact-person').value.trim(),
+        contact_email: document.getElementById('prop-form-contact-email').value.trim(),
+        contact_phone: document.getElementById('prop-form-contact-phone').value.trim(),
+        notes: document.getElementById('prop-form-notes').value.trim()
+      };
+
+      try {
+        let res;
+        if (propId) {
+          res = await fetch(`/api/proposals/${propId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } else {
+          res = await fetch('/api/proposals', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Proposal saved successfully.');
+          closeProposalModal();
+          await loadProposals();
+        } else {
+          showToast(data.error || 'Failed to save proposal.', 'error');
+        }
+      } catch (err) {
+        showToast('Error saving proposal: ' + err.message, 'error');
+      }
+    }
+
+    async function deleteProposal(id) {
+      if (!confirm('Are you sure you want to permanently delete this sponsorship proposal?')) return;
+      try {
+        const res = await fetch(`/api/proposals/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message);
+          await loadProposals();
+        } else {
+          showToast(data.error || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showToast('Delete error: ' + err.message, 'error');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // BCRC HANDLING PAGE: DISTRICT OPERATIONS CHECKLIST
+    // -------------------------------------------------------------------------
+    function saveChecklist() {
+      const inputs = document.querySelectorAll('#checklist-container input[type="checkbox"]');
+      const stateObj = {};
+      inputs.forEach(inp => {
+        const key = inp.getAttribute('data-item');
+        stateObj[key] = inp.checked;
+      });
+      localStorage.setItem('bcrc_operations_checklist', JSON.stringify(stateObj));
+    }
+
+    function loadChecklist() {
+      try {
+        const raw = localStorage.getItem('bcrc_operations_checklist');
+        if (!raw) return;
+        const stateObj = JSON.parse(raw);
+        const inputs = document.querySelectorAll('#checklist-container input[type="checkbox"]');
+        inputs.forEach(inp => {
+          const key = inp.getAttribute('data-item');
+          if (stateObj[key] !== undefined) {
+            inp.checked = !!stateObj[key];
+          }
+        });
+      } catch (e) {}
+    }
+
+    function resetChecklist() {
+      const inputs = document.querySelectorAll('#checklist-container input[type="checkbox"]');
+      inputs.forEach(inp => inp.checked = false);
+      localStorage.removeItem('bcrc_operations_checklist');
+      showToast('Operations checklist reset.');
+    }
+
   </script>
 </body>
 </html>
