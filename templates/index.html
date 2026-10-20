@@ -2797,73 +2797,118 @@
       renderProposals(filtered);
     }
 
-    async function openProposalModal(propId = null) {
+    function openProposalModal(propId = null) {
       state.editingProposalId = propId;
       const modal = document.getElementById('proposal-modal');
       const form = document.getElementById('proposal-form');
-      form.reset();
-
-      let selectedImages = [];
-      let logoUrl = '';
-
-      if (propId) {
-        const p = state.proposals.find(item => item.id === propId);
-        if (p) {
-          document.getElementById('proposal-modal-title').textContent = 'Edit Sponsorship Proposal & Pitch Deck';
-          document.getElementById('proposal-modal-id').textContent = p.id;
-          document.getElementById('prop-form-id').value = p.id;
-          document.getElementById('prop-form-brand').value = p.brand_name || '';
-          document.getElementById('prop-form-role').value = p.proposed_role || '';
-          document.getElementById('prop-form-event').value = p.event_name || 'Run and Rumble';
-          document.getElementById('prop-form-tier').value = p.partnership_tier || 'Headline Experience Partner';
-          document.getElementById('prop-form-status').value = (p.status || 'DRAFT').toUpperCase();
-          document.getElementById('prop-form-value').value = p.value_amount || '';
-          document.getElementById('prop-form-pitch').value = p.pitch_hook || '';
-          document.getElementById('prop-form-why-partner').value = p.why_partner || '';
-          document.getElementById('prop-form-activations').value = p.activations || '';
-          document.getElementById('prop-form-requests').value = p.requests_summary || '';
-          document.getElementById('prop-form-deliverables').value = p.deliverables || '';
-          document.getElementById('prop-form-benefits').value = p.brand_benefits || '';
-          document.getElementById('prop-form-contact-person').value = p.contact_person || '';
-          document.getElementById('prop-form-contact-email').value = p.contact_email || '';
-          document.getElementById('prop-form-contact-phone').value = p.contact_phone || '';
-          document.getElementById('prop-form-notes').value = p.notes || '';
-          
-          logoUrl = p.brand_logo_url || '';
-          if (p.run_club_images) {
-            try {
-              selectedImages = typeof p.run_club_images === 'string' && p.run_club_images.startsWith('[') 
-                ? JSON.parse(p.run_club_images) 
-                : p.run_club_images.split(',').map(s => s.trim()).filter(Boolean);
-            } catch(e) {
-              selectedImages = [];
-            }
-          }
-        }
-      } else {
-        document.getElementById('proposal-modal-title').textContent = 'Create Sponsorship Proposal & Pitch Deck';
-        document.getElementById('proposal-modal-id').textContent = 'AUTO-ID';
-        document.getElementById('prop-form-id').value = '';
-        document.getElementById('prop-form-brand').value = '';
-        document.getElementById('prop-form-role').value = '';
-        document.getElementById('prop-form-tier').value = 'Official Hydration Partner';
-        document.getElementById('prop-form-status').value = 'DRAFT';
-        document.getElementById('prop-form-event').value = 'Run and Rumble';
-        document.getElementById('prop-form-deliverables').value = '• Exclusive post-run brand showcase\n• Pop-up sampling station at event venue\n• Logo on digital event flyers & calendar PDF\n• Dedicated Instagram reel sponsor feature';
-        document.getElementById('prop-form-benefits').value = '• Direct experiential access to 300+ health-conscious active young professionals\n• High digital impression across BCRC social media communities\n• Physical engagement and premium product trials';
-        document.getElementById('prop-form-why-partner').value = '';
-        document.getElementById('prop-form-activations').value = '';
-        document.getElementById('prop-form-requests').value = '';
+      
+      // Instantly show modal
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
       }
 
-      setBrandLogo(logoUrl);
-      await loadGalleryPicker(selectedImages);
+      try {
+        if (form) form.reset();
 
-      modal.classList.remove('hidden');
+        let selectedImages = [];
+        let logoUrl = '';
+
+        if (propId) {
+          const p = (state.proposals || []).find(item => item.id === propId);
+          if (p) {
+            const elTitle = document.getElementById('proposal-modal-title');
+            if (elTitle) elTitle.textContent = 'Edit Sponsorship Proposal & Pitch Deck';
+            const elId = document.getElementById('proposal-modal-id');
+            if (elId) elId.textContent = p.id;
+            const elFormId = document.getElementById('prop-form-id');
+            if (elFormId) elFormId.value = p.id;
+            const elBrand = document.getElementById('prop-form-brand');
+            if (elBrand) elBrand.value = p.brand_name || '';
+            const elRole = document.getElementById('prop-form-role');
+            if (elRole) elRole.value = p.proposed_role || '';
+            const elEvent = document.getElementById('prop-form-event');
+            if (elEvent) elEvent.value = p.event_name || 'Run and Rumble';
+            const elTier = document.getElementById('prop-form-tier');
+            if (elTier) elTier.value = p.partnership_tier || 'Headline Experience Partner';
+            const elStatus = document.getElementById('prop-form-status');
+            if (elStatus) elStatus.value = (p.status || 'DRAFT').toUpperCase();
+            const elVal = document.getElementById('prop-form-value');
+            if (elVal) elVal.value = p.value_amount || '';
+            const elPitch = document.getElementById('prop-form-pitch');
+            if (elPitch) elPitch.value = p.pitch_hook || '';
+            const elWhy = document.getElementById('prop-form-why-partner');
+            if (elWhy) elWhy.value = p.why_partner || '';
+            const elAct = document.getElementById('prop-form-activations');
+            if (elAct) elAct.value = p.activations || '';
+            const elReq = document.getElementById('prop-form-requests');
+            if (elReq) elReq.value = p.requests_summary || '';
+            const elDel = document.getElementById('prop-form-deliverables');
+            if (elDel) elDel.value = p.deliverables || '';
+            const elBen = document.getElementById('prop-form-benefits');
+            if (elBen) elBen.value = p.brand_benefits || '';
+            const elCp = document.getElementById('prop-form-contact-person');
+            if (elCp) elCp.value = p.contact_person || '';
+            const elCe = document.getElementById('prop-form-contact-email');
+            if (elCe) elCe.value = p.contact_email || '';
+            const elCph = document.getElementById('prop-form-contact-phone');
+            if (elCph) elCph.value = p.contact_phone || '';
+            const elNotes = document.getElementById('prop-form-notes');
+            if (elNotes) elNotes.value = p.notes || '';
+            
+            logoUrl = p.brand_logo_url || '';
+            if (p.run_club_images) {
+              try {
+                selectedImages = typeof p.run_club_images === 'string' && p.run_club_images.startsWith('[') 
+                  ? JSON.parse(p.run_club_images) 
+                  : p.run_club_images.split(',').map(s => s.trim()).filter(Boolean);
+              } catch(e) {
+                selectedImages = [];
+              }
+            }
+          }
+        } else {
+          const elTitle = document.getElementById('proposal-modal-title');
+          if (elTitle) elTitle.textContent = 'Create Sponsorship Proposal & Pitch Deck';
+          const elId = document.getElementById('proposal-modal-id');
+          if (elId) elId.textContent = 'AUTO-ID';
+          const elFormId = document.getElementById('prop-form-id');
+          if (elFormId) elFormId.value = '';
+          const elBrand = document.getElementById('prop-form-brand');
+          if (elBrand) elBrand.value = '';
+          const elRole = document.getElementById('prop-form-role');
+          if (elRole) elRole.value = '';
+          const elTier = document.getElementById('prop-form-tier');
+          if (elTier) elTier.value = 'Official Hydration Partner';
+          const elStatus = document.getElementById('prop-form-status');
+          if (elStatus) elStatus.value = 'DRAFT';
+          const elEvent = document.getElementById('prop-form-event');
+          if (elEvent) elEvent.value = 'Run and Rumble';
+          const elDel = document.getElementById('prop-form-deliverables');
+          if (elDel) elDel.value = '• Exclusive post-run brand showcase\n• Pop-up sampling station at event venue\n• Logo on digital event flyers & calendar PDF\n• Dedicated Instagram reel sponsor feature';
+          const elBen = document.getElementById('prop-form-benefits');
+          if (elBen) elBen.value = '• Direct experiential access to 300+ health-conscious active young professionals\n• High digital impression across BCRC social media communities\n• Physical engagement and premium product trials';
+          const elWhy = document.getElementById('prop-form-why-partner');
+          if (elWhy) elWhy.value = '';
+          const elAct = document.getElementById('prop-form-activations');
+          if (elAct) elAct.value = '';
+          const elReq = document.getElementById('prop-form-requests');
+          if (elReq) elReq.value = '';
+        }
+
+        setBrandLogo(logoUrl);
+        loadGalleryPicker(selectedImages).catch(e => console.error(e));
+      } catch (err) {
+        console.error('Error populating proposal modal:', err);
+      }
     }
 
     function closeProposalModal() {
-      document.getElementById('proposal-modal').classList.add('hidden');
+      const modal = document.getElementById('proposal-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+      }
     }
 
     function setBrandLogo(url) {
@@ -2873,21 +2918,29 @@
       const label = document.getElementById('prop-logo-source-label');
       const clearBtn = document.getElementById('btn-clear-logo');
 
-      input.value = url || '';
+      if (input) input.value = url || '';
       if (url) {
-        preview.src = url;
-        preview.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-        clearBtn.classList.remove('hidden');
-        label.textContent = url.startsWith('/static/uploads') ? 'Custom Uploaded Logo' : 'Online / Wikipedia Logo';
-        label.className = 'text-[10px] text-emerald-700 font-bold';
+        if (preview) {
+          preview.src = url;
+          preview.classList.remove('hidden');
+        }
+        if (placeholder) placeholder.classList.add('hidden');
+        if (clearBtn) clearBtn.classList.remove('hidden');
+        if (label) {
+          label.textContent = url.startsWith('/static/uploads') ? 'Custom Uploaded Logo' : 'Online / Wikipedia Logo';
+          label.className = 'text-[10px] text-emerald-700 font-bold';
+        }
       } else {
-        preview.src = '';
-        preview.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-        clearBtn.classList.add('hidden');
-        label.textContent = 'No logo selected';
-        label.className = 'text-[10px] text-gray-500 font-medium';
+        if (preview) {
+          preview.src = '';
+          preview.classList.add('hidden');
+        }
+        if (placeholder) placeholder.classList.remove('hidden');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        if (label) {
+          label.textContent = 'No logo selected';
+          label.className = 'text-[10px] text-gray-500 font-medium';
+        }
       }
     }
 
