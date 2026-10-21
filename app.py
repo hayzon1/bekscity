@@ -292,7 +292,11 @@ def api_generate_pdf():
 
     pdf_path = os.path.join(tmp_pdf_dir, filename)
     default_cal_url, default_base_url = get_effective_calendar_urls()
-    master_ics_url = request.args.get("master_ics_url") or default_cal_url
+    req_cal_url = (request.args.get("master_ics_url") or "").strip()
+    if req_cal_url and not any(h in req_cal_url for h in ["127.0.0.1", "localhost", "0.0.0.0"]):
+        master_ics_url = req_cal_url
+    else:
+        master_ics_url = default_cal_url
     base_url = default_base_url
 
     try:
@@ -359,7 +363,11 @@ def api_send_calendar_email():
 
     pdf_path = os.path.join(tmp_pdf_dir, filename)
     default_cal_url, default_base_url = get_effective_calendar_urls()
-    master_ics_url = data.get("master_ics_url") or default_cal_url
+    req_cal_url = (data.get("master_ics_url") or "").strip()
+    if req_cal_url and not any(h in req_cal_url for h in ["127.0.0.1", "localhost", "0.0.0.0"]):
+        master_ics_url = req_cal_url
+    else:
+        master_ics_url = default_cal_url
     base_url = default_base_url
 
     try:

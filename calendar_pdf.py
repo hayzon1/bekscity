@@ -60,7 +60,7 @@ DATE_MIN_CONTRAST = 3.0
 # ---- INDIVIDUAL & MASTER .ics DOWNLOAD LINKS IN THE PDF -------------------
 # Leave "" unless the individual_events folder is really uploaded somewhere public.
 HOSTED_ICS_BASE_URL = ""
-DEFAULT_MASTER_ICS_URL = "http://127.0.0.1:5050/api/calendar.ics"
+DEFAULT_MASTER_ICS_URL = "https://hayzon1.github.io/bekscity/bekscity_saturdays_Oct-Dec.ics"
 
 CATS = ["Community Improvement", "Sponsor Run", "Signature Event", "Monthly Signature Event", "Community Challenge", "TBC"]
 STATUSES = ["Confirmed", "TBC", "Planning slot", "Cancelled"]
@@ -563,7 +563,7 @@ def build_calendar_pdf(
     if not master_ics_url:
         master_ics_url = DEFAULT_MASTER_ICS_URL
     if not base_url:
-        base_url = master_ics_url.rsplit("/api/", 1)[0] if "/api/" in master_ics_url else "http://127.0.0.1:5050"
+        base_url = "https://hayzon1.github.io/bekscity"
 
     # If events not provided, fetch from database
     if events is None:
