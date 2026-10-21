@@ -223,6 +223,8 @@ def ics_url(e, base_url=None):
     if e.get("ics_url"):
         return e["ics_url"]
     if base_url:
+        if "github" in base_url or "pages" in base_url:
+            return f"{base_url.rstrip('/')}/individual_events/{quote(ics_filename(e))}"
         if e.get("id"):
             return f"{base_url.rstrip('/')}/api/events/{e['id']}/calendar.ics"
         return f"{base_url.rstrip('/')}/individual_events/{quote(ics_filename(e))}"
