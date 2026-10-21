@@ -229,6 +229,31 @@ def api_export_single_ics(event_id):
 # -----------------------------------------------------------------------------
 # PDF CALENDAR GENERATION (REPORTLAB)
 # -----------------------------------------------------------------------------
+def get_effective_calendar_urls():
+    """
+    Resolves the public calendar sync URL and base URL, prioritizing:
+    1. PUBLIC_CALENDAR_URL / PUBLIC_BASE_URL environment variables
+    2. Database club_settings ('public_calendar_url', 'public_base_url')
+    3. Falling back to the current request host URL (or 127.0.0.1:5050)
+    """
+    db_cal_url = get_setting("public_calendar_url", "")
+    db_base_url = get_setting("public_base_url", "")
+
+    req_base = request.host_url.rstrip('/') if request else "http://127.0.0.1:5050"
+    base_url = (
+        os.environ.get("PUBLIC_BASE_URL")
+        or (db_base_url.strip() if db_base_url and db_base_url.strip() else None)
+        or req_base
+    )
+
+    cal_url = (
+        os.environ.get("PUBLIC_CALENDAR_URL")
+        or (db_cal_url.strip() if db_cal_url and db_cal_url.strip() else None)
+        or f"{base_url}/api/calendar.ics"
+    )
+    return cal_url, base_url
+
+
 @app.route("/api/calendar/pdf", methods=["GET"])
 def api_generate_pdf():
     """
@@ -266,8 +291,9 @@ def api_generate_pdf():
         filename = f"bekscity_run_club_calendar_{year}_{month_val:02d}.pdf"
 
     pdf_path = os.path.join(tmp_pdf_dir, filename)
-    master_ics_url = request.args.get("master_ics_url") or f"{request.host_url.rstrip('/')}/api/calendar.ics"
-    base_url = request.host_url.rstrip('/')
+    default_cal_url, default_base_url = get_effective_calendar_urls()
+    master_ics_url = request.args.get("master_ics_url") or default_cal_url
+    base_url = default_base_url
 
     try:
         build_calendar_pdf(
@@ -332,8 +358,9 @@ def api_send_calendar_email():
         filename = f"bekscity_run_club_calendar_{year}_{month_val:02d}.pdf"
 
     pdf_path = os.path.join(tmp_pdf_dir, filename)
-    master_ics_url = f"{request.host_url.rstrip('/')}/api/calendar.ics"
-    base_url = request.host_url.rstrip('/')
+    default_cal_url, default_base_url = get_effective_calendar_urls()
+    master_ics_url = data.get("master_ics_url") or default_cal_url
+    base_url = default_base_url
 
     try:
         build_calendar_pdf(
@@ -766,13 +793,18 @@ def api_get_club_info():
 # -----------------------------------------------------------------------------
 @app.route("/api/settings", methods=["GET"])
 def api_get_settings():
+    cal_url, base_url = get_effective_calendar_urls()
     return jsonify({
         "success": True,
         "settings": {
             "date_text_color": get_setting("date_text_color", DATE_TEXT_COLOR),
             "club_name": get_setting("club_name", "BEKSCITY RUN CLUB"),
             "club_tagline": get_setting("club_tagline", "Run. Improve. Connect."),
-            "default_timezone": get_setting("default_timezone", "Africa/Lagos")
+            "default_timezone": get_setting("default_timezone", "Africa/Lagos"),
+            "public_calendar_url": get_setting("public_calendar_url", ""),
+            "public_base_url": get_setting("public_base_url", ""),
+            "effective_calendar_url": cal_url,
+            "effective_base_url": base_url
         }
     })
 
@@ -788,7 +820,7 @@ def api_update_settings():
         except ValueError as ve:
             return jsonify({"success": False, "error": str(ve)}), 400
 
-    for k in ["club_name", "club_tagline", "default_timezone"]:
+    for k in ["club_name", "club_tagline", "default_timezone", "public_calendar_url", "public_base_url"]:
         if k in data:
             set_setting(k, data[k])
 
