@@ -8,10 +8,16 @@ __pycache__/
 venv/
 ENV/
 
-# Database files
+# Database files & Secrets
+*.db
+*.sqlite
+*.sqlite3
 *.db-journal
 *.db-wal
 *.db-shm
+.env
+.env.*
+bekscity_backup_*.json
 
 # Generated artifacts
 generated_pdfs/
