@@ -17,6 +17,7 @@ ENV/
 *.db-shm
 .env
 .env.*
+!.env.example
 bekscity_backup_*.json
 
 # Generated artifacts
