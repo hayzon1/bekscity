@@ -252,6 +252,10 @@ def event_dict_from_db(db_event):
     sched = db_event.get("notes") if "schedule" in str(db_event.get("notes", "")).lower() else None
     if d_val == dt.date(2026, 10, 24):
         sched = "Evening event, 4:00 PM to 9:00 PM. The standard morning schedule does not apply."
+    elif d_val == dt.date(2026, 11, 21) or "splash" in str(db_event.get("name", "")).lower():
+        sched = "Evening to overnight event, 6:00 PM onwards. Hydration splash zones."
+    elif d_val == dt.date(2026, 10, 31) or "social run" in str(db_event.get("name", "")).lower():
+        sched = "Morning run & breakfast social, 9:00 AM to 11:30 AM at OOPL."
 
     start_raw = db_event.get("start_time") or db_event.get("start") or DEFAULT_START
     end_raw = db_event.get("end_time") or db_event.get("end") or DEFAULT_END

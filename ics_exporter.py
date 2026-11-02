@@ -97,20 +97,32 @@ def build_event_description(event):
         lines.append(event.get('description'))
         lines.append("")
 
-    # Standard Saturday schedule note
-    if event.get('date') != "2026-10-24":
+    # Schedule description
+    if event.get('date') == "2026-10-24":
+        lines.append("SPECIAL EVENING SCHEDULE:")
+        lines.append("• 04:00 PM — Gathering & pre-run excitement at Moore Junction")
+        lines.append("• 04:30 PM — Run and Rumble 7 km run (3 stops)")
+        lines.append("• 06:30 PM — Post-run games, social bonding, and celebrations")
+        lines.append("• 09:00 PM — Event close")
+    elif event.get('date') == "2026-11-21" or "splash" in str(event.get('name', '')).lower():
+        lines.append("SPECIAL EVENING / OVERNIGHT SCHEDULE:")
+        lines.append("• 06:00 PM — Gathering & splash check-in")
+        lines.append("• 06:30 PM — Group night run departs with hydration splash zones")
+        lines.append("• 08:30 PM — Recovery drills & post-run hydration social")
+        lines.append("• Overnight — Community festivities")
+    elif event.get('date') == "2026-10-31" or "social run" in str(event.get('name', '')).lower():
+        lines.append("MORNING SPONSOR RUN SCHEDULE:")
+        lines.append("• 09:00 AM — Gathering at OOPL Gate")
+        lines.append("• 09:15 AM — 5 km Community run departs")
+        lines.append("• 10:15 AM — Cool-down & stretching")
+        lines.append("• 10:30 AM — Breakfast social with Breakfast Club")
+    else:
         lines.append("STANDARD SCHEDULE:")
         lines.append("• 06:45 AM — Check-in and gathering")
         lines.append("• 07:00 AM — Warm-up session")
         lines.append("• 07:15 AM — Group run departs")
         lines.append("• 08:15 AM — Cooldown & stretching")
         lines.append("• 08:30 AM — Refreshments & community social")
-    else:
-        lines.append("SPECIAL EVENING SCHEDULE:")
-        lines.append("• 04:00 PM — Gathering & pre-run excitement at Moore Junction")
-        lines.append("• 04:30 PM — Run and Rumble 7 km run (3 stops)")
-        lines.append("• 06:30 PM — Post-run games, social bonding, and celebrations")
-        lines.append("• 09:00 PM — Event close")
 
     lines.append("")
     lines.append("BEKSCITY RUN CLUB | Keep Moving Forward")
