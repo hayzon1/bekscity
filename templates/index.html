@@ -1663,9 +1663,10 @@
 
   <!-- APPLICATION LOGIC JS -->
   <script>
+    const _now = new Date();
     let state = {
-      currentYear: 2026,
-      currentMonth: 10, // 10 = October (matches seed events)
+      currentYear: _now.getFullYear(),
+      currentMonth: _now.getMonth() + 1,
       currentView: 'calendar',
       currentMainTab: 'events',
       events: [],
@@ -1762,6 +1763,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       setupFormListeners();
       loadChecklist();
+      updateMonthLabel();
+      renderCurrentView();
 
       // Parallelize fetches for maximum speed
       Promise.all([
@@ -1774,6 +1777,17 @@
         loadSmtpSettings(),
         preloadGalleryImages()
       ]).catch(err => console.error('Init parallel fetch error:', err));
+
+      // Real-time date watcher: updates 'Today' highlight automatically if day changes
+      window._activeTodayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
+      setInterval(() => {
+        const d = new Date();
+        const currentToday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        if (window._activeTodayStr && window._activeTodayStr !== currentToday) {
+          window._activeTodayStr = currentToday;
+          renderCurrentView();
+        }
+      }, 30000);
     });
 
     function preloadGalleryImages() {
@@ -1876,9 +1890,9 @@
     }
 
     function resetToCurrentMonth() {
-      // Default to October 2026 for confirmed runs
-      state.currentYear = 2026;
-      state.currentMonth = 10;
+      const now = new Date();
+      state.currentYear = now.getFullYear();
+      state.currentMonth = now.getMonth() + 1;
       updateMonthLabel();
       renderCurrentView();
     }
@@ -1939,12 +1953,16 @@
       }
 
       // Day cells
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
       let currentSatIdx = 0;
       for (let day = 1; day <= daysInMonth; day++) {
         const dateObj = new Date(y, m - 1, day);
         const dayOfWeek = dateObj.getDay();
         const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isSaturday = (dayOfWeek === 6);
+        const isToday = (dateStr === todayStr);
 
         if (isSaturday) currentSatIdx++;
         const isFifthSat = isSaturday && (currentSatIdx === 5);
@@ -1954,19 +1972,35 @@
 
         const cell = document.createElement('div');
         cell.className = `rounded-xl p-2.5 transition-all flex flex-col justify-between min-h-[120px] ${
-          isSaturday ? 'bg-white border-2 border-brand-gold/60 shadow-sm' : 'bg-white border border-gray-200'
+          isToday
+            ? (isSaturday ? 'bg-amber-50/60 border-2 border-brand-gold shadow-md ring-2 ring-brand-gold/60' : 'bg-amber-50/40 border-2 border-brand-gold/80 shadow-sm ring-1 ring-brand-gold/40')
+            : isSaturday
+              ? 'bg-white border-2 border-brand-gold/60 shadow-sm'
+              : 'bg-white border border-gray-200'
         }`;
 
         // Date Header
         const header = document.createElement('div');
         header.className = 'flex justify-between items-start mb-1.5';
         
-        // Date number styled with DATE_TEXT_COLOR
+        // Date number styled with DATE_TEXT_COLOR and Today badge
+        const dateNumContainer = document.createElement('div');
+        dateNumContainer.className = 'flex items-center space-x-1.5';
+
         const dateNum = document.createElement('span');
         dateNum.className = 'font-display font-black text-base sm:text-lg';
         dateNum.style.color = state.settings.date_text_color || '#D9A441';
         dateNum.innerText = day;
-        header.appendChild(dateNum);
+        dateNumContainer.appendChild(dateNum);
+
+        if (isToday) {
+          const todayPill = document.createElement('span');
+          todayPill.className = 'text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-brand-gold text-gray-950 shadow-sm';
+          todayPill.innerText = 'Today';
+          dateNumContainer.appendChild(todayPill);
+        }
+
+        header.appendChild(dateNumContainer);
 
         if (isSaturday) {
           const satPill = document.createElement('span');
@@ -2152,8 +2186,12 @@
       document.getElementById('modal-title').innerText = 'Create New Club Event';
       document.getElementById('modal-event-id').innerText = 'AUTO-GENERATED';
       document.getElementById('event-form').reset();
-      document.getElementById('form-event-id').value = '';
-      document.getElementById('form-date').value = `${state.currentYear}-${String(state.currentMonth).padStart(2, '0')}-01`;
+      const now = new Date();
+      const isViewingCurrentMonth = (state.currentYear === now.getFullYear() && state.currentMonth === (now.getMonth() + 1));
+      const defaultDate = isViewingCurrentMonth
+        ? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+        : `${state.currentYear}-${String(state.currentMonth).padStart(2, '0')}-01`;
+      document.getElementById('form-date').value = defaultDate;
       document.getElementById('form-start-time').value = '06:45';
       document.getElementById('form-end-time').value = '08:30';
       document.getElementById('form-timezone').value = 'Africa/Lagos';
