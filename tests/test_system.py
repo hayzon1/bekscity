@@ -77,11 +77,11 @@ class TestBekscitySystem(unittest.TestCase):
         self.assertEqual(e2[0]["date"], "2026-10-31")
         self.assertEqual(e2[0]["sponsor"], "Breakfast Club")
 
-        # Event 3: Run and Splash (Nov 7, 2026, Soakers)
-        e3 = database.get_all_events(search="Run and Splash", conn=conn)
+        # Event 3: Hill Run (Nov 7, 2026, Pharmafit District)
+        e3 = database.get_all_events(search="Hill Run", conn=conn)
         self.assertTrue(len(e3) >= 1)
         self.assertEqual(e3[0]["date"], "2026-11-07")
-        self.assertIn("Soakers", e3[0]["partners"])
+        self.assertEqual(e3[0]["district"], "PHARMAFIT DISTRICT")
 
         # Event 4: Signature Run (Nov 14, 2026, MKO Stadium)
         e4 = database.get_all_events(search="Signature Run", conn=conn)
@@ -89,11 +89,11 @@ class TestBekscitySystem(unittest.TestCase):
         self.assertEqual(e4[0]["date"], "2026-11-14")
         self.assertEqual(e4[0]["meeting_point"], "MKO Stadium")
 
-        # Event 5: Hill Run (Nov 21, 2026, Pharmafit District)
-        e5 = database.get_all_events(search="Hill Run", conn=conn)
+        # Event 5: Run and Splash (Nov 21, 2026, Soakers)
+        e5 = database.get_all_events(search="Run and Splash", conn=conn)
         self.assertTrue(len(e5) >= 1)
         self.assertEqual(e5[0]["date"], "2026-11-21")
-        self.assertEqual(e5[0]["district"], "PHARMAFIT DISTRICT")
+        self.assertIn("Soakers", e5[0]["partners"])
 
         # Event 6: Social Day (Nov 28, 2026, Fruit Oasis)
         e6 = database.get_all_events(search="Social Day", conn=conn)
